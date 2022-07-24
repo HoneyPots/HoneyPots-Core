@@ -1,17 +1,9 @@
-# Server settings
-server:
-  port: 8090
-  servlet:
-    context-path: /
-
 # Spring settings
 spring:
-  profiles:
-    active: dev
 
   # Datasource
   datasource:
-    url: jdbc:h2:tcp://localhost/~/honeypot;MODE=MYSQL;DATABASE_TO_LOWER=TRUE;
+    url: jdbc:h2:mem:honeypot;MODE=MYSQL;DATABASE_TO_LOWER=TRUE;
     driverClassName: org.h2.Driver
     username: sa
     password:
@@ -24,13 +16,11 @@ spring:
     console:
       enabled: true
       path: /h2-console
-      settings:
-        web-allow-others: true
 
   # JPA
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         show_sql: true
@@ -41,4 +31,3 @@ spring:
 logging:
   level:
     root: info
-
