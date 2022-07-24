@@ -1,0 +1,47 @@
+plugins {
+    id 'idea'
+    id 'org.springframework.boot' version '2.6.6'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+}
+
+group 'com.honeypot'
+version '0.0.1'
+sourceCompatibility = '15'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Spring boot
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.named("jar") {
+    enabled = false
+}
+
+tasks.named("bootRun") {
+    mainClass = 'com.honeypot.HoneyPotApplication'
+}
+
+tasks.named("bootJar") {
+    mainClass = 'com.honeypot.HoneyPotApplication'
+}

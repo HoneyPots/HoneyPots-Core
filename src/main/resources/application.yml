@@ -1,0 +1,11 @@
+# Server settings
+server:
+  port: 8090
+  servlet:
+    context-path: /
+
+# Logging settings
+logging:
+  level:
+    root: info
+
