@@ -7,7 +7,7 @@ plugins {
 
 group 'com.honeypot'
 version '0.0.1'
-sourceCompatibility = '15'
+sourceCompatibility = '17'
 
 repositories {
     mavenCentral()

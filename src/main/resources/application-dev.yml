@@ -31,3 +31,16 @@ spring:
 logging:
   level:
     root: info
+
+# OAuth
+oauth:
+  kakao:
+    client-secret: lDDWMiLlahtpdtKCgR04mlUCFvGsXbhV
+    redirect-url: "http://localhost:8090/api/auth/kakao"
+    api-key:
+      rest-api: 211dafc4f98802b4890c43ec2b305f72
+      admin: 3a032aeb8d68e14d7d99c7172142911a
+    api-path:
+      get-auth-code: "https://kauth.kakao.com/oauth/authorize"
+      get-access-token: "https://kauth.kakao.com/oauth/token"
+      get-access-token-info: "https://kapi.kakao.com/v1/user/access_token_info"
