@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class KakaoTokenInfoResponse {
+public class KakaoTokenInfo {
 
     private long id;
 
