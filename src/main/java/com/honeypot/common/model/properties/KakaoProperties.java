@@ -5,15 +5,26 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "oauth.kakao")
 public record KakaoProperties(String clientSecret,
                               String redirectUrl,
-                              kakaoApiKeyProperties apiKey,
-                              kakaoApiPathProperties apiPath) {
+                              KakaoApiKeyProperties apiKey,
+                              KakaoApiPathProperties apiPath,
+                              KakaoUserPropertyProperties userProperty) {
 
-    public record kakaoApiKeyProperties(String restApi,
+
+    public record KakaoApiKeyProperties(String restApi,
                                         String admin) {
     }
 
-    public record kakaoApiPathProperties(String getAuthCode,
+    public record KakaoApiPathProperties(String getAuthCode,
                                          String getAccessToken,
-                                         String getAccessTokenInfo) {
+                                         String getAccessTokenInfo,
+                                         String getUserInfoByAccessToken) {
+    }
+
+    public record KakaoUserPropertyProperties(String profile,
+                                              String name,
+                                              String email,
+                                              String ageRange,
+                                              String birthday,
+                                              String gender) {
     }
 }

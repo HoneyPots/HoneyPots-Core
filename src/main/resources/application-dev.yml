@@ -44,3 +44,11 @@ oauth:
       get-auth-code: "https://kauth.kakao.com/oauth/authorize"
       get-access-token: "https://kauth.kakao.com/oauth/token"
       get-access-token-info: "https://kapi.kakao.com/v1/user/access_token_info"
+      get-userinfo-by-access-token: "https://kapi.kakao.com/v2/user/me"
+    user-property:
+      profile: "kakao_account.profile"
+      name: "kakao_account.name"
+      email: "kakao_account.email"
+      age-range: "kakao_account.age_range"
+      birthday: "kakao_account.birthday"
+      gender: "kakao_account.gender"
