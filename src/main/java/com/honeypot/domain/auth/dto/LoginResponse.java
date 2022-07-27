@@ -1,6 +1,5 @@
 package com.honeypot.domain.auth.dto;
 
-import com.honeypot.domain.auth.dto.kakao.KakaoUserInfo;
 import lombok.Builder;
 import lombok.Data;
 
@@ -8,6 +7,6 @@ import lombok.Data;
 @Builder
 public class LoginResponse {
 
-    private KakaoUserInfo kakaoUserInfo;
+    private String accessToken;
 
 }

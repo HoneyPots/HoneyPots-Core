@@ -6,6 +6,6 @@ import org.springframework.stereotype.Service;
 @Service
 public interface AuthService {
 
-    LoginResponse loginWithKakao(String authorizationCode);
+    LoginResponse loginWithOAuth(String provider, String authorizationCode);
 
 }

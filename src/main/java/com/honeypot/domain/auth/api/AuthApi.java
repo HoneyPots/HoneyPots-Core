@@ -16,9 +16,17 @@ public class AuthApi {
 
     @GetMapping("/kakao")
     public ResponseEntity<?> kakao(KakaoAuthCode response) {
-        LoginResponse loginResponse = authService.loginWithKakao(response.getCode());
+        LoginResponse loginResponse = authService.loginWithOAuth("kakao", response.getCode());
 
         return ResponseEntity.ok(loginResponse);
     }
 
+    @GetMapping("/login/{provider}")
+    public ResponseEntity<?> login(@PathVariable String provider,
+                                   @RequestParam String authorizationCode) {
+
+        LoginResponse loginResponse = authService.loginWithOAuth(provider, authorizationCode);
+
+        return ResponseEntity.ok(loginResponse);
+    }
 }
