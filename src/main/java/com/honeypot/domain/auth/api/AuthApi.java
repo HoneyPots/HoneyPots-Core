@@ -2,7 +2,6 @@ package com.honeypot.domain.auth.api;
 
 import com.honeypot.domain.auth.dto.LoginResponse;
 import com.honeypot.domain.auth.dto.kakao.KakaoAuthCode;
-import com.honeypot.domain.auth.dto.kakao.KakaoTokenInfo;
 import com.honeypot.domain.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +16,9 @@ public class AuthApi {
 
     @GetMapping("/kakao")
     public ResponseEntity<?> kakao(KakaoAuthCode response) {
+        LoginResponse loginResponse = authService.loginWithKakao(response.getCode());
 
-        KakaoTokenInfo tokenInfo = authService.getTokenInfo(response.getCode());
-
-        return ResponseEntity.ok(tokenInfo);
+        return ResponseEntity.ok(loginResponse);
     }
 
 }
