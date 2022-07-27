@@ -3,6 +3,7 @@ package com.honeypot.domain.auth.repository;
 import com.honeypot.common.model.properties.KakaoProperties;
 import com.honeypot.domain.auth.dto.kakao.KakaoTokenIssuance;
 import com.honeypot.domain.auth.dto.kakao.KakaoTokenInfo;
+import com.honeypot.domain.auth.dto.kakao.KakaoUserInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -47,6 +48,16 @@ public class KakaoAuthRepository {
                 .header(HttpHeaders.AUTHORIZATION, BEARER_TYPE + accessToken)
                 .retrieve()
                 .bodyToMono(KakaoTokenInfo.class)
+                .block();
+    }
+
+    public KakaoUserInfo getUserInfoByAccessToken(String accessToken) {
+        return webClient
+                .get()
+                .uri(kakaoProperties.apiPath().getUserInfoByAccessToken())
+                .header(HttpHeaders.AUTHORIZATION, BEARER_TYPE + accessToken)
+                .retrieve()
+                .bodyToMono(KakaoUserInfo.class)
                 .block();
     }
 }
