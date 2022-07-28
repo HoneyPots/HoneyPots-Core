@@ -3,6 +3,7 @@ package com.honeypot.domain.member.entity;
 import com.honeypot.common.entity.BaseTimeEntity;
 import com.honeypot.domain.member.enums.AuthProviderType;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
 
@@ -14,8 +15,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Entity
 @Getter
 @ToString
-@Builder
-@AllArgsConstructor
+@SuperBuilder
 @NoArgsConstructor
 public class AuthProvider extends BaseTimeEntity {
 

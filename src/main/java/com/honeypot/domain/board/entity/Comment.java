@@ -2,7 +2,6 @@ package com.honeypot.domain.board.entity;
 
 import com.honeypot.common.entity.BaseTimeEntity;
 import lombok.Getter;
-import lombok.Setter;
 
 import javax.persistence.*;
 

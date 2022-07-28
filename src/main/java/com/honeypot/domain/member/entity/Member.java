@@ -2,6 +2,7 @@ package com.honeypot.domain.member.entity;
 
 import com.honeypot.common.entity.BaseTimeEntity;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,8 +14,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Entity
 @Getter
 @ToString
-@Builder
-@AllArgsConstructor
+@SuperBuilder
 @NoArgsConstructor
 public class Member extends BaseTimeEntity {
 
