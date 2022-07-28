@@ -9,8 +9,8 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface NormalPostMapper {
 
-    @Mapping(source = "id", target = "postId")
-    @Mapping(source = "createdAt", target = "uploadedAt")
+    @Mapping(source = "postId", target = "id")
+    @Mapping(source = "uploadedAt", target = "createdAt")
     NormalPost toEntity(NormalPostDto dto);
 
     @InheritInverseConfiguration
