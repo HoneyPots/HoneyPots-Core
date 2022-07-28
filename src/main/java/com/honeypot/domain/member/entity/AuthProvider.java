@@ -1,5 +1,6 @@
 package com.honeypot.domain.member.entity;
 
+import com.honeypot.common.entity.BaseTimeEntity;
 import com.honeypot.domain.member.enums.AuthProviderType;
 import lombok.*;
 
@@ -16,7 +17,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthProvider {
+public class AuthProvider extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -25,6 +26,7 @@ public class AuthProvider {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
+    @ToString.Exclude
     private Member member;
 
     @Column(name = "provider_member_id", nullable = false)
@@ -39,5 +41,9 @@ public class AuthProvider {
 
     @Column(name = "connect_date", nullable = false)
     private LocalDateTime connectDate;
+
+    public void setMember(Member member) {
+        this.member = member;
+    }
 
 }
