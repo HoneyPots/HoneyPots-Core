@@ -26,15 +26,25 @@ dependencies {
     // H2
     runtimeOnly 'com.h2database:h2:2.1.212'
 
-    // Lombok
+    // Mapstruct & Lombok
+    implementation 'org.mapstruct:mapstruct:1.5.1.Final'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.1.Final'
 }
 
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+}
+
+compileJava {
+    options.compilerArgs += [
+            '-Amapstruct.suppressGeneratorTimestamp=true',
+            '-Amapstruct.suppressGeneratorVersionInfoComment=true',
+            '-Amapstruct.verbose=true'
+    ]
 }
 
 test {
