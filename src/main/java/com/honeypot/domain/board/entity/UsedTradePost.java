@@ -8,7 +8,7 @@ import javax.persistence.Entity;
 
 @Getter
 @Entity
-@DiscriminatorValue("UsedTrade")
+@DiscriminatorValue("USED_TRADE")
 public class UsedTradePost extends Post {
 
     @Column(name = "goods_price")

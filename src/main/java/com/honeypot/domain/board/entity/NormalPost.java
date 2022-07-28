@@ -6,7 +6,7 @@ import javax.persistence.*;
 
 @Getter
 @Entity
-@DiscriminatorValue("Normal")
+@DiscriminatorValue("NORMAL")
 public class NormalPost extends Post {
 
 }
