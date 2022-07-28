@@ -1,6 +1,7 @@
 package com.honeypot.domain.board.mapper;
 
 import com.honeypot.domain.board.dto.NormalPostDto;
+import com.honeypot.domain.board.dto.NormalPostUploadRequest;
 import com.honeypot.domain.board.entity.NormalPost;
 import com.honeypot.domain.member.dto.WriterDto;
 import com.honeypot.domain.member.entity.Member;
@@ -45,6 +46,24 @@ class NormalPostMapperTest {
     }
 
     @Test
+    void toEntity_FromNormalPostUploadRequest() {
+        // Arrange
+        NormalPostUploadRequest dto = NormalPostUploadRequest.builder()
+                .title("title")
+                .content("content")
+                .writerId(1L)
+                .build();
+
+        // Act
+        NormalPost entity = mapper.toEntity(dto);
+
+        // Assert
+        assertEquals(dto.getTitle(), entity.getTitle());
+        assertEquals(dto.getContent(), entity.getContent());
+        assertEquals(dto.getWriterId(), entity.getWriter().getId());
+    }
+
+    @Test
     void toDto() {
         // Arrange
         LocalDateTime uploadedAt = LocalDateTime.of(2022, 7, 28, 22, 0, 0);
@@ -72,4 +91,5 @@ class NormalPostMapperTest {
         assertEquals(entity.getCreatedAt(), dto.getUploadedAt());
         assertEquals(entity.getLastModifiedAt(), dto.getUploadedAt());
     }
+
 }
