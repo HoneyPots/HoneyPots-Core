@@ -1,6 +1,8 @@
 package com.honeypot.domain.board.api;
 
+import com.honeypot.common.model.exceptions.InvalidTokenException;
 import com.honeypot.common.validation.constraints.AllowedSortProperties;
+import com.honeypot.domain.auth.service.TokenManagerService;
 import com.honeypot.domain.board.dto.CommentDto;
 import com.honeypot.domain.board.dto.CommentUploadRequest;
 import com.honeypot.domain.board.dto.NormalPostDto;
@@ -22,6 +24,8 @@ import javax.validation.Valid;
 @Validated
 public class CommentApi {
 
+    private final TokenManagerService tokenManagerService;
+
     private final CommentService commentService;
 
     @GetMapping
@@ -41,11 +45,13 @@ public class CommentApi {
                                    @PathVariable long postId,
                                    @Valid @RequestBody CommentUploadRequest uploadRequest) {
 
-        // TODO validate token and find member id
-        long writerId = 1;
+        if (tokenManagerService.verifyToken(token)) {
+            throw new InvalidTokenException();
+        }
 
+        long memberId = tokenManagerService.getUserId(token);
         uploadRequest.setPostId(postId);
-        uploadRequest.setWriterId(writerId);
+        uploadRequest.setWriterId(memberId);
 
         CommentDto createdComment = commentService.save(uploadRequest);
 
@@ -64,10 +70,13 @@ public class CommentApi {
                                     @PathVariable long commentId,
                                     @Valid @RequestBody CommentUploadRequest uploadRequest) {
 
-        // TODO validate token and find member id
-        long writerId = 1;
+        if (tokenManagerService.verifyToken(token)) {
+            throw new InvalidTokenException();
+        }
+
+        long memberId = tokenManagerService.getUserId(token);
         uploadRequest.setPostId(postId);
-        uploadRequest.setWriterId(writerId);
+        uploadRequest.setWriterId(memberId);
 
         CommentDto updatedComment = commentService.update(commentId, uploadRequest);
         return ResponseEntity
@@ -80,8 +89,11 @@ public class CommentApi {
                                     @PathVariable long postId,
                                     @PathVariable long commentId) {
 
-        // TODO validate token and find member id
-        long memberId = 1L;
+        if (tokenManagerService.verifyToken(token)) {
+            throw new InvalidTokenException();
+        }
+
+        long memberId = tokenManagerService.getUserId(token);
         commentService.delete(commentId, memberId);
 
         return ResponseEntity
