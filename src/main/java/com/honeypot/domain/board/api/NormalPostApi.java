@@ -3,7 +3,7 @@ package com.honeypot.domain.board.api;
 import com.honeypot.common.validation.constraints.AllowedSortProperties;
 import com.honeypot.domain.board.dto.NormalPostDto;
 import com.honeypot.domain.board.dto.NormalPostUploadRequest;
-import com.honeypot.domain.board.service.NormalPostUploadService;
+import com.honeypot.domain.board.service.NormalPostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -19,16 +19,16 @@ import javax.validation.Valid;
 @Validated
 public class NormalPostApi {
 
-    private final NormalPostUploadService normalPostUploadService;
+    private final NormalPostService normalPostService;
 
     @GetMapping
     public ResponseEntity<?> pageList(@AllowedSortProperties("createdAt") Pageable pageable) {
-        return ResponseEntity.ok(normalPostUploadService.pageList(pageable));
+        return ResponseEntity.ok(normalPostService.pageList(pageable));
     }
 
     @GetMapping("{postId}")
     public ResponseEntity<?> read(@PathVariable long postId) {
-        return ResponseEntity.ok(normalPostUploadService.find(postId));
+        return ResponseEntity.ok(normalPostService.find(postId));
     }
 
     @PostMapping
@@ -39,7 +39,7 @@ public class NormalPostApi {
         long writerId = 1;
         uploadRequest.setWriterId(writerId);
 
-        NormalPostDto uploadedPost = normalPostUploadService.upload(uploadRequest);
+        NormalPostDto uploadedPost = normalPostService.upload(uploadRequest);
 
         return ResponseEntity
                 .created(ServletUriComponentsBuilder
@@ -59,7 +59,7 @@ public class NormalPostApi {
         long writerId = 1;
         uploadRequest.setWriterId(writerId);
 
-        NormalPostDto uploadedPost = normalPostUploadService.update(postId, uploadRequest);
+        NormalPostDto uploadedPost = normalPostService.update(postId, uploadRequest);
         return ResponseEntity
                 .noContent()
                 .build();
@@ -72,7 +72,7 @@ public class NormalPostApi {
         // TODO validate token and find member id
         long memberId = 1L;
 
-        normalPostUploadService.delete(postId, memberId);
+        normalPostService.delete(postId, memberId);
 
         return ResponseEntity
                 .noContent()

@@ -24,7 +24,7 @@ import javax.validation.constraints.NotNull;
 @Service
 @RequiredArgsConstructor
 @Validated
-public class NormalPostUploadService {
+public class NormalPostService {
 
     private final NormalPostMapper normalPostMapper;
 
