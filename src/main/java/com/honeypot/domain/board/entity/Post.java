@@ -9,6 +9,7 @@ import javax.persistence.*;
 
 @SuperBuilder
 @Getter
+@Setter
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "type", length = 10)

@@ -1,5 +1,6 @@
 package com.honeypot.domain.board.service;
 
+import com.honeypot.common.model.exceptions.InvalidAuthorizationException;
 import com.honeypot.common.validation.groups.InsertContext;
 import com.honeypot.domain.board.dto.NormalPostDto;
 import com.honeypot.domain.board.dto.NormalPostUploadRequest;
@@ -54,6 +55,22 @@ public class NormalPostUploadService {
         result.getWriter().setNickname(writer.getNickname());
 
         return result;
+    }
+
+    @Transactional
+    public NormalPostDto update(Long postId, NormalPostUploadRequest uploadRequest) {
+        NormalPost normalPost = normalPostRepository
+                .findById(postId)
+                .orElseThrow(EntityNotFoundException::new);
+
+        if(!normalPost.getWriter().getId().equals(uploadRequest.getWriterId())) {
+            throw new InvalidAuthorizationException();
+        }
+
+        normalPost.setTitle(uploadRequest.getTitle());
+        normalPost.setContent(uploadRequest.getContent());
+
+        return normalPostMapper.toDto(normalPostRepository.save(normalPost));
     }
 
 }

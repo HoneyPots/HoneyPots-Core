@@ -45,4 +45,19 @@ public class NormalPostApi {
                 .body(uploadedPost);
     }
 
+    @PutMapping("/{postId}")
+    public ResponseEntity<?> update(@RequestHeader("Authorization") String token,
+                                    @PathVariable long postId,
+                                    @Valid @RequestBody NormalPostUploadRequest uploadRequest) {
+
+        // TODO validate token and find member id
+        long writerId = 1;
+        uploadRequest.setWriterId(writerId);
+
+        NormalPostDto uploadedPost = normalPostUploadService.update(postId, uploadRequest);
+        return ResponseEntity
+                .noContent()
+                .build();
+    }
+
 }
