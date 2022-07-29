@@ -1,6 +1,6 @@
 package com.honeypot.domain.board.service;
 
-import com.honeypot.common.validation.InsertContext;
+import com.honeypot.common.validation.groups.InsertContext;
 import com.honeypot.domain.board.dto.NormalPostDto;
 import com.honeypot.domain.board.dto.NormalPostUploadRequest;
 import com.honeypot.domain.board.entity.NormalPost;

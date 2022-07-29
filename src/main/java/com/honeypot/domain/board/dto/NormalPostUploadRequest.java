@@ -1,6 +1,6 @@
 package com.honeypot.domain.board.dto;
 
-import com.honeypot.common.validation.InsertContext;
+import com.honeypot.common.validation.groups.InsertContext;
 import lombok.Builder;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
