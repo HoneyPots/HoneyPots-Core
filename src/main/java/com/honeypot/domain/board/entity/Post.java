@@ -9,6 +9,7 @@ import javax.persistence.*;
 
 @SuperBuilder
 @Getter
+@Setter
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "type", length = 10)
@@ -29,5 +30,8 @@ public abstract class Post extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "writer_id", nullable = false)
     private Member writer;
+
+//    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+//    private List<Comment> comments = new ArrayList<>();
 
 }
