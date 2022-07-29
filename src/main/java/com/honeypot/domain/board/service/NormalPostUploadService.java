@@ -42,6 +42,15 @@ public class NormalPostUploadService {
         );
     }
 
+    @Transactional(readOnly = true)
+    public NormalPostDto find(@NotNull Long postId) {
+        NormalPost result = normalPostRepository
+                .findById(postId)
+                .orElseThrow(EntityNotFoundException::new);
+
+        return normalPostMapper.toDto(result);
+    }
+
     @Transactional
     @Validated(InsertContext.class)
     public NormalPostDto upload(@Valid NormalPostUploadRequest request) {

@@ -26,6 +26,11 @@ public class NormalPostApi {
         return ResponseEntity.ok(normalPostUploadService.pageList(pageable));
     }
 
+    @GetMapping("{postId}")
+    public ResponseEntity<?> read(@PathVariable long postId) {
+        return ResponseEntity.ok(normalPostUploadService.find(postId));
+    }
+
     @PostMapping
     public ResponseEntity<?> upload(@RequestHeader("Authorization") String token,
                                     @Valid @RequestBody NormalPostUploadRequest uploadRequest) {
