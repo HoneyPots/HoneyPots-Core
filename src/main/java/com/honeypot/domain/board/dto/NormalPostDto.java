@@ -18,6 +18,8 @@ public class NormalPostDto {
 
     private WriterDto writer;
 
+    private int commentCount;
+
     private LocalDateTime uploadedAt;
 
     private LocalDateTime lastModifiedAt;

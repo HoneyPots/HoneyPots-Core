@@ -2,6 +2,7 @@ package com.honeypot.domain.board.mapper;
 
 import com.honeypot.domain.board.dto.NormalPostDto;
 import com.honeypot.domain.board.dto.NormalPostUploadRequest;
+import com.honeypot.domain.board.entity.Comment;
 import com.honeypot.domain.board.entity.NormalPost;
 import com.honeypot.domain.member.dto.WriterDto;
 import com.honeypot.domain.member.entity.Member;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -75,6 +77,7 @@ class NormalPostMapperTest {
                         .id(1L)
                         .nickname("nickname")
                         .build())
+                .comments(List.of(Comment.builder().build()))
                 .createdAt(uploadedAt)
                 .lastModifiedAt(uploadedAt)
                 .build();
@@ -88,6 +91,7 @@ class NormalPostMapperTest {
         assertEquals(entity.getContent(), dto.getContent());
         assertEquals(entity.getWriter().getId(), dto.getWriter().getId());
         assertEquals(entity.getWriter().getNickname(), dto.getWriter().getNickname());
+        assertEquals(entity.getComments().size(), dto.getCommentCount());
         assertEquals(entity.getCreatedAt(), dto.getUploadedAt());
         assertEquals(entity.getLastModifiedAt(), dto.getUploadedAt());
     }
