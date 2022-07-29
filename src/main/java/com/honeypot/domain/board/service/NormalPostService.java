@@ -68,6 +68,7 @@ public class NormalPostService {
     }
 
     @Transactional
+    @Validated(InsertContext.class)
     public NormalPostDto update(Long postId, NormalPostUploadRequest uploadRequest) {
         NormalPost normalPost = normalPostRepository
                 .findById(postId)

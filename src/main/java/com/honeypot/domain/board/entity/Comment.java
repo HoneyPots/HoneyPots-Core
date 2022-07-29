@@ -4,12 +4,14 @@ import com.honeypot.common.entity.BaseTimeEntity;
 import com.honeypot.domain.member.entity.Member;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
 
 @SuperBuilder
 @Getter
+@Setter
 @Entity
 @NoArgsConstructor
 public class Comment extends BaseTimeEntity {
