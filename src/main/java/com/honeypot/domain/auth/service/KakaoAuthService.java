@@ -20,6 +20,8 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class KakaoAuthService implements AuthService {
 
+    private final TokenManagerService tokenManagerService;
+
     private final KakaoAuthRepository kakaoAuthRepository;
 
     private final AuthProviderRepository authProviderRepository;
@@ -67,8 +69,7 @@ public class KakaoAuthService implements AuthService {
             authProviderRepository.save(authProvider);
         }
 
-        String serviceToken = authProvider.getMember().getId() + "_";
-        serviceToken += authProvider.getMember().getNickname();
+        String serviceToken = tokenManagerService.issueToken(authProvider.getId());
 
         return LoginResponse.builder()
                 .accessToken(serviceToken)

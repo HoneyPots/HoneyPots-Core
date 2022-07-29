@@ -24,7 +24,7 @@ import javax.validation.constraints.NotNull;
 @Service
 @RequiredArgsConstructor
 @Validated
-public class NormalPostUploadService {
+public class NormalPostService {
 
     private final NormalPostMapper normalPostMapper;
 
@@ -68,6 +68,7 @@ public class NormalPostUploadService {
     }
 
     @Transactional
+    @Validated(InsertContext.class)
     public NormalPostDto update(Long postId, NormalPostUploadRequest uploadRequest) {
         NormalPost normalPost = normalPostRepository
                 .findById(postId)

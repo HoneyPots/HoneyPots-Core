@@ -8,19 +8,17 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-public class NormalPostDto {
+public class CommentDto {
 
     private long postId;
 
-    private String title;
+    private long commentId;
 
     private String content;
 
     private WriterDto writer;
 
-    private int commentCount;
-
-    private LocalDateTime uploadedAt;
+    private LocalDateTime createdAt;
 
     private LocalDateTime lastModifiedAt;
 
