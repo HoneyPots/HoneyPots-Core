@@ -28,6 +28,13 @@ spring:
         format_sql: true
         use_sql_comments: true
 
+  # Data
+  data:
+    web:
+      pageable:
+        default-page-size: 20
+        max-page-size: 100
+
   # Console Output
   output:
     ansi:

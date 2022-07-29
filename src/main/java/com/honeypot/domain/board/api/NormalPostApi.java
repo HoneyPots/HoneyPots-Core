@@ -4,6 +4,7 @@ import com.honeypot.domain.board.dto.NormalPostDto;
 import com.honeypot.domain.board.dto.NormalPostUploadRequest;
 import com.honeypot.domain.board.service.NormalPostUploadService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -16,6 +17,11 @@ import javax.validation.Valid;
 public class NormalPostApi {
 
     private final NormalPostUploadService normalPostUploadService;
+
+    @GetMapping
+    public ResponseEntity<?> pageList(Pageable pageable) {
+        return ResponseEntity.ok(normalPostUploadService.pageList(pageable));
+    }
 
     @PostMapping
     public ResponseEntity<?> upload(@RequestHeader("Authorization") String token,

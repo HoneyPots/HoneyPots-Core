@@ -7,6 +7,8 @@ import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface NormalPostMapper {
 
@@ -19,5 +21,8 @@ public interface NormalPostMapper {
 
     @InheritInverseConfiguration
     NormalPostDto toDto(NormalPost entity);
+
+    @InheritInverseConfiguration
+    List<NormalPostDto> toDto(List<NormalPost> entities);
 
 }
