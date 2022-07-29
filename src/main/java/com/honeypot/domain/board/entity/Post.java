@@ -31,4 +31,7 @@ public abstract class Post extends BaseTimeEntity {
     @JoinColumn(name = "writer_id", nullable = false)
     private Member writer;
 
+//    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+//    private List<Comment> comments = new ArrayList<>();
+
 }

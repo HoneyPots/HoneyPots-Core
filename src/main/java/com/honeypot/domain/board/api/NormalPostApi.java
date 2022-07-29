@@ -60,4 +60,18 @@ public class NormalPostApi {
                 .build();
     }
 
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<?> delete(@RequestHeader("Authorization") String token,
+                                    @PathVariable long postId) {
+
+        // TODO validate token and find member id
+        long memberId = 1L;
+
+        normalPostUploadService.delete(postId, memberId);
+
+        return ResponseEntity
+                .noContent()
+                .build();
+    }
+
 }

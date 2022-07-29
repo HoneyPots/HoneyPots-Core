@@ -19,6 +19,7 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 @Service
 @RequiredArgsConstructor
@@ -71,6 +72,19 @@ public class NormalPostUploadService {
         normalPost.setContent(uploadRequest.getContent());
 
         return normalPostMapper.toDto(normalPostRepository.save(normalPost));
+    }
+
+    @Transactional
+    public void delete(Long postId, @NotNull Long memberId) {
+        NormalPost normalPost = normalPostRepository
+                .findById(postId)
+                .orElseThrow(EntityNotFoundException::new);
+
+        if(!normalPost.getWriter().getId().equals(memberId)) {
+            throw new InvalidAuthorizationException();
+        }
+
+        normalPostRepository.delete(normalPost);
     }
 
 }
