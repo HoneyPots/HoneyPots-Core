@@ -16,7 +16,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/api/post/normal")
+@RequestMapping("/api/posts/normal")
 @RequiredArgsConstructor
 @Validated
 public class NormalPostApi {

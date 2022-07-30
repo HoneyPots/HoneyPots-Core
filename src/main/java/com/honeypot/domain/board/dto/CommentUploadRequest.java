@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 @Builder
 public class CommentUploadRequest {
 
-    @NotNull(groups = InsertContext.class)
+    @NotNull
     private Long postId;
 
     @NotEmpty

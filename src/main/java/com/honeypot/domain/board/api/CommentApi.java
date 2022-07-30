@@ -5,10 +5,7 @@ import com.honeypot.common.validation.constraints.AllowedSortProperties;
 import com.honeypot.domain.auth.service.TokenManagerService;
 import com.honeypot.domain.board.dto.CommentDto;
 import com.honeypot.domain.board.dto.CommentUploadRequest;
-import com.honeypot.domain.board.dto.NormalPostDto;
-import com.honeypot.domain.board.dto.NormalPostUploadRequest;
 import com.honeypot.domain.board.service.CommentService;
-import com.honeypot.domain.board.service.NormalPostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +16,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/api/post/{postId}/comment")
+@RequestMapping("/api/comments")
 @RequiredArgsConstructor
 @Validated
 public class CommentApi {
@@ -29,20 +26,19 @@ public class CommentApi {
     private final CommentService commentService;
 
     @GetMapping
-    public ResponseEntity<?> pageList(@PathVariable long postId,
+    public ResponseEntity<?> pageList(@RequestParam long postId,
                                       @AllowedSortProperties("createdAt") Pageable pageable) {
         return ResponseEntity.ok(commentService.pageList(postId, pageable));
     }
 
     @GetMapping("/{commentId}")
-    public ResponseEntity<?> read(@PathVariable long postId,
+    public ResponseEntity<?> read(@RequestParam long postId,
                                   @PathVariable long commentId) {
         return ResponseEntity.ok(commentService.find(postId, commentId));
     }
 
     @PostMapping
     public ResponseEntity<?> write(@RequestHeader("Authorization") String token,
-                                   @PathVariable long postId,
                                    @Valid @RequestBody CommentUploadRequest uploadRequest) {
 
         if (tokenManagerService.verifyToken(token)) {
@@ -50,7 +46,6 @@ public class CommentApi {
         }
 
         long memberId = tokenManagerService.getUserId(token);
-        uploadRequest.setPostId(postId);
         uploadRequest.setWriterId(memberId);
 
         CommentDto createdComment = commentService.save(uploadRequest);
@@ -66,7 +61,6 @@ public class CommentApi {
 
     @PutMapping("/{commentId}")
     public ResponseEntity<?> update(@RequestHeader("Authorization") String token,
-                                    @PathVariable long postId,
                                     @PathVariable long commentId,
                                     @Valid @RequestBody CommentUploadRequest uploadRequest) {
 
@@ -75,7 +69,6 @@ public class CommentApi {
         }
 
         long memberId = tokenManagerService.getUserId(token);
-        uploadRequest.setPostId(postId);
         uploadRequest.setWriterId(memberId);
 
         CommentDto updatedComment = commentService.update(commentId, uploadRequest);
@@ -86,7 +79,6 @@ public class CommentApi {
 
     @DeleteMapping("/{commentId}")
     public ResponseEntity<?> delete(@RequestHeader("Authorization") String token,
-                                    @PathVariable long postId,
                                     @PathVariable long commentId) {
 
         if (tokenManagerService.verifyToken(token)) {
