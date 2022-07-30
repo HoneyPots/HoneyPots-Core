@@ -1,7 +1,7 @@
 package com.honeypot.domain.board.mapper;
 
-import com.honeypot.domain.board.dto.NormalPostDto;
-import com.honeypot.domain.board.dto.NormalPostUploadRequest;
+import com.honeypot.domain.board.dto.CommentDto;
+import com.honeypot.domain.board.dto.CommentUploadRequest;
 import com.honeypot.domain.board.entity.Comment;
 import com.honeypot.domain.board.entity.NormalPost;
 import com.honeypot.domain.member.dto.WriterDto;
@@ -10,57 +10,55 @@ import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class NormalPostMapperTest {
+class CommentMapperTest {
 
-    private final NormalPostMapper mapper = Mappers.getMapper(NormalPostMapper.class);
+    private final CommentMapper mapper = Mappers.getMapper(CommentMapper.class);
 
     @Test
     void toEntity() {
         // Arrange
-        LocalDateTime uploadedAt = LocalDateTime.of(2022, 7, 28, 22, 0, 0);
-        NormalPostDto dto = NormalPostDto.builder()
+        LocalDateTime createdAt = LocalDateTime.of(2022, 7, 28, 22, 0, 0);
+        CommentDto dto = CommentDto.builder()
                 .postId(1)
-                .title("title")
                 .content("content")
                 .writer(WriterDto.builder()
                         .id(1)
                         .nickname("nickname")
                         .build())
-                .uploadedAt(uploadedAt)
-                .lastModifiedAt(uploadedAt)
+                .createdAt(createdAt)
+                .lastModifiedAt(createdAt)
                 .build();
 
         // Act
-        NormalPost entity = mapper.toEntity(dto);
+        Comment entity = mapper.toEntity(dto);
 
         // Assert
-        assertEquals(dto.getPostId(), entity.getId());
-        assertEquals(dto.getTitle(), entity.getTitle());
+        assertEquals(dto.getCommentId(), entity.getId());
+        assertEquals(dto.getPostId(), entity.getPost().getId());
         assertEquals(dto.getContent(), entity.getContent());
         assertEquals(dto.getWriter().getId(), entity.getWriter().getId());
         assertEquals(dto.getWriter().getNickname(), entity.getWriter().getNickname());
-        assertEquals(dto.getUploadedAt(), entity.getCreatedAt());
+        assertEquals(dto.getCreatedAt(), entity.getCreatedAt());
         assertEquals(dto.getLastModifiedAt(), entity.getLastModifiedAt());
     }
 
     @Test
-    void toEntity_FromNormalPostUploadRequest() {
+    void toEntity_FromCommentUploadRequest() {
         // Arrange
-        NormalPostUploadRequest dto = NormalPostUploadRequest.builder()
-                .title("title")
+        CommentUploadRequest dto = CommentUploadRequest.builder()
+                .postId(1L)
                 .content("content")
                 .writerId(1L)
                 .build();
 
         // Act
-        NormalPost entity = mapper.toEntity(dto);
+        Comment entity = mapper.toEntity(dto);
 
         // Assert
-        assertEquals(dto.getTitle(), entity.getTitle());
+        assertEquals(dto.getPostId(), entity.getPost().getId());
         assertEquals(dto.getContent(), entity.getContent());
         assertEquals(dto.getWriterId(), entity.getWriter().getId());
     }
@@ -69,31 +67,37 @@ class NormalPostMapperTest {
     void toDto() {
         // Arrange
         LocalDateTime uploadedAt = LocalDateTime.of(2022, 7, 28, 22, 0, 0);
-        NormalPost entity = NormalPost.builder()
+        Comment entity = Comment.builder()
                 .id(1L)
-                .title("title")
+                .post(NormalPost.builder()
+                        .id(1L)
+                        .title("post title")
+                        .content("post content")
+                        .writer(Member.builder()
+                                .id(1L)
+                                .nickname("nickname")
+                                .build())
+                        .build())
                 .content("content")
                 .writer(Member.builder()
                         .id(1L)
                         .nickname("nickname")
                         .build())
-                .comments(List.of(Comment.builder().build()))
                 .createdAt(uploadedAt)
                 .lastModifiedAt(uploadedAt)
                 .build();
 
         // Act
-        NormalPostDto dto = mapper.toDto(entity);
+        CommentDto dto = mapper.toDto(entity);
 
         // Assert
-        assertEquals(entity.getId(), dto.getPostId());
-        assertEquals(entity.getTitle(), dto.getTitle());
+        assertEquals(entity.getId(), dto.getCommentId());
+        assertEquals(entity.getPost().getId(), dto.getPostId());
         assertEquals(entity.getContent(), dto.getContent());
         assertEquals(entity.getWriter().getId(), dto.getWriter().getId());
         assertEquals(entity.getWriter().getNickname(), dto.getWriter().getNickname());
-        assertEquals(entity.getComments().size(), dto.getCommentCount());
-        assertEquals(entity.getCreatedAt(), dto.getUploadedAt());
-        assertEquals(entity.getLastModifiedAt(), dto.getUploadedAt());
+        assertEquals(entity.getCreatedAt(), dto.getCreatedAt());
+        assertEquals(entity.getLastModifiedAt(), dto.getLastModifiedAt());
     }
 
 }

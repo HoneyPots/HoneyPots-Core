@@ -3,8 +3,11 @@ package com.honeypot.domain.board.api;
 import com.honeypot.common.model.exceptions.InvalidTokenException;
 import com.honeypot.common.validation.constraints.AllowedSortProperties;
 import com.honeypot.domain.auth.service.TokenManagerService;
+import com.honeypot.domain.board.dto.CommentDto;
+import com.honeypot.domain.board.dto.CommentUploadRequest;
 import com.honeypot.domain.board.dto.NormalPostDto;
 import com.honeypot.domain.board.dto.NormalPostUploadRequest;
+import com.honeypot.domain.board.service.CommentService;
 import com.honeypot.domain.board.service.NormalPostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -16,76 +19,82 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/api/post/normal")
+@RequestMapping("/api/post/{postId}/comment")
 @RequiredArgsConstructor
 @Validated
-public class NormalPostApi {
+public class CommentApi {
 
     private final TokenManagerService tokenManagerService;
 
-    private final NormalPostService normalPostService;
+    private final CommentService commentService;
 
     @GetMapping
-    public ResponseEntity<?> pageList(@AllowedSortProperties("createdAt") Pageable pageable) {
-        return ResponseEntity.ok(normalPostService.pageList(pageable));
+    public ResponseEntity<?> pageList(@PathVariable long postId,
+                                      @AllowedSortProperties("createdAt") Pageable pageable) {
+        return ResponseEntity.ok(commentService.pageList(postId, pageable));
     }
 
-    @GetMapping("{postId}")
-    public ResponseEntity<?> read(@PathVariable long postId) {
-        return ResponseEntity.ok(normalPostService.find(postId));
+    @GetMapping("/{commentId}")
+    public ResponseEntity<?> read(@PathVariable long postId,
+                                  @PathVariable long commentId) {
+        return ResponseEntity.ok(commentService.find(postId, commentId));
     }
 
     @PostMapping
-    public ResponseEntity<?> upload(@RequestHeader("Authorization") String token,
-                                    @Valid @RequestBody NormalPostUploadRequest uploadRequest) {
+    public ResponseEntity<?> write(@RequestHeader("Authorization") String token,
+                                   @PathVariable long postId,
+                                   @Valid @RequestBody CommentUploadRequest uploadRequest) {
 
         if (tokenManagerService.verifyToken(token)) {
             throw new InvalidTokenException();
         }
 
         long memberId = tokenManagerService.getUserId(token);
+        uploadRequest.setPostId(postId);
         uploadRequest.setWriterId(memberId);
 
-        NormalPostDto uploadedPost = normalPostService.upload(uploadRequest);
+        CommentDto createdComment = commentService.save(uploadRequest);
 
         return ResponseEntity
                 .created(ServletUriComponentsBuilder
                         .fromCurrentRequest()
-                        .path("/{postId}")
-                        .buildAndExpand(uploadedPost.getPostId())
+                        .path("/{commentId}")
+                        .buildAndExpand(createdComment.getCommentId())
                         .toUri())
-                .body(uploadedPost);
+                .body(createdComment);
     }
 
-    @PutMapping("/{postId}")
+    @PutMapping("/{commentId}")
     public ResponseEntity<?> update(@RequestHeader("Authorization") String token,
                                     @PathVariable long postId,
-                                    @Valid @RequestBody NormalPostUploadRequest uploadRequest) {
+                                    @PathVariable long commentId,
+                                    @Valid @RequestBody CommentUploadRequest uploadRequest) {
 
         if (tokenManagerService.verifyToken(token)) {
             throw new InvalidTokenException();
         }
 
         long memberId = tokenManagerService.getUserId(token);
+        uploadRequest.setPostId(postId);
         uploadRequest.setWriterId(memberId);
 
-        NormalPostDto uploadedPost = normalPostService.update(postId, uploadRequest);
+        CommentDto updatedComment = commentService.update(commentId, uploadRequest);
         return ResponseEntity
                 .noContent()
                 .build();
     }
 
-    @DeleteMapping("/{postId}")
+    @DeleteMapping("/{commentId}")
     public ResponseEntity<?> delete(@RequestHeader("Authorization") String token,
-                                    @PathVariable long postId) {
+                                    @PathVariable long postId,
+                                    @PathVariable long commentId) {
 
         if (tokenManagerService.verifyToken(token)) {
             throw new InvalidTokenException();
         }
 
         long memberId = tokenManagerService.getUserId(token);
-
-        normalPostService.delete(postId, memberId);
+        commentService.delete(commentId, memberId);
 
         return ResponseEntity
                 .noContent()
