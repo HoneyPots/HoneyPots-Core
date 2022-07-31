@@ -20,4 +20,6 @@ public class ReactionDto {
 
     private ReactorDto reactor;
 
+    private boolean alreadyExists;
+
 }

@@ -30,6 +30,7 @@ public interface PostReactionMapper {
 
     @InheritInverseConfiguration
     @Mapping(source = "post.id", target = "targetId")
+    @Mapping(target = "alreadyExists", ignore = true)
     ReactionDto toDto(PostReaction entity);
 
 }

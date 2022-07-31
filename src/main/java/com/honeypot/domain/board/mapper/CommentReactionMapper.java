@@ -30,6 +30,7 @@ public interface CommentReactionMapper {
 
     @InheritInverseConfiguration
     @Mapping(source = "comment.id", target = "targetId")
+    @Mapping(target = "alreadyExists", ignore = true)
     ReactionDto toDto(CommentReaction entity);
 
 }
