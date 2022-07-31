@@ -4,6 +4,7 @@ import com.honeypot.common.model.exceptions.InvalidTokenException;
 import com.honeypot.domain.auth.service.TokenManagerService;
 import com.honeypot.domain.board.dto.ReactionDto;
 import com.honeypot.domain.board.dto.ReactionRequest;
+import com.honeypot.domain.board.entity.Reaction;
 import com.honeypot.domain.board.enums.ReactionType;
 import com.honeypot.domain.board.service.ReactionService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,11 @@ public class ReactionApi {
     private final TokenManagerService tokenManagerService;
 
     private final ReactionService reactionService;
+
+    @GetMapping("/likes/{reactionId}")
+    public ResponseEntity<?> getLikeReaction(@PathVariable Long reactionId) {
+        return ResponseEntity.ok(reactionService.find(reactionId));
+    }
 
     @PostMapping("/likes")
     public ResponseEntity<?> reactLike(@RequestHeader("Authorization") String token,
@@ -49,6 +55,21 @@ public class ReactionApi {
                         .buildAndExpand(result.getReactionId())
                         .toUri())
                 .body(result);
+    }
+
+    @DeleteMapping("/likes/{reactionId}")
+    public ResponseEntity<?> cancelLikeReaction(@RequestHeader("Authorization") String token,
+                                                @PathVariable Long reactionId) {
+
+        if (tokenManagerService.verifyToken(token)) {
+            throw new InvalidTokenException();
+        }
+
+        long memberId = tokenManagerService.getUserId(token);
+
+        reactionService.cancel(memberId, reactionId);
+
+        return ResponseEntity.noContent().build();
     }
 
 }
