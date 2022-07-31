@@ -6,6 +6,7 @@ import com.honeypot.domain.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import javax.persistence.*;
@@ -14,6 +15,7 @@ import javax.persistence.*;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 @Entity
 @Table(
         uniqueConstraints = {
@@ -38,6 +40,7 @@ public class Reaction {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
+    @ToString.Exclude
     private Member reactor;
 
     @Enumerated(EnumType.STRING)
@@ -47,5 +50,11 @@ public class Reaction {
     @Enumerated(EnumType.STRING)
     @Column(name = "target_type", insertable = false, updatable = false)
     private ReactionTarget targetType;
+
+    @Column(name = "post_id", insertable = false, updatable = false)
+    private Long postId;
+
+    @Column(name = "comment_id", insertable = false, updatable = false)
+    private Long commentId;
 
 }
