@@ -21,7 +21,7 @@ public class Post extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "post_id")
-    private long id;
+    private Long id;
 
     @Column(name = "title", length = 30, nullable = false)
     private String title;
@@ -34,6 +34,7 @@ public class Post extends BaseTimeEntity {
     private Member writer;
 
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Builder.Default
     private List<Comment> comments = new ArrayList<>();
 
 }
