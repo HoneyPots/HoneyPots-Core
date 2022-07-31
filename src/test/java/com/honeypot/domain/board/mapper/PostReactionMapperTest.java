@@ -1,5 +1,6 @@
 package com.honeypot.domain.board.mapper;
 
+import com.honeypot.domain.board.enums.ReactionTarget;
 import com.honeypot.domain.board.dto.ReactionDto;
 import com.honeypot.domain.board.dto.ReactionRequest;
 import com.honeypot.domain.board.entity.Post;
@@ -21,7 +22,7 @@ class PostReactionMapperTest {
         ReactionDto dto = ReactionDto.builder()
                 .reactionId(1L)
                 .reactionType("LIKE")
-                .targetType("POST")
+                .targetType(ReactionTarget.POST)
                 .targetId(1L)
                 .reactor(ReactorDto.builder()
                         .id(1)
@@ -46,7 +47,7 @@ class PostReactionMapperTest {
         // Arrange
         ReactionRequest dto = ReactionRequest.builder()
                 .targetId(1L)
-                .targetType("POST")
+                .targetType(ReactionTarget.POST.toString())
                 .reactionType("LIKE")
                 .reactorId(1L)
                 .build();
@@ -71,7 +72,7 @@ class PostReactionMapperTest {
                         .nickname("nickname")
                         .build())
                 .reactionType("LIKE")
-                .targetType("POST")
+                .targetType(ReactionTarget.POST)
                 .post(Post.builder()
                         .id(1L)
                         .build())

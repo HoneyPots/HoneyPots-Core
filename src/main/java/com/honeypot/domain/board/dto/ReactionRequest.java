@@ -1,5 +1,8 @@
 package com.honeypot.domain.board.dto;
 
+import com.honeypot.common.validation.constraints.Enum;
+import com.honeypot.common.validation.groups.InsertContext;
+import com.honeypot.domain.board.enums.ReactionTarget;
 import lombok.Builder;
 import lombok.Data;
 
@@ -14,15 +17,17 @@ public class ReactionRequest {
     @NotNull
     private Long targetId;
 
-    // TODO Validate Enum Values
-    @NotEmpty
+    @Enum(target = ReactionTarget.class)
     private String targetType;
 
     // TODO Validate Enum Values
     @NotEmpty
     private String reactionType;
 
-    @NotNull
+    @NotNull(groups = InsertContext.class)
     private Long reactorId;
 
+    public ReactionTarget getTargetType() {
+        return ReactionTarget.valueOf(targetType.toUpperCase());
+    }
 }
