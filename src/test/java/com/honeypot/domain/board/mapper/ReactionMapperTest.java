@@ -1,14 +1,15 @@
 package com.honeypot.domain.board.mapper;
 
-import com.honeypot.domain.board.dto.ReactionDto;
-import com.honeypot.domain.board.dto.ReactionRequest;
-import com.honeypot.domain.board.entity.CommentReaction;
-import com.honeypot.domain.board.entity.PostReaction;
-import com.honeypot.domain.board.entity.Reaction;
-import com.honeypot.domain.board.enums.ReactionTarget;
-import com.honeypot.domain.board.enums.ReactionType;
 import com.honeypot.domain.member.dto.ReactorDto;
 import com.honeypot.domain.member.entity.Member;
+import com.honeypot.domain.reaction.dto.ReactionDto;
+import com.honeypot.domain.reaction.dto.ReactionRequest;
+import com.honeypot.domain.reaction.entity.CommentReaction;
+import com.honeypot.domain.reaction.entity.PostReaction;
+import com.honeypot.domain.reaction.entity.Reaction;
+import com.honeypot.domain.reaction.entity.enums.ReactionTarget;
+import com.honeypot.domain.reaction.entity.enums.ReactionType;
+import com.honeypot.domain.reaction.mapper.ReactionMapper;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
