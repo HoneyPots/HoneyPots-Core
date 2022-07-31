@@ -16,8 +16,12 @@ import javax.persistence.*;
 @Table(
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "reaction_unique_key",
-                        columnNames = {"member_id", "target_type"}
+                        name = "reaction_post_unique_key",
+                        columnNames = {"member_id", "post_id", "reaction_type"}
+                ),
+                @UniqueConstraint(
+                        name = "reaction_comment_unique_key",
+                        columnNames = {"member_id", "comment_id", "reaction_type"}
                 )
         }
 )
