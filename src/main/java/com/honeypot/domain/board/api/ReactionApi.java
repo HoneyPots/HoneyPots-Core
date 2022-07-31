@@ -4,10 +4,8 @@ import com.honeypot.common.model.exceptions.InvalidTokenException;
 import com.honeypot.domain.auth.service.TokenManagerService;
 import com.honeypot.domain.board.dto.ReactionDto;
 import com.honeypot.domain.board.dto.ReactionRequest;
-import com.honeypot.domain.board.enums.ReactionTarget;
 import com.honeypot.domain.board.enums.ReactionType;
-import com.honeypot.domain.board.service.CommentReactionService;
-import com.honeypot.domain.board.service.PostReactionService;
+import com.honeypot.domain.board.service.ReactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -24,13 +22,11 @@ public class ReactionApi {
 
     private final TokenManagerService tokenManagerService;
 
-    private final PostReactionService postReactionService;
-
-    private final CommentReactionService commentReactionService;
+    private final ReactionService reactionService;
 
     @PostMapping("/likes")
-    public ResponseEntity<?> react(@RequestHeader("Authorization") String token,
-                                   @Valid @RequestBody ReactionRequest reactionRequest) {
+    public ResponseEntity<?> reactLike(@RequestHeader("Authorization") String token,
+                                       @Valid @RequestBody ReactionRequest reactionRequest) {
 
         if (tokenManagerService.verifyToken(token)) {
             throw new InvalidTokenException();
@@ -40,16 +36,9 @@ public class ReactionApi {
         reactionRequest.setReactorId(memberId);
         reactionRequest.setReactionType(ReactionType.LIKE);
 
-        ReactionDto result;
-        if (reactionRequest.getTargetType() == ReactionTarget.POST) {
-            result = postReactionService.save(reactionRequest);
-        } else if (reactionRequest.getTargetType() == ReactionTarget.COMMENT) {
-            result = commentReactionService.save(reactionRequest);
-        } else {
-            return ResponseEntity.badRequest().build();
-        }
+        ReactionDto result = reactionService.save(reactionRequest);
 
-        if(result.isAlreadyExists()) {
+        if (result.isAlreadyExists()) {
             return ResponseEntity.ok(result);
         }
 
