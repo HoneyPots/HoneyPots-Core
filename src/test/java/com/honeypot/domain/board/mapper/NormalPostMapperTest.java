@@ -1,9 +1,10 @@
 package com.honeypot.domain.board.mapper;
 
-import com.honeypot.domain.board.dto.NormalPostDto;
-import com.honeypot.domain.board.dto.NormalPostUploadRequest;
-import com.honeypot.domain.board.entity.Comment;
-import com.honeypot.domain.board.entity.NormalPost;
+import com.honeypot.domain.post.dto.NormalPostDto;
+import com.honeypot.domain.post.mapper.NormalPostMapper;
+import com.honeypot.domain.post.dto.NormalPostUploadRequest;
+import com.honeypot.domain.comment.entity.Comment;
+import com.honeypot.domain.post.entity.NormalPost;
 import com.honeypot.domain.member.dto.WriterDto;
 import com.honeypot.domain.member.entity.Member;
 import org.junit.jupiter.api.Test;
