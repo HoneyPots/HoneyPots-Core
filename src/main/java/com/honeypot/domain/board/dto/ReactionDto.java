@@ -1,6 +1,7 @@
 package com.honeypot.domain.board.dto;
 
 import com.honeypot.domain.board.enums.ReactionTarget;
+import com.honeypot.domain.board.enums.ReactionType;
 import com.honeypot.domain.member.dto.ReactorDto;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +16,7 @@ public class ReactionDto {
 
     private ReactionTarget targetType;
 
-    private String reactionType;
+    private ReactionType reactionType;
 
     private ReactorDto reactor;
 

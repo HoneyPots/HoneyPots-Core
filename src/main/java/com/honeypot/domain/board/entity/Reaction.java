@@ -1,6 +1,7 @@
 package com.honeypot.domain.board.entity;
 
 import com.honeypot.domain.board.enums.ReactionTarget;
+import com.honeypot.domain.board.enums.ReactionType;
 import com.honeypot.domain.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -39,8 +40,9 @@ public class Reaction {
     @JoinColumn(name = "member_id", nullable = false)
     private Member reactor;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "reaction_type", nullable = false)
-    private String reactionType;
+    private ReactionType reactionType;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "target_type", insertable = false, updatable = false)

@@ -5,6 +5,7 @@ import com.honeypot.domain.board.dto.ReactionDto;
 import com.honeypot.domain.board.dto.ReactionRequest;
 import com.honeypot.domain.board.entity.Comment;
 import com.honeypot.domain.board.entity.CommentReaction;
+import com.honeypot.domain.board.enums.ReactionType;
 import com.honeypot.domain.member.dto.ReactorDto;
 import com.honeypot.domain.member.entity.Member;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,7 @@ class CommentReactionMapperTest {
         // Arrange
         ReactionDto dto = ReactionDto.builder()
                 .reactionId(1L)
-                .reactionType("LIKE")
+                .reactionType(ReactionType.LIKE)
                 .targetType(ReactionTarget.COMMENT)
                 .targetId(1L)
                 .reactor(ReactorDto.builder()
@@ -48,7 +49,7 @@ class CommentReactionMapperTest {
         ReactionRequest dto = ReactionRequest.builder()
                 .targetId(1L)
                 .targetType(ReactionTarget.COMMENT.toString())
-                .reactionType("LIKE")
+                .reactionType(ReactionType.LIKE)
                 .reactorId(1L)
                 .build();
 
@@ -71,7 +72,7 @@ class CommentReactionMapperTest {
                         .id(1L)
                         .nickname("nickname")
                         .build())
-                .reactionType("LIKE")
+                .reactionType(ReactionType.LIKE)
                 .targetType(ReactionTarget.COMMENT)
                 .comment(Comment.builder()
                         .id(1L)
