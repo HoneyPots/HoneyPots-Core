@@ -6,6 +6,7 @@ import com.honeypot.domain.auth.dto.kakao.KakaoTokenIssuance;
 import com.honeypot.domain.auth.dto.kakao.KakaoUserInfo;
 import com.honeypot.domain.auth.repository.KakaoAuthRepository;
 import com.honeypot.domain.auth.entity.AuthProvider;
+import com.honeypot.domain.auth.service.contracts.AuthService;
 import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.auth.entity.enums.AuthProviderType;
 import com.honeypot.domain.member.repository.AuthProviderRepository;
