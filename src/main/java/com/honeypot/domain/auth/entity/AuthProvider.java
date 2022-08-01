@@ -1,7 +1,8 @@
-package com.honeypot.domain.member.entity;
+package com.honeypot.domain.auth.entity;
 
 import com.honeypot.common.entity.BaseTimeEntity;
-import com.honeypot.domain.member.enums.AuthProviderType;
+import com.honeypot.domain.member.entity.Member;
+import com.honeypot.domain.auth.entity.enums.AuthProviderType;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 

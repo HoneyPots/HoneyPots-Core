@@ -2,7 +2,7 @@ package com.honeypot.domain.post.api;
 
 import com.honeypot.common.model.exceptions.InvalidTokenException;
 import com.honeypot.common.validation.constraints.AllowedSortProperties;
-import com.honeypot.domain.auth.service.TokenManagerService;
+import com.honeypot.domain.auth.service.contracts.AuthTokenManagerService;
 import com.honeypot.domain.post.dto.NormalPostDto;
 import com.honeypot.domain.post.service.NormalPostService;
 import com.honeypot.domain.post.dto.NormalPostUploadRequest;
@@ -21,7 +21,7 @@ import javax.validation.Valid;
 @Validated
 public class NormalPostApi {
 
-    private final TokenManagerService tokenManagerService;
+    private final AuthTokenManagerService authTokenManagerService;
 
     private final NormalPostService normalPostService;
 
@@ -39,11 +39,11 @@ public class NormalPostApi {
     public ResponseEntity<?> upload(@RequestHeader("Authorization") String token,
                                     @Valid @RequestBody NormalPostUploadRequest uploadRequest) {
 
-        if (tokenManagerService.verifyToken(token)) {
+        if (authTokenManagerService.validate(token)) {
             throw new InvalidTokenException();
         }
 
-        long memberId = tokenManagerService.getUserId(token);
+        long memberId = authTokenManagerService.getMemberId(token);
         uploadRequest.setWriterId(memberId);
 
         NormalPostDto uploadedPost = normalPostService.upload(uploadRequest);
@@ -62,11 +62,11 @@ public class NormalPostApi {
                                     @PathVariable long postId,
                                     @Valid @RequestBody NormalPostUploadRequest uploadRequest) {
 
-        if (tokenManagerService.verifyToken(token)) {
+        if (authTokenManagerService.validate(token)) {
             throw new InvalidTokenException();
         }
 
-        long memberId = tokenManagerService.getUserId(token);
+        long memberId = authTokenManagerService.getMemberId(token);
         uploadRequest.setWriterId(memberId);
 
         NormalPostDto uploadedPost = normalPostService.update(postId, uploadRequest);
@@ -79,11 +79,11 @@ public class NormalPostApi {
     public ResponseEntity<?> delete(@RequestHeader("Authorization") String token,
                                     @PathVariable long postId) {
 
-        if (tokenManagerService.verifyToken(token)) {
+        if (authTokenManagerService.validate(token)) {
             throw new InvalidTokenException();
         }
 
-        long memberId = tokenManagerService.getUserId(token);
+        long memberId = authTokenManagerService.getMemberId(token);
 
         normalPostService.delete(postId, memberId);
 

@@ -1,13 +1,11 @@
 package com.honeypot.domain.member.entity;
 
 import com.honeypot.common.entity.BaseTimeEntity;
+import com.honeypot.domain.member.entity.enums.Gender;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -35,7 +33,8 @@ public class Member extends BaseTimeEntity {
     @Column(name = "birthday", length = 4)
     private String birthday;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "gender")
-    private String gender;
+    private Gender gender;
 
 }

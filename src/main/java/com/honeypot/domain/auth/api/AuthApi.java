@@ -2,7 +2,7 @@ package com.honeypot.domain.auth.api;
 
 import com.honeypot.domain.auth.dto.LoginResponse;
 import com.honeypot.domain.auth.dto.kakao.KakaoAuthCode;
-import com.honeypot.domain.auth.service.AuthService;
+import com.honeypot.domain.auth.service.contracts.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

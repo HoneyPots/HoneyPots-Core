@@ -1,7 +1,7 @@
 package com.honeypot.domain.reaction.api;
 
 import com.honeypot.common.model.exceptions.InvalidTokenException;
-import com.honeypot.domain.auth.service.TokenManagerService;
+import com.honeypot.domain.auth.service.contracts.AuthTokenManagerService;
 import com.honeypot.domain.reaction.dto.ReactionDto;
 import com.honeypot.domain.reaction.dto.ReactionRequest;
 import com.honeypot.domain.reaction.service.ReactionService;
@@ -20,7 +20,7 @@ import javax.validation.Valid;
 @Validated
 public class ReactionApi {
 
-    private final TokenManagerService tokenManagerService;
+    private final AuthTokenManagerService authTokenManagerService;
 
     private final ReactionService reactionService;
 
@@ -33,11 +33,11 @@ public class ReactionApi {
     public ResponseEntity<?> reactLike(@RequestHeader("Authorization") String token,
                                        @Valid @RequestBody ReactionRequest reactionRequest) {
 
-        if (tokenManagerService.verifyToken(token)) {
+        if (authTokenManagerService.validate(token)) {
             throw new InvalidTokenException();
         }
 
-        long memberId = tokenManagerService.getUserId(token);
+        long memberId = authTokenManagerService.getMemberId(token);
         reactionRequest.setReactorId(memberId);
         reactionRequest.setReactionType(ReactionType.LIKE);
 
@@ -60,11 +60,11 @@ public class ReactionApi {
     public ResponseEntity<?> cancelLikeReaction(@RequestHeader("Authorization") String token,
                                                 @PathVariable Long reactionId) {
 
-        if (tokenManagerService.verifyToken(token)) {
+        if (authTokenManagerService.validate(token)) {
             throw new InvalidTokenException();
         }
 
-        long memberId = tokenManagerService.getUserId(token);
+        long memberId = authTokenManagerService.getMemberId(token);
 
         reactionService.cancel(memberId, reactionId);
 
