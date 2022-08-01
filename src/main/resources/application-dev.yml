@@ -74,3 +74,11 @@ oauth:
       age-range: "kakao_account.age_range"
       birthday: "kakao_account.birthday"
       gender: "kakao_account.gender"
+
+# JWT
+jwt:
+  header: Authorization
+  secret-key: thisisjusttestsecretkeydonotuseproductionenvironmentpleasechangethissecretkeyaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  expiration-time-in-seconds:
+    access-token: 86400
+    refresh-token: 604800

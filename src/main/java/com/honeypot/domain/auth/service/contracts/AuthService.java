@@ -1,4 +1,4 @@
-package com.honeypot.domain.auth.service;
+package com.honeypot.domain.auth.service.contracts;
 
 import com.honeypot.domain.auth.dto.LoginResponse;
 import org.springframework.stereotype.Service;
