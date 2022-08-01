@@ -7,6 +7,7 @@ import com.honeypot.domain.auth.dto.kakao.KakaoUserInfo;
 import com.honeypot.domain.auth.repository.KakaoAuthRepository;
 import com.honeypot.domain.auth.entity.AuthProvider;
 import com.honeypot.domain.auth.service.contracts.AuthService;
+import com.honeypot.domain.auth.service.contracts.AuthTokenManagerService;
 import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.auth.entity.enums.AuthProviderType;
 import com.honeypot.domain.member.repository.AuthProviderRepository;
@@ -21,7 +22,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class KakaoAuthService implements AuthService {
 
-    private final TokenManagerService tokenManagerService;
+    private final AuthTokenManagerService authTokenManagerService;
 
     private final KakaoAuthRepository kakaoAuthRepository;
 
@@ -70,7 +71,7 @@ public class KakaoAuthService implements AuthService {
             authProviderRepository.save(authProvider);
         }
 
-        String serviceToken = tokenManagerService.issueToken(authProvider.getId());
+        String serviceToken = authTokenManagerService.issue(authProvider.getId());
 
         return LoginResponse.builder()
                 .accessToken(serviceToken)
