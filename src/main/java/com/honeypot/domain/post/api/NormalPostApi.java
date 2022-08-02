@@ -1,11 +1,11 @@
 package com.honeypot.domain.post.api;
 
 import com.honeypot.common.model.exceptions.InvalidTokenException;
+import com.honeypot.common.utils.SecurityUtils;
 import com.honeypot.common.validation.constraints.AllowedSortProperties;
-import com.honeypot.domain.auth.service.contracts.AuthTokenManagerService;
 import com.honeypot.domain.post.dto.NormalPostDto;
-import com.honeypot.domain.post.service.NormalPostService;
 import com.honeypot.domain.post.dto.NormalPostUploadRequest;
+import com.honeypot.domain.post.service.NormalPostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +21,6 @@ import javax.validation.Valid;
 @Validated
 public class NormalPostApi {
 
-    private final AuthTokenManagerService authTokenManagerService;
-
     private final NormalPostService normalPostService;
 
     @GetMapping
@@ -36,14 +34,9 @@ public class NormalPostApi {
     }
 
     @PostMapping
-    public ResponseEntity<?> upload(@RequestHeader("Authorization") String token,
-                                    @Valid @RequestBody NormalPostUploadRequest uploadRequest) {
+    public ResponseEntity<?> upload(@Valid @RequestBody NormalPostUploadRequest uploadRequest) {
 
-        if (authTokenManagerService.validate(token)) {
-            throw new InvalidTokenException();
-        }
-
-        long memberId = authTokenManagerService.getMemberId(token);
+        Long memberId = SecurityUtils.getCurrentMemberId().orElseThrow(InvalidTokenException::new);
         uploadRequest.setWriterId(memberId);
 
         NormalPostDto uploadedPost = normalPostService.upload(uploadRequest);
@@ -58,33 +51,22 @@ public class NormalPostApi {
     }
 
     @PutMapping("/{postId}")
-    public ResponseEntity<?> update(@RequestHeader("Authorization") String token,
-                                    @PathVariable long postId,
+    public ResponseEntity<?> update(@PathVariable long postId,
                                     @Valid @RequestBody NormalPostUploadRequest uploadRequest) {
 
-        if (authTokenManagerService.validate(token)) {
-            throw new InvalidTokenException();
-        }
-
-        long memberId = authTokenManagerService.getMemberId(token);
+        Long memberId = SecurityUtils.getCurrentMemberId().orElseThrow(InvalidTokenException::new);
         uploadRequest.setWriterId(memberId);
-
         NormalPostDto uploadedPost = normalPostService.update(postId, uploadRequest);
+
         return ResponseEntity
                 .noContent()
                 .build();
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity<?> delete(@RequestHeader("Authorization") String token,
-                                    @PathVariable long postId) {
+    public ResponseEntity<?> delete(@PathVariable long postId) {
 
-        if (authTokenManagerService.validate(token)) {
-            throw new InvalidTokenException();
-        }
-
-        long memberId = authTokenManagerService.getMemberId(token);
-
+        Long memberId = SecurityUtils.getCurrentMemberId().orElseThrow(InvalidTokenException::new);
         normalPostService.delete(postId, memberId);
 
         return ResponseEntity

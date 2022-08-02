@@ -1,11 +1,11 @@
 package com.honeypot.domain.reaction.api;
 
 import com.honeypot.common.model.exceptions.InvalidTokenException;
-import com.honeypot.domain.auth.service.contracts.AuthTokenManagerService;
+import com.honeypot.common.utils.SecurityUtils;
 import com.honeypot.domain.reaction.dto.ReactionDto;
 import com.honeypot.domain.reaction.dto.ReactionRequest;
-import com.honeypot.domain.reaction.service.ReactionService;
 import com.honeypot.domain.reaction.entity.enums.ReactionType;
+import com.honeypot.domain.reaction.service.ReactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -20,8 +20,6 @@ import javax.validation.Valid;
 @Validated
 public class ReactionApi {
 
-    private final AuthTokenManagerService authTokenManagerService;
-
     private final ReactionService reactionService;
 
     @GetMapping("/likes/{reactionId}")
@@ -30,14 +28,9 @@ public class ReactionApi {
     }
 
     @PostMapping("/likes")
-    public ResponseEntity<?> reactLike(@RequestHeader("Authorization") String token,
-                                       @Valid @RequestBody ReactionRequest reactionRequest) {
+    public ResponseEntity<?> reactLike(@Valid @RequestBody ReactionRequest reactionRequest) {
 
-        if (authTokenManagerService.validate(token)) {
-            throw new InvalidTokenException();
-        }
-
-        long memberId = authTokenManagerService.getMemberId(token);
+        Long memberId = SecurityUtils.getCurrentMemberId().orElseThrow(InvalidTokenException::new);
         reactionRequest.setReactorId(memberId);
         reactionRequest.setReactionType(ReactionType.LIKE);
 
@@ -57,15 +50,9 @@ public class ReactionApi {
     }
 
     @DeleteMapping("/likes/{reactionId}")
-    public ResponseEntity<?> cancelLikeReaction(@RequestHeader("Authorization") String token,
-                                                @PathVariable Long reactionId) {
+    public ResponseEntity<?> cancelLikeReaction(@PathVariable Long reactionId) {
 
-        if (authTokenManagerService.validate(token)) {
-            throw new InvalidTokenException();
-        }
-
-        long memberId = authTokenManagerService.getMemberId(token);
-
+        Long memberId = SecurityUtils.getCurrentMemberId().orElseThrow(InvalidTokenException::new);
         reactionService.cancel(memberId, reactionId);
 
         return ResponseEntity.noContent().build();
