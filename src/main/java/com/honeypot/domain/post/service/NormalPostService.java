@@ -1,6 +1,8 @@
 package com.honeypot.domain.post.service;
 
 import com.honeypot.common.model.exceptions.InvalidAuthorizationException;
+import com.honeypot.common.model.exceptions.InvalidTokenException;
+import com.honeypot.common.utils.SecurityUtils;
 import com.honeypot.common.validation.groups.InsertContext;
 import com.honeypot.domain.comment.repository.CommentRepository;
 import com.honeypot.domain.member.entity.Member;
@@ -43,8 +45,8 @@ public class NormalPostService {
     private final MemberRepository memberRepository;
 
     @Transactional(readOnly = true)
-    public Page<NormalPostDto> pageList(Pageable pageable) {
-        Page<NormalPostDto> result = querydslRepository.findAllPostWithCommentAndReactionCount(pageable);
+    public Page<NormalPostDto> pageList(Pageable pageable, Long memberId) {
+        Page<NormalPostDto> result = querydslRepository.findAllPostWithCommentAndReactionCount(pageable, memberId);
         return new PageImpl<>(
                 result.getContent(),
                 pageable,
@@ -53,7 +55,7 @@ public class NormalPostService {
     }
 
     @Transactional(readOnly = true)
-    public NormalPostDto find(@NotNull Long postId) {
+    public NormalPostDto find(@NotNull Long postId, Long memberId) {
         NormalPost normalPost = normalPostRepository
                 .findById(postId)
                 .orElseThrow(EntityNotFoundException::new);
@@ -61,6 +63,11 @@ public class NormalPostService {
         NormalPostDto result = normalPostMapper.toDto(normalPost);
         result.setLikeReactionCount(reactionRepository.countByReactionTypeAndPostId(ReactionType.LIKE, postId));
         result.setCommentCount(commentRepository.countByPostId(postId));
+        if (memberId != null) {
+            result.setIsLiked(reactionRepository.isLikePost(postId, memberId));
+        } else {
+            result.setIsLiked(false);
+        }
 
         return result;
     }

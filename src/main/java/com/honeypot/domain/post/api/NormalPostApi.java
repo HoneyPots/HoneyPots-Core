@@ -25,12 +25,14 @@ public class NormalPostApi {
 
     @GetMapping
     public ResponseEntity<?> pageList(@AllowedSortProperties("createdAt") Pageable pageable) {
-        return ResponseEntity.ok(normalPostService.pageList(pageable));
+        Long memberId = SecurityUtils.getCurrentMemberId().orElse(null);
+        return ResponseEntity.ok(normalPostService.pageList(pageable, memberId));
     }
 
     @GetMapping("{postId}")
     public ResponseEntity<?> read(@PathVariable long postId) {
-        return ResponseEntity.ok(normalPostService.find(postId));
+        Long memberId = SecurityUtils.getCurrentMemberId().orElse(null);
+        return ResponseEntity.ok(normalPostService.find(postId, memberId));
     }
 
     @PostMapping

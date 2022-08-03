@@ -20,6 +20,7 @@ import java.util.List;
 import static com.honeypot.domain.post.entity.QPost.post;
 import static com.honeypot.domain.reaction.entity.QReaction.reaction;
 import static com.querydsl.jpa.JPAExpressions.select;
+import static com.querydsl.jpa.JPAExpressions.selectOne;
 
 @Repository
 @RequiredArgsConstructor
@@ -27,7 +28,9 @@ public class QuerydslRepositoryImpl {
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public Page<NormalPostDto> findAllPostWithCommentAndReactionCount(Pageable pageable) {
+    public Page<NormalPostDto> findAllPostWithCommentAndReactionCount(Pageable pageable, Long memberId) {
+        memberId = memberId == null ? -1 : memberId;
+
         List<NormalPostDto> result = jpaQueryFactory
                 .select(new QNormalPostDto(
                                 post.id,
@@ -40,13 +43,19 @@ public class QuerydslRepositoryImpl {
                                 ExpressionUtils.as(
                                         select(reaction.count())
                                                 .from(reaction)
-                                                .where(reaction.postId
-                                                        .eq(post.id)
-                                                        .and(reaction.reactionType
-                                                                .eq(ReactionType.LIKE))),
-                                        "likeReactionCount")
-                                ,
+                                                .where(reaction.postId.eq(post.id)
+                                                        .and(reaction.reactionType.eq(ReactionType.LIKE))),
+                                        "likeReactionCount"),
                                 post.comments.size().castToNum(Long.class),
+                                ExpressionUtils.as(
+                                        select(selectOne())
+                                                .from(reaction)
+                                                .where(reaction.postId.eq(post.id)
+                                                        .and(reaction.reactionType.eq(ReactionType.LIKE))
+                                                        .and(reaction.reactor.id.eq(memberId))
+                                                        )
+                                                .exists(),
+                                        "isLiked"),
                                 post.createdAt,
                                 post.lastModifiedAt
                         )
