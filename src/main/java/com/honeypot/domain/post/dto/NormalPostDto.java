@@ -1,5 +1,6 @@
 package com.honeypot.domain.post.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.honeypot.domain.member.dto.WriterDto;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Builder;
@@ -7,13 +8,15 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+
 @Data
 @Builder
 public class NormalPostDto {
 
     @QueryProjection
     public NormalPostDto(long postId, String title, String content,
-                         WriterDto writer, long commentCount, long likeReactionCount,
+                         WriterDto writer, Long commentCount, Long likeReactionCount,
                          LocalDateTime uploadedAt, LocalDateTime lastModifiedAt) {
         this.postId = postId;
         this.title = title;
@@ -33,9 +36,11 @@ public class NormalPostDto {
 
     private WriterDto writer;
 
-    private long commentCount;
+    @JsonInclude(NON_NULL)
+    private Long commentCount;
 
-    private long likeReactionCount;
+    @JsonInclude(NON_NULL)
+    private Long likeReactionCount;
 
     private LocalDateTime uploadedAt;
 

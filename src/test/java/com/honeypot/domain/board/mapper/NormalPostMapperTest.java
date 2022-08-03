@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class NormalPostMapperTest {
 
@@ -92,7 +93,7 @@ class NormalPostMapperTest {
         assertEquals(entity.getContent(), dto.getContent());
         assertEquals(entity.getWriter().getId(), dto.getWriter().getId());
         assertEquals(entity.getWriter().getNickname(), dto.getWriter().getNickname());
-        assertEquals(entity.getComments().size(), dto.getCommentCount());
+        assertNull(dto.getCommentCount());
         assertEquals(entity.getCreatedAt(), dto.getUploadedAt());
         assertEquals(entity.getLastModifiedAt(), dto.getUploadedAt());
     }
