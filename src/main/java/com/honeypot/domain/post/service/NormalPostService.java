@@ -2,6 +2,7 @@ package com.honeypot.domain.post.service;
 
 import com.honeypot.common.model.exceptions.InvalidAuthorizationException;
 import com.honeypot.common.validation.groups.InsertContext;
+import com.honeypot.domain.comment.repository.CommentRepository;
 import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.member.repository.MemberRepository;
 import com.honeypot.domain.post.dto.NormalPostDto;
@@ -37,6 +38,8 @@ public class NormalPostService {
 
     private final ReactionRepository reactionRepository;
 
+    private final CommentRepository commentRepository;
+
     private final MemberRepository memberRepository;
 
     @Transactional(readOnly = true)
@@ -57,6 +60,7 @@ public class NormalPostService {
 
         NormalPostDto result = normalPostMapper.toDto(normalPost);
         result.setLikeReactionCount(reactionRepository.countByReactionTypeAndPostId(ReactionType.LIKE, postId));
+        result.setCommentCount(commentRepository.countByPostId(postId));
 
         return result;
     }
