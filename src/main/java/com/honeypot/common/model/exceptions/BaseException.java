@@ -3,7 +3,7 @@ package com.honeypot.common.model.exceptions;
 import lombok.Getter;
 
 @Getter
-public class BaseException extends RuntimeException {
+public abstract class BaseException extends RuntimeException {
 
     private final String code;
 
