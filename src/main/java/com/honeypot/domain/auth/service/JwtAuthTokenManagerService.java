@@ -23,9 +23,23 @@ public class JwtAuthTokenManagerService implements AuthTokenManagerService {
     private final JwtProperties jwtProperties;
 
     @Override
-    public String issue(@NotNull Long memberId) {
+    public String issueAccessToken(@NotNull Long memberId) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expireAt = now.plus(jwtProperties.expirationTimeInSeconds().accessToken(), ChronoUnit.SECONDS);
+
+        return Jwts
+                .builder()
+                .signWith(jwtProperties.generateSecretKey(), SignatureAlgorithm.HS512)
+                .setSubject(String.valueOf(memberId))
+                .setIssuedAt(Timestamp.valueOf(now))
+                .setExpiration(Timestamp.valueOf(expireAt))
+                .compact();
+    }
+
+    @Override
+    public String issueRefreshToken(@NotNull Long memberId) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime expireAt = now.plus(jwtProperties.expirationTimeInSeconds().refreshToken(), ChronoUnit.SECONDS);
 
         return Jwts
                 .builder()

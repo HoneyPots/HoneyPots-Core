@@ -1,12 +1,14 @@
-package com.honeypot.domain.member.repository;
+package com.honeypot.domain.auth.repository;
 
 import com.honeypot.domain.auth.entity.AuthProvider;
 import com.honeypot.domain.auth.entity.enums.AuthProviderType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface AuthProviderRepository extends JpaRepository<AuthProvider, Long> {
 
-    AuthProvider findByProviderTypeAndProviderMemberId(AuthProviderType providerType, long providerMemberId);
+    Optional<AuthProvider> findByProviderTypeAndProviderMemberId(AuthProviderType providerType, String providerMemberId);
 }
