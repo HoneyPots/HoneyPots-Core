@@ -7,7 +7,9 @@ import javax.validation.constraints.NotNull;
 @Service
 public interface AuthTokenManagerService {
 
-    String issue(@NotNull Long memberId);
+    String issueAccessToken(@NotNull Long memberId);
+
+    String issueRefreshToken(@NotNull Long memberId);
 
     boolean validate(@NotNull String token);
 

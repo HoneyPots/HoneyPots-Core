@@ -43,29 +43,28 @@ public class KakaoLoginService implements LoginService {
          */
         KakaoTokenIssuance token = kakaoAuthRepository.getAccessToken(authorizationCode);
 
-        String accessToken = token.getAccessToken();
-        KakaoTokenInfo tokenInfo = kakaoAuthRepository.getTokenInfo(accessToken);
-        KakaoUserInfo userInfo = kakaoAuthRepository.getUserInfoByAccessToken(accessToken);
+        String kakaoAccessToken = token.getAccessToken();
+        KakaoTokenInfo tokenInfo = kakaoAuthRepository.getTokenInfo(kakaoAccessToken);
+        KakaoUserInfo userInfo = kakaoAuthRepository.getUserInfoByAccessToken(kakaoAccessToken);
 
         AuthProviderType providerType = AuthProviderType.valueOf(provider.toUpperCase());
         String providerMemberId = String.valueOf(tokenInfo.getId());
 
+        // find exist member or signup.
         AuthProvider authProvider = authProviderRepository
-                .findByProviderTypeAndProviderMemberId(providerType, providerMemberId);
-
-        // do signup
-        if (authProvider == null) {
-            authProvider = memberSignupService
-                    .signupWithOAuth(providerMemberId, providerType, userInfo.getConnectedAt())
-                    .getAuthProvider();
-        }
+                .findByProviderTypeAndProviderMemberId(providerType, providerMemberId)
+                .orElse(memberSignupService
+                        .signupWithOAuth(providerMemberId, providerType, userInfo.getConnectedAt())
+                        .getAuthProvider());
 
         Long memberId = authProvider.getMember().getId();
 
-        String serviceToken = authTokenManagerService.issue(memberId);
+        String accessToken = authTokenManagerService.issueAccessToken(memberId);
+        String refreshToken = authTokenManagerService.issueRefreshToken(memberId);
 
         return LoginResponse.builder()
-                .accessToken(serviceToken)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 
