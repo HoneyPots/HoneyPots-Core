@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class KakaoLoginService implements LoginService {
@@ -53,7 +55,7 @@ public class KakaoLoginService implements LoginService {
         // find exist member or signup.
         AuthProvider authProvider = authProviderRepository
                 .findByProviderTypeAndProviderMemberId(providerType, providerMemberId)
-                .orElse(memberSignupService
+                .orElseGet(() -> memberSignupService
                         .signupWithOAuth(providerMemberId, providerType, userInfo.getConnectedAt())
                         .getAuthProvider());
 
