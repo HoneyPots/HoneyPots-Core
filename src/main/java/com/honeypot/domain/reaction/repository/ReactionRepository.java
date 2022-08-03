@@ -14,4 +14,8 @@ public interface ReactionRepository extends JpaRepository<Reaction, Long> {
 
     Optional<Reaction> findByReactorIdAndCommentIdAndReactionType(Long reactorId, Long commentId, ReactionType reactionType);
 
+    long countByReactionTypeAndPostId(ReactionType reactionType, Long postId);
+
+    long countByReactionTypeAndCommentId(ReactionType reactionType, Long commentId);
+
 }

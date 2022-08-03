@@ -5,10 +5,13 @@ import com.honeypot.common.validation.groups.InsertContext;
 import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.member.repository.MemberRepository;
 import com.honeypot.domain.post.dto.NormalPostDto;
-import com.honeypot.domain.post.mapper.NormalPostMapper;
-import com.honeypot.domain.post.repository.NormalPostRepository;
 import com.honeypot.domain.post.dto.NormalPostUploadRequest;
 import com.honeypot.domain.post.entity.NormalPost;
+import com.honeypot.domain.post.mapper.NormalPostMapper;
+import com.honeypot.domain.post.repository.NormalPostRepository;
+import com.honeypot.domain.post.repository.QuerydslRepositoryImpl;
+import com.honeypot.domain.reaction.entity.enums.ReactionType;
+import com.honeypot.domain.reaction.repository.ReactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -26,17 +29,21 @@ import javax.validation.constraints.NotNull;
 @Validated
 public class NormalPostService {
 
+    private final QuerydslRepositoryImpl querydslRepository;
+
     private final NormalPostMapper normalPostMapper;
 
     private final NormalPostRepository normalPostRepository;
+
+    private final ReactionRepository reactionRepository;
 
     private final MemberRepository memberRepository;
 
     @Transactional(readOnly = true)
     public Page<NormalPostDto> pageList(Pageable pageable) {
-        Page<NormalPost> result = normalPostRepository.findAll(pageable);
+        Page<NormalPostDto> result = querydslRepository.findAllPostWithCommentAndReactionCount(pageable);
         return new PageImpl<>(
-                normalPostMapper.toDto(result.getContent()),
+                result.getContent(),
                 pageable,
                 result.getTotalElements()
         );
@@ -44,11 +51,14 @@ public class NormalPostService {
 
     @Transactional(readOnly = true)
     public NormalPostDto find(@NotNull Long postId) {
-        NormalPost result = normalPostRepository
+        NormalPost normalPost = normalPostRepository
                 .findById(postId)
                 .orElseThrow(EntityNotFoundException::new);
 
-        return normalPostMapper.toDto(result);
+        NormalPostDto result = normalPostMapper.toDto(normalPost);
+        result.setLikeReactionCount(reactionRepository.countByReactionTypeAndPostId(ReactionType.LIKE, postId));
+
+        return result;
     }
 
     @Transactional
@@ -74,7 +84,7 @@ public class NormalPostService {
                 .findById(postId)
                 .orElseThrow(EntityNotFoundException::new);
 
-        if(!normalPost.getWriter().getId().equals(uploadRequest.getWriterId())) {
+        if (!normalPost.getWriter().getId().equals(uploadRequest.getWriterId())) {
             throw new InvalidAuthorizationException();
         }
 
@@ -90,7 +100,7 @@ public class NormalPostService {
                 .findById(postId)
                 .orElseThrow(EntityNotFoundException::new);
 
-        if(!normalPost.getWriter().getId().equals(memberId)) {
+        if (!normalPost.getWriter().getId().equals(memberId)) {
             throw new InvalidAuthorizationException();
         }
 
