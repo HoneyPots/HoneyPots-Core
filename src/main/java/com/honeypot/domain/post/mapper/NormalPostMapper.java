@@ -18,8 +18,8 @@ public interface NormalPostMapper {
     @Mapping(source = "writerId", target = "writer.id")
     NormalPost toEntity(NormalPostUploadRequest dto);
 
-    @Mapping(target = "commentCount",
-            expression = "java(entity.getComments() == null ? 0 : entity.getComments().size())")
+    @Mapping(target = "likeReactionCount", ignore = true)
+    @Mapping(target = "commentCount", ignore = true)
     @Mapping(source = "id", target = "postId")
     @Mapping(source = "createdAt", target = "uploadedAt")
     NormalPostDto toDto(NormalPost entity);
