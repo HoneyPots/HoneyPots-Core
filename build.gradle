@@ -24,6 +24,14 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+    // Querydsl
+    implementation 'com.querydsl:querydsl-jpa:5.0.0'
+    annotationProcessor(
+            "javax.persistence:javax.persistence-api",
+            "javax.annotation:javax.annotation-api",
+            "com.querydsl:querydsl-apt:5.0.0:jpa"
+    )
+
     // H2
     runtimeOnly 'com.h2database:h2:2.1.212'
 
@@ -42,6 +50,14 @@ dependencies {
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ["$projectDir/src/main/java", "$projectDir/build/generated"]
+        }
     }
 }
 
