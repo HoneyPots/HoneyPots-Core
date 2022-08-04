@@ -1,8 +1,8 @@
 package com.honeypot.domain.comment.api;
 
 import com.honeypot.common.model.exceptions.InvalidTokenException;
+import com.honeypot.common.utils.SecurityUtils;
 import com.honeypot.common.validation.constraints.AllowedSortProperties;
-import com.honeypot.domain.auth.service.TokenManagerService;
 import com.honeypot.domain.comment.dto.CommentDto;
 import com.honeypot.domain.comment.service.CommentService;
 import com.honeypot.domain.comment.dto.CommentUploadRequest;
@@ -21,8 +21,6 @@ import javax.validation.Valid;
 @Validated
 public class CommentApi {
 
-    private final TokenManagerService tokenManagerService;
-
     private final CommentService commentService;
 
     @GetMapping
@@ -38,14 +36,9 @@ public class CommentApi {
     }
 
     @PostMapping
-    public ResponseEntity<?> write(@RequestHeader("Authorization") String token,
-                                   @Valid @RequestBody CommentUploadRequest uploadRequest) {
+    public ResponseEntity<?> write(@Valid @RequestBody CommentUploadRequest uploadRequest) {
 
-        if (tokenManagerService.verifyToken(token)) {
-            throw new InvalidTokenException();
-        }
-
-        long memberId = tokenManagerService.getUserId(token);
+        Long memberId = SecurityUtils.getCurrentMemberId().orElseThrow(InvalidTokenException::new);
         uploadRequest.setWriterId(memberId);
 
         CommentDto createdComment = commentService.save(uploadRequest);
@@ -60,15 +53,10 @@ public class CommentApi {
     }
 
     @PutMapping("/{commentId}")
-    public ResponseEntity<?> update(@RequestHeader("Authorization") String token,
-                                    @PathVariable long commentId,
+    public ResponseEntity<?> update(@PathVariable long commentId,
                                     @Valid @RequestBody CommentUploadRequest uploadRequest) {
 
-        if (tokenManagerService.verifyToken(token)) {
-            throw new InvalidTokenException();
-        }
-
-        long memberId = tokenManagerService.getUserId(token);
+        Long memberId = SecurityUtils.getCurrentMemberId().orElseThrow(InvalidTokenException::new);
         uploadRequest.setWriterId(memberId);
 
         CommentDto updatedComment = commentService.update(commentId, uploadRequest);
@@ -78,14 +66,9 @@ public class CommentApi {
     }
 
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<?> delete(@RequestHeader("Authorization") String token,
-                                    @PathVariable long commentId) {
+    public ResponseEntity<?> delete(@PathVariable long commentId) {
 
-        if (tokenManagerService.verifyToken(token)) {
-            throw new InvalidTokenException();
-        }
-
-        long memberId = tokenManagerService.getUserId(token);
+        Long memberId = SecurityUtils.getCurrentMemberId().orElseThrow(InvalidTokenException::new);
         commentService.delete(commentId, memberId);
 
         return ResponseEntity

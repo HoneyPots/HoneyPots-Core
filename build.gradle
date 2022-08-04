@@ -6,7 +6,7 @@ plugins {
 }
 
 group 'com.honeypot'
-version '0.0.4'
+version '0.0.5'
 sourceCompatibility = '17'
 
 repositories {
@@ -21,10 +21,24 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // Querydsl
+    implementation 'com.querydsl:querydsl-jpa:5.0.0'
+    annotationProcessor(
+            "javax.persistence:javax.persistence-api",
+            "javax.annotation:javax.annotation-api",
+            "com.querydsl:querydsl-apt:5.0.0:jpa"
+    )
 
     // H2
     runtimeOnly 'com.h2database:h2:2.1.212'
+
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
     // Mapstruct & Lombok
     implementation 'org.mapstruct:mapstruct:1.5.1.Final'
@@ -36,6 +50,14 @@ dependencies {
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ["$projectDir/src/main/java", "$projectDir/build/generated"]
+        }
     }
 }
 

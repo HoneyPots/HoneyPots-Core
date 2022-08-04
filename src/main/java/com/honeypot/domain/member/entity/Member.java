@@ -1,18 +1,21 @@
 package com.honeypot.domain.member.entity;
 
 import com.honeypot.common.entity.BaseTimeEntity;
-import lombok.*;
+import com.honeypot.domain.auth.entity.AuthProvider;
+import com.honeypot.domain.member.entity.enums.Gender;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Getter
+@Setter
 @ToString
 @SuperBuilder
 @NoArgsConstructor
@@ -35,7 +38,12 @@ public class Member extends BaseTimeEntity {
     @Column(name = "birthday", length = 4)
     private String birthday;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "gender")
-    private String gender;
+    private Gender gender;
+
+    @OneToOne(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private AuthProvider authProvider;
 
 }
