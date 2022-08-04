@@ -65,6 +65,7 @@ public class NormalPostService {
         result.setCommentCount(commentRepository.countByPostId(postId));
         if (memberId != null) {
             result.setIsLiked(reactionRepository.isLikePost(postId, memberId));
+            result.setLikeReactionId(reactionRepository.findIdByLikePostId(postId, memberId));
         } else {
             result.setIsLiked(false);
         }

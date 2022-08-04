@@ -17,7 +17,7 @@ public class NormalPostDto {
     @QueryProjection
     public NormalPostDto(long postId, String title, String content, WriterDto writer,
                          Long commentCount, Long likeReactionCount, Boolean isLiked,
-                         LocalDateTime uploadedAt, LocalDateTime lastModifiedAt) {
+                         Long likeReactionId, LocalDateTime uploadedAt, LocalDateTime lastModifiedAt) {
         this.postId = postId;
         this.title = title;
         this.content = content;
@@ -25,6 +25,7 @@ public class NormalPostDto {
         this.commentCount = commentCount;
         this.likeReactionCount = likeReactionCount;
         this.isLiked = isLiked;
+        this.likeReactionId = likeReactionId;
         this.uploadedAt = uploadedAt;
         this.lastModifiedAt = lastModifiedAt;
     }
@@ -43,8 +44,10 @@ public class NormalPostDto {
     @JsonInclude(NON_NULL)
     private Long likeReactionCount;
 
-    @JsonInclude(NON_NULL)
     private Boolean isLiked;
+
+    @JsonInclude(NON_NULL)
+    private Long likeReactionId;
 
     private LocalDateTime uploadedAt;
 

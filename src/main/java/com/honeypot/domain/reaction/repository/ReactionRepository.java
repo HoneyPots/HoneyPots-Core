@@ -27,4 +27,12 @@ public interface ReactionRepository extends JpaRepository<Reaction, Long> {
             nativeQuery = true)
     boolean isLikePost(Long postId, Long memberId);
 
+    @Query(value = "SELECT r.reaction_id " +
+            "FROM reaction r " +
+            "WHERE r.reaction_type = 'LIKE' " +
+            "AND member_id = :memberId " +
+            "AND post_id = :postId",
+            nativeQuery = true)
+    Long findIdByLikePostId(Long postId, Long memberId);
+
 }
