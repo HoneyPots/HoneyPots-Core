@@ -2,6 +2,7 @@ package com.honeypot.domain.post.entity;
 
 import com.honeypot.common.entity.BaseTimeEntity;
 import com.honeypot.domain.comment.entity.Comment;
+import com.honeypot.domain.file.File;
 import com.honeypot.domain.member.entity.Member;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -33,6 +34,10 @@ public class Post extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "writer_id", nullable = false)
     private Member writer;
+
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<File> attachedFiles = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Builder.Default
