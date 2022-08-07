@@ -24,6 +24,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+    // Spring cloud
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
     // Querydsl
     implementation 'com.querydsl:querydsl-jpa:5.0.0'
     annotationProcessor(
@@ -79,6 +82,7 @@ tasks.named("jar") {
 
 tasks.named("bootRun") {
     mainClass = 'com.honeypot.HoneyPotApplication'
+    jvmArgs = ["-Dcom.amazonaws.sdk.disableEc2Metadata=true"]
 }
 
 tasks.named("bootJar") {

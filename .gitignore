@@ -34,3 +34,7 @@ bin
 
 # Keystore
 keystore
+
+# AWS
+application*.yml
+aws.yml
