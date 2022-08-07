@@ -14,6 +14,8 @@ server:
 spring:
   profiles:
     active: dev
+    include:
+      - aws
 
   # Datasource
   datasource:
