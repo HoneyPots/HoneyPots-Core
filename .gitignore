@@ -27,6 +27,14 @@ hs_err_pid*
 
 # Build outputs
 build
+bin
 
 # Gradle
 .gradle
+
+# Keystore
+keystore
+
+# AWS
+application*.yml
+aws.yml

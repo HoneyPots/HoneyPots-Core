@@ -1,14 +1,15 @@
 package com.honeypot.domain.post.service;
 
 import com.honeypot.common.model.exceptions.InvalidAuthorizationException;
-import com.honeypot.common.model.exceptions.InvalidTokenException;
-import com.honeypot.common.utils.SecurityUtils;
 import com.honeypot.common.validation.groups.InsertContext;
 import com.honeypot.domain.comment.repository.CommentRepository;
+import com.honeypot.domain.file.AttachedFileResponse;
+import com.honeypot.domain.file.FileUploadService;
 import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.member.repository.MemberRepository;
 import com.honeypot.domain.post.dto.NormalPostDto;
 import com.honeypot.domain.post.dto.NormalPostUploadRequest;
+import com.honeypot.domain.file.PostFileUploadRequest;
 import com.honeypot.domain.post.entity.NormalPost;
 import com.honeypot.domain.post.mapper.NormalPostMapper;
 import com.honeypot.domain.post.repository.NormalPostRepository;
@@ -26,6 +27,7 @@ import org.springframework.validation.annotation.Validated;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +45,8 @@ public class NormalPostService {
     private final CommentRepository commentRepository;
 
     private final MemberRepository memberRepository;
+
+    private final FileUploadService fileUploadService;
 
     @Transactional(readOnly = true)
     public Page<NormalPostDto> pageList(Pageable pageable, Long memberId) {
@@ -65,6 +69,7 @@ public class NormalPostService {
         result.setCommentCount(commentRepository.countByPostId(postId));
         if (memberId != null) {
             result.setIsLiked(reactionRepository.isLikePost(postId, memberId));
+            result.setLikeReactionId(reactionRepository.findIdByLikePostId(postId, memberId));
         } else {
             result.setIsLiked(false);
         }
@@ -84,6 +89,17 @@ public class NormalPostService {
 
         NormalPostDto result = normalPostMapper.toDto(created);
         result.getWriter().setNickname(writer.getNickname());
+
+        List<PostFileUploadRequest> attachedFiles = request.getAttachedFiles();
+        if (attachedFiles != null) {
+            List<AttachedFileResponse> files = attachedFiles.stream()
+                    .filter(PostFileUploadRequest::isWillBeUploaded)
+                    .peek(f -> f.setLinkPostId(result.getPostId()))
+                    .map(fileUploadService::linkFileWithPost)
+                    .toList();
+
+            result.setAttachedFiles(files);
+        }
 
         return result;
     }

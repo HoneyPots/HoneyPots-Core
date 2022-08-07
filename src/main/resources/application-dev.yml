@@ -58,7 +58,7 @@ logging:
 oauth:
   kakao:
     client-secret: lDDWMiLlahtpdtKCgR04mlUCFvGsXbhV
-    redirect-url: "http://localhost:8090/api/auth/kakao"
+    redirect-url: "https://localhost:8090/api/auth/kakao"
     api-key:
       rest-api: 211dafc4f98802b4890c43ec2b305f72
       admin: 3a032aeb8d68e14d7d99c7172142911a

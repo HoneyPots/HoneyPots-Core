@@ -40,22 +40,30 @@ public class QuerydslRepositoryImpl {
                                         post.writer.id,
                                         post.writer.nickname
                                 ),
+                                post.comments.size().castToNum(Long.class),
                                 ExpressionUtils.as(
                                         select(reaction.count())
                                                 .from(reaction)
                                                 .where(reaction.postId.eq(post.id)
                                                         .and(reaction.reactionType.eq(ReactionType.LIKE))),
                                         "likeReactionCount"),
-                                post.comments.size().castToNum(Long.class),
                                 ExpressionUtils.as(
                                         select(selectOne())
                                                 .from(reaction)
                                                 .where(reaction.postId.eq(post.id)
                                                         .and(reaction.reactionType.eq(ReactionType.LIKE))
                                                         .and(reaction.reactor.id.eq(memberId))
-                                                        )
+                                                )
                                                 .exists(),
                                         "isLiked"),
+                                ExpressionUtils.as(
+                                        select(reaction.id)
+                                                .from(reaction)
+                                                .where(reaction.postId.eq(post.id)
+                                                        .and(reaction.reactionType.eq(ReactionType.LIKE))
+                                                        .and(reaction.reactor.id.eq(memberId))
+                                                ),
+                                        "likeReactionId"),
                                 post.createdAt,
                                 post.lastModifiedAt
                         )
