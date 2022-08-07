@@ -63,18 +63,7 @@ public class NormalPostService {
         NormalPost normalPost = normalPostRepository
                 .findById(postId)
                 .orElseThrow(EntityNotFoundException::new);
-
-        NormalPostDto result = normalPostMapper.toDto(normalPost);
-        result.setLikeReactionCount(reactionRepository.countByReactionTypeAndPostId(ReactionType.LIKE, postId));
-        result.setCommentCount(commentRepository.countByPostId(postId));
-        if (memberId != null) {
-            result.setIsLiked(reactionRepository.isLikePost(postId, memberId));
-            result.setLikeReactionId(reactionRepository.findIdByLikePostId(postId, memberId));
-        } else {
-            result.setIsLiked(false);
-        }
-
-        return result;
+        return querydslRepository.findPostDetailById(postId, memberId);
     }
 
     @Transactional
