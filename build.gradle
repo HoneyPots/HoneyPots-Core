@@ -6,7 +6,7 @@ plugins {
 }
 
 group 'com.honeypot'
-version '0.0.5'
+version '0.0.6'
 sourceCompatibility = '17'
 
 repositories {
