@@ -33,7 +33,7 @@ public class File extends BaseTimeEntity {
     private FileType fileType;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false)
+    @JoinColumn(name = "post_id")
     private Post post;
 
 }
