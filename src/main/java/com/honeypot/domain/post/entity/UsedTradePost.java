@@ -1,5 +1,7 @@
 package com.honeypot.domain.post.entity;
 
+import com.honeypot.domain.post.entity.enums.TradeStatus;
+import com.honeypot.domain.post.entity.enums.TradeType;
 import lombok.Getter;
 
 import javax.persistence.Column;
@@ -18,12 +20,9 @@ public class UsedTradePost extends Post {
     private String chatRoomLink;
 
     @Column(name = "trade_type")
-    private String tradeType;
-
-    @Column(name = "trade_area")
-    private String tradeArea;
+    private TradeType tradeType;
 
     @Column(name = "trade_status")
-    private String tradeStatus;
+    private TradeStatus tradeStatus;
 
 }
