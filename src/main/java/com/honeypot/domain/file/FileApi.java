@@ -18,7 +18,7 @@ public class FileApi {
     private final FileUploadService fileUploadService;
 
     @GetMapping("/presigned-url")
-    public ResponseEntity<?> getPresignedUrl(@Valid FileUploadDto fileUploadRequest) {
+    public ResponseEntity<?> getPresignedUrl(@Valid FileUploadRequest fileUploadRequest) {
         FileDto fileDto = fileUploadService.upload(fileUploadRequest);
 
         return ResponseEntity.ok(fileDto);

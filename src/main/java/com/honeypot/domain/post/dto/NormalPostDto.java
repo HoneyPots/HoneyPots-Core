@@ -1,17 +1,21 @@
 package com.honeypot.domain.post.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.honeypot.domain.file.AttachedFileResponse;
 import com.honeypot.domain.member.dto.WriterDto;
 import com.querydsl.core.annotations.QueryProjection;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 @Data
 @Builder
+@AllArgsConstructor
 public class NormalPostDto {
 
     @QueryProjection
@@ -48,6 +52,9 @@ public class NormalPostDto {
 
     @JsonInclude(NON_NULL)
     private Long likeReactionId;
+
+    @JsonInclude(NON_NULL)
+    private List<AttachedFileResponse> attachedFiles;
 
     private LocalDateTime uploadedAt;
 

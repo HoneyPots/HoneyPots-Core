@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @Builder
-public class FileUploadDto {
+public class FileUploadRequest {
 
     @NotNull
     private String filename;
