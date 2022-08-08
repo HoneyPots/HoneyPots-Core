@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 
@@ -15,6 +16,7 @@ import javax.persistence.*;
 @SuperBuilder
 @NoArgsConstructor
 @DiscriminatorValue("USED_TRADE")
+@DynamicUpdate
 public class UsedTradePost extends Post {
 
     @Column(name = "goods_price")

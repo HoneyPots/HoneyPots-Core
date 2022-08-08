@@ -7,6 +7,7 @@ import com.honeypot.domain.file.FileUploadService;
 import com.honeypot.domain.file.PostFileUploadRequest;
 import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.member.repository.MemberRepository;
+import com.honeypot.domain.post.dto.UsedTradeModifyRequest;
 import com.honeypot.domain.post.dto.UsedTradePostDto;
 import com.honeypot.domain.post.dto.UsedTradePostUploadRequest;
 import com.honeypot.domain.post.entity.UsedTradePost;
@@ -92,7 +93,7 @@ public class UsedTradePostService {
 
     @Transactional
     @Validated(InsertContext.class)
-    public UsedTradePostDto update(Long postId, UsedTradePostUploadRequest uploadRequest) {
+    public UsedTradePostDto update(Long postId, @Valid UsedTradePostUploadRequest uploadRequest) {
         UsedTradePost usedTradePost = usedTradePostRepository
                 .findById(postId)
                 .orElseThrow(EntityNotFoundException::new);
@@ -107,6 +108,22 @@ public class UsedTradePostService {
         usedTradePost.setTradeStatus(TradeStatus.valueOf(uploadRequest.getTradeStatus()));
         usedTradePost.setTradeType(TradeType.valueOf(uploadRequest.getTradeType()));
         usedTradePost.setChatRoomLink(uploadRequest.getChatRoomLink());
+
+        return usedTradePostMapper.toDto(usedTradePostRepository.save(usedTradePost));
+    }
+
+    @Transactional
+    @Validated(InsertContext.class)
+    public UsedTradePostDto updateTradeStatus(@NotNull Long postId, @Valid UsedTradeModifyRequest request) {
+        UsedTradePost usedTradePost = usedTradePostRepository
+                .findById(postId)
+                .orElseThrow(EntityNotFoundException::new);
+
+        if (!usedTradePost.getWriter().getId().equals(request.getWriterId())) {
+            throw new InvalidAuthorizationException();
+        }
+
+        usedTradePost.setTradeStatus(TradeStatus.valueOf(request.getTradeStatus()));
 
         return usedTradePostMapper.toDto(usedTradePostRepository.save(usedTradePost));
     }

@@ -3,6 +3,7 @@ package com.honeypot.domain.post.api;
 import com.honeypot.common.model.exceptions.InvalidTokenException;
 import com.honeypot.common.utils.SecurityUtils;
 import com.honeypot.common.validation.constraints.AllowedSortProperties;
+import com.honeypot.domain.post.dto.UsedTradeModifyRequest;
 import com.honeypot.domain.post.dto.UsedTradePostDto;
 import com.honeypot.domain.post.dto.UsedTradePostUploadRequest;
 import com.honeypot.domain.post.service.UsedTradePostService;
@@ -58,6 +59,18 @@ public class UsedTradePostApi {
         Long memberId = SecurityUtils.getCurrentMemberId().orElseThrow(InvalidTokenException::new);
         uploadRequest.setWriterId(memberId);
         UsedTradePostDto uploadedPost = usedTradePostService.update(postId, uploadRequest);
+
+        return ResponseEntity
+                .noContent()
+                .build();
+    }
+
+    @PatchMapping("/{postId}")
+    public ResponseEntity<?> updateTradeStatus(@PathVariable long postId,
+                                               @Valid @RequestBody UsedTradeModifyRequest request) {
+        Long memberId = SecurityUtils.getCurrentMemberId().orElseThrow(InvalidTokenException::new);
+        request.setWriterId(memberId);
+        UsedTradePostDto updated = usedTradePostService.updateTradeStatus(postId, request);
 
         return ResponseEntity
                 .noContent()
