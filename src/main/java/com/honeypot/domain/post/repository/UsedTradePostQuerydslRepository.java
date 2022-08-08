@@ -5,6 +5,8 @@ import com.honeypot.domain.file.QAttachedFileResponse;
 import com.honeypot.domain.member.dto.QWriterDto;
 import com.honeypot.domain.post.dto.NormalPostDto;
 import com.honeypot.domain.post.dto.QNormalPostDto;
+import com.honeypot.domain.post.dto.QUsedTradePostDto;
+import com.honeypot.domain.post.dto.UsedTradePostDto;
 import com.honeypot.domain.reaction.entity.enums.ReactionType;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Order;
@@ -22,7 +24,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 import static com.honeypot.domain.file.QFile.file;
-import static com.honeypot.domain.post.entity.QNormalPost.normalPost;
 import static com.honeypot.domain.post.entity.QPost.post;
 import static com.honeypot.domain.post.entity.QUsedTradePost.usedTradePost;
 import static com.honeypot.domain.reaction.entity.QReaction.reaction;
@@ -31,20 +32,20 @@ import static com.querydsl.jpa.JPAExpressions.selectOne;
 
 @Repository
 @RequiredArgsConstructor
-public class QuerydslRepositoryImpl {
+public class UsedTradePostQuerydslRepository {
 
     @Value("${cloud.aws.s3.domain}")
     private String s3Domain;
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public Page<NormalPostDto> findAllPostWithCommentAndReactionCount(Pageable pageable, Long memberId) {
+    public Page<UsedTradePostDto> findAllPostWithCommentAndReactionCount(Pageable pageable, Long memberId) {
         memberId = memberId == null ? -1 : memberId;
 
-        List<NormalPostDto> result = jpaQueryFactory
+        List<UsedTradePostDto> result = jpaQueryFactory
                 .select(getQNormalPostDtoSelectStatement(memberId))
                 .from(post)
-                .innerJoin(normalPost).on(post.id.eq(normalPost.id))
+                .innerJoin(usedTradePost).on(post.id.eq(usedTradePost.id))
                 .leftJoin(file).on(post.id.eq(file.post.id))
                 .fetchJoin()
                 .offset(pageable.getOffset())
@@ -55,20 +56,20 @@ public class QuerydslRepositoryImpl {
 
         long totalCount = jpaQueryFactory
                 .selectFrom(post)
-                .innerJoin(normalPost).on(post.id.eq(normalPost.id))
+                .innerJoin(usedTradePost).on(post.id.eq(usedTradePost.id))
                 .fetch()
                 .size();
 
         return new PageImpl<>(result, pageable, totalCount);
     }
 
-    public NormalPostDto findPostDetailById(Long postId, Long memberId) {
+    public UsedTradePostDto findPostDetailById(Long postId, Long memberId) {
         memberId = memberId == null ? -1 : memberId;
 
-        NormalPostDto result = jpaQueryFactory
+        UsedTradePostDto result = jpaQueryFactory
                 .select(getQNormalPostDtoSelectStatement(memberId))
                 .from(post)
-                .innerJoin(normalPost).on(post.id.eq(normalPost.id))
+                .innerJoin(usedTradePost).on(post.id.eq(usedTradePost.id))
                 .leftJoin(file).on(post.id.eq(file.post.id))
                 .fetchJoin()
                 .where(post.id.eq(postId))
@@ -84,15 +85,15 @@ public class QuerydslRepositoryImpl {
                 .where(file.post.id.eq(postId))
                 .fetch();
 
-        if(!attachedFiles.isEmpty()) {
+        if (!attachedFiles.isEmpty()) {
             result.setAttachedFiles(attachedFiles);
         }
 
         return result;
     }
 
-    private QNormalPostDto getQNormalPostDtoSelectStatement(Long memberId) {
-        return new QNormalPostDto(
+    private QUsedTradePostDto getQNormalPostDtoSelectStatement(Long memberId) {
+        return new QUsedTradePostDto(
                 post.id,
                 post.title,
                 post.content,
@@ -129,7 +130,11 @@ public class QuerydslRepositoryImpl {
                         file.filePath.min().prepend(s3Domain).coalesce(Expressions.nullExpression())
                 ).skipNulls(),
                 post.createdAt,
-                post.lastModifiedAt
+                post.lastModifiedAt,
+                usedTradePost.goodsPrice,
+                usedTradePost.tradeType,
+                usedTradePost.tradeStatus,
+                usedTradePost.chatRoomLink
         );
     }
 
