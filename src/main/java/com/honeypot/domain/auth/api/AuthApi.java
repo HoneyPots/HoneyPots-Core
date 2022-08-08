@@ -2,6 +2,7 @@ package com.honeypot.domain.auth.api;
 
 import com.honeypot.common.model.exceptions.BadRequestException;
 import com.honeypot.common.model.exceptions.RefreshFailedException;
+import com.honeypot.common.model.properties.JwtProperties;
 import com.honeypot.domain.auth.dto.LoginResponse;
 import com.honeypot.domain.auth.dto.RefreshTokenRequest;
 import com.honeypot.domain.auth.dto.kakao.KakaoAuthCode;
@@ -11,6 +12,7 @@ import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.member.service.MemberFindService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -31,40 +33,31 @@ public class AuthApi {
 
     private final MemberFindService memberFindService;
 
-    @GetMapping("/kakao")
-    public ResponseEntity<?> kakao(KakaoAuthCode response) {
-        LoginResponse loginResponse = loginService.loginWithOAuth("kakao", response.getCode());
+    private final JwtProperties jwtProperties;
 
-        ResponseCookie cookie = ResponseCookie
-                .from("refreshToken", loginResponse.getRefreshToken())
-                .path("/")
-                .secure(false)
-                .httpOnly(true)
-                .build();
+    @Value("${domain.server.domain-name}")
+    private String serverDomainName;
+
+    @GetMapping("/kakao")
+    public ResponseEntity<?> kakao(KakaoAuthCode authCode) {
+        LoginResponse response = loginService.loginWithOAuth("kakao", authCode.getCode());
 
         return ResponseEntity
                 .ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(loginResponse);
+                .header(HttpHeaders.SET_COOKIE, getHttpOnlyCookie(response.getRefreshToken()).toString())
+                .body(response);
     }
 
-    @GetMapping("/login/{provider}")
+    @PostMapping("/login/{provider}")
     public ResponseEntity<?> login(@PathVariable String provider,
-                                   @RequestParam String authorizationCode) {
+                                   @RequestBody AuthCode authorizationCode) {
 
-        LoginResponse loginResponse = loginService.loginWithOAuth(provider, authorizationCode);
-
-        ResponseCookie cookie = ResponseCookie
-                .from("refreshToken", loginResponse.getRefreshToken())
-                .path("/")
-                .secure(false)
-                .httpOnly(true)
-                .build();
+        LoginResponse response = loginService.loginWithOAuth(provider, authorizationCode.getAuthorizationCode());
 
         return ResponseEntity
                 .ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(loginResponse);
+                .header(HttpHeaders.SET_COOKIE, getHttpOnlyCookie(response.getRefreshToken()).toString())
+                .body(response);
     }
 
     @PostMapping("/token")
@@ -93,6 +86,22 @@ public class AuthApi {
                 .refreshToken(newRefreshToken)
                 .build();
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity
+                .ok()
+                .header(HttpHeaders.SET_COOKIE, getHttpOnlyCookie(newRefreshToken).toString())
+                .body(response);
     }
+
+    private ResponseCookie getHttpOnlyCookie(String refreshToken) {
+        return ResponseCookie
+                .from("refreshToken", refreshToken)
+                .path("/")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .domain(serverDomainName)
+                .maxAge(jwtProperties.expirationTimeInSeconds().refreshToken())
+                .build();
+    }
+
 }
