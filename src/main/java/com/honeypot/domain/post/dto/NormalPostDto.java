@@ -50,6 +50,7 @@ public class NormalPostDto {
     @JsonInclude(NON_NULL)
     private Long likeReactionCount;
 
+    @JsonInclude(NON_NULL)
     private Boolean isLiked;
 
     @JsonInclude(NON_NULL)

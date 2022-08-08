@@ -73,6 +73,7 @@ class UsedTradePostMapperTest {
                 .writerId(1L)
                 .attachedFiles(null)
                 .goodsPrice(20000)
+                .tradeStatus(TradeStatus.COMPLETE.toString())
                 .tradeType(TradeType.BUY.toString())
                 .chatRoomLink("chatRoomLink")
                 .build();
@@ -86,7 +87,7 @@ class UsedTradePostMapperTest {
         assertEquals(dto.getWriterId(), entity.getWriter().getId());
         assertEquals(dto.getGoodsPrice(), entity.getGoodsPrice());
         assertEquals(dto.getTradeType(), entity.getTradeType().toString());
-        assertEquals(TradeStatus.ONGOING, entity.getTradeStatus());
+        assertEquals(dto.getTradeStatus(), entity.getTradeStatus().toString());
     }
 
     @Test

@@ -5,7 +5,6 @@ import com.honeypot.domain.post.dto.UsedTradePostUploadRequest;
 import com.honeypot.domain.post.entity.UsedTradePost;
 import com.honeypot.domain.post.entity.enums.TradeStatus;
 import com.honeypot.domain.post.entity.enums.TradeType;
-import com.honeypot.domain.reaction.entity.enums.ReactionTarget;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -24,7 +23,7 @@ public interface UsedTradePostMapper {
     @Mapping(target = "lastModifiedAt", ignore = true)
     @Mapping(target = "comments", ignore = true)
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "tradeStatus", expression = "java(TradeStatus.ONGOING)")
+    @Mapping(target = "tradeStatus", expression = "java(TradeStatus.valueOf(dto.getTradeStatus()))")
     @Mapping(target = "tradeType", expression = "java(TradeType.valueOf(dto.getTradeType()))")
     @Mapping(target = "writer.id", source = "writerId")
     UsedTradePost toEntity(UsedTradePostUploadRequest dto);

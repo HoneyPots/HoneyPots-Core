@@ -4,13 +4,13 @@ import com.honeypot.domain.post.entity.enums.TradeStatus;
 import com.honeypot.domain.post.entity.enums.TradeType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
+import javax.persistence.*;
 
 @Getter
+@Setter
 @Entity
 @SuperBuilder
 @NoArgsConstructor
@@ -23,9 +23,11 @@ public class UsedTradePost extends Post {
     @Column(name = "chat_room_link")
     private String chatRoomLink;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "trade_type")
     private TradeType tradeType;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "trade_status")
     private TradeStatus tradeStatus;
 
