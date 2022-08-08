@@ -13,8 +13,7 @@ import com.honeypot.domain.file.PostFileUploadRequest;
 import com.honeypot.domain.post.entity.NormalPost;
 import com.honeypot.domain.post.mapper.NormalPostMapper;
 import com.honeypot.domain.post.repository.NormalPostRepository;
-import com.honeypot.domain.post.repository.QuerydslRepositoryImpl;
-import com.honeypot.domain.reaction.entity.enums.ReactionType;
+import com.honeypot.domain.post.repository.NormalPostQuerydslRepositoryImpl;
 import com.honeypot.domain.reaction.repository.ReactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -34,7 +33,7 @@ import java.util.List;
 @Validated
 public class NormalPostService {
 
-    private final QuerydslRepositoryImpl querydslRepository;
+    private final NormalPostQuerydslRepositoryImpl querydslRepository;
 
     private final NormalPostMapper normalPostMapper;
 

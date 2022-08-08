@@ -29,6 +29,8 @@ public @interface Enum {
 
     Class<? extends java.lang.Enum<?>> target();
 
+    boolean ifNull() default false;
+
     @Documented
     @Target(FIELD)
     @Retention(RUNTIME)

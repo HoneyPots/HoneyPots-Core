@@ -5,6 +5,7 @@ import com.honeypot.domain.comment.entity.Comment;
 import com.honeypot.domain.member.entity.Member;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.List;
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "type", length = 10)
 @NoArgsConstructor
+@DynamicUpdate
 public class Post extends BaseTimeEntity {
 
     @Id
