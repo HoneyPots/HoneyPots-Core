@@ -5,8 +5,8 @@ import com.honeypot.domain.file.AttachedFileResponse;
 import com.honeypot.domain.member.dto.WriterDto;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,14 +14,15 @@ import java.util.List;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 @Data
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 public class NormalPostDto {
 
     @QueryProjection
     public NormalPostDto(long postId, String title, String content, WriterDto writer,
                          Long commentCount, Long likeReactionCount, Boolean isLiked,
-                         Long likeReactionId, LocalDateTime uploadedAt, LocalDateTime lastModifiedAt) {
+                         Long likeReactionId, AttachedFileResponse thumbnailImageFile,
+                         LocalDateTime uploadedAt, LocalDateTime lastModifiedAt) {
         this.postId = postId;
         this.title = title;
         this.content = content;
@@ -30,6 +31,7 @@ public class NormalPostDto {
         this.likeReactionCount = likeReactionCount;
         this.isLiked = isLiked;
         this.likeReactionId = likeReactionId;
+        this.thumbnailImageFile = thumbnailImageFile;
         this.uploadedAt = uploadedAt;
         this.lastModifiedAt = lastModifiedAt;
     }
@@ -48,10 +50,14 @@ public class NormalPostDto {
     @JsonInclude(NON_NULL)
     private Long likeReactionCount;
 
+    @JsonInclude(NON_NULL)
     private Boolean isLiked;
 
     @JsonInclude(NON_NULL)
     private Long likeReactionId;
+
+    @JsonInclude(NON_NULL)
+    private AttachedFileResponse thumbnailImageFile;
 
     @JsonInclude(NON_NULL)
     private List<AttachedFileResponse> attachedFiles;

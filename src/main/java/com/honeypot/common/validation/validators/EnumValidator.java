@@ -11,17 +11,21 @@ import java.util.stream.Stream;
 public class EnumValidator implements ConstraintValidator<Enum, CharSequence> {
     private Set<String> enumValues;
 
+    private boolean validIfNull;
+
     @Override
     public void initialize(Enum constraintAnnotation) {
         enumValues = Stream.of(constraintAnnotation.target().getEnumConstants())
                 .map(java.lang.Enum::name)
                 .collect(Collectors.toSet());
+
+        validIfNull = constraintAnnotation.ifNull();
     }
 
     @Override
     public boolean isValid(CharSequence value, ConstraintValidatorContext context) {
         if (value == null) {
-            return false;
+            return validIfNull;
         }
         return enumValues.contains(value.toString().toUpperCase());
     }
