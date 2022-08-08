@@ -24,14 +24,13 @@ import java.util.List;
 import static com.honeypot.domain.file.QFile.file;
 import static com.honeypot.domain.post.entity.QNormalPost.normalPost;
 import static com.honeypot.domain.post.entity.QPost.post;
-import static com.honeypot.domain.post.entity.QUsedTradePost.usedTradePost;
 import static com.honeypot.domain.reaction.entity.QReaction.reaction;
 import static com.querydsl.jpa.JPAExpressions.select;
 import static com.querydsl.jpa.JPAExpressions.selectOne;
 
 @Repository
 @RequiredArgsConstructor
-public class QuerydslRepositoryImpl {
+public class NormalPostQuerydslRepositoryImpl {
 
     @Value("${cloud.aws.s3.domain}")
     private String s3Domain;
