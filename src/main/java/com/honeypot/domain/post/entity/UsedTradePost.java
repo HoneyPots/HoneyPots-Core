@@ -3,6 +3,8 @@ package com.honeypot.domain.post.entity;
 import com.honeypot.domain.post.entity.enums.TradeStatus;
 import com.honeypot.domain.post.entity.enums.TradeType;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
@@ -10,6 +12,8 @@ import javax.persistence.Entity;
 
 @Getter
 @Entity
+@SuperBuilder
+@NoArgsConstructor
 @DiscriminatorValue("USED_TRADE")
 public class UsedTradePost extends Post {
 
