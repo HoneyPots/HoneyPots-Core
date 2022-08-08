@@ -59,13 +59,13 @@ public class JwtAuthTokenManagerService implements AuthTokenManagerService {
                     .parseClaimsJws(token);
             return true;
         } catch (SecurityException | MalformedJwtException e) {
-            log.info("Invalid JWT signature.", e);
+            log.info("Invalid JWT signature. {}", e.getMessage());
         } catch (ExpiredJwtException e) {
-            log.info("Expired JWT token.", e);
+            log.info("Expired JWT token. {}", e.getMessage());
         } catch (UnsupportedJwtException e) {
-            log.info("Unsupported JWT token.", e);
+            log.info("Unsupported JWT token. {}", e.getMessage());
         } catch (IllegalArgumentException e) {
-            log.info("Invalid JWT.", e);
+            log.info("Invalid JWT. {}", e.getMessage());
         }
 
         return false;
