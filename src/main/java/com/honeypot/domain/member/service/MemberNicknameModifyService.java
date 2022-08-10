@@ -27,6 +27,10 @@ public class MemberNicknameModifyService {
                 .orElseThrow(EntityNotFoundException::new);
 
         String nickname = request.getNickname();
+        if (nickname.equals(member.getNickname())) {
+            return true;
+        }
+
         if (isAvailableNickname(nickname)) {
             member.setNickname(request.getNickname());
             memberRepository.save(member);

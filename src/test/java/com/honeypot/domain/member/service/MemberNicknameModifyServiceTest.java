@@ -46,7 +46,7 @@ public class MemberNicknameModifyServiceTest {
     }
 
     @Test
-    void changeNickname_NicknameIsAlreadyExist() {
+    void changeNickname_NicknameIsMine() {
         // Arrange
         String nickname = "nickname";
         Long memberId = 1L;
@@ -61,14 +61,40 @@ public class MemberNicknameModifyServiceTest {
                 .build();
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
-        when(memberRepository.existsByNickname(nickname)).thenReturn(true);
+
+        // Act
+        boolean result = memberNicknameModifyService.changeNickname(request);
+
+        // Assert
+        assertTrue(result);
+        assertEquals(nickname, member.getNickname());
+        verify(memberRepository, never()).save(member);
+    }
+
+    @Test
+    void changeNickname_NicknameIsAlreadyExist() {
+        // Arrange
+        String afterNickname = "afterNickname";
+        Long memberId = 1L;
+        NicknameModifyRequest request = NicknameModifyRequest.builder()
+                .nickname(afterNickname)
+                .memberId(memberId)
+                .build();
+
+        Member member = Member.builder()
+                .id(memberId)
+                .nickname("beforeNickname")
+                .build();
+
+        when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+        when(memberRepository.existsByNickname(afterNickname)).thenReturn(true);
 
         // Act
         boolean result = memberNicknameModifyService.changeNickname(request);
 
         // Assert
         assertFalse(result);
-        assertEquals(nickname, member.getNickname());
+        assertNotEquals(afterNickname, member.getNickname());
         verify(memberRepository, never()).save(member);
     }
 
