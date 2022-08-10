@@ -48,6 +48,9 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.1.Final'
+
+    // Mockito
+    testImplementation 'org.mockito:mockito-inline:4.6.1'
 }
 
 configurations {
