@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 
@@ -26,7 +27,7 @@ public class Member extends BaseTimeEntity {
     @Column(name = "member_id")
     private Long id;
 
-    @Column(name = "nickname", nullable = false, unique = true, length = 20)
+    @Column(name = "nickname", nullable = true, unique = true, length = 20)
     private String nickname;
 
     @Column(name = "email", length = 320)
@@ -41,6 +42,10 @@ public class Member extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "gender")
     private Gender gender;
+
+    @ColumnDefault("false")
+    @Column(name = "is_withdrawal")
+    private boolean isWithdrawal;
 
     @OneToOne(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
