@@ -11,6 +11,7 @@ import com.honeypot.domain.post.dto.*;
 import com.honeypot.domain.post.entity.GroupBuyingPost;
 import com.honeypot.domain.post.entity.UsedTradePost;
 import com.honeypot.domain.post.entity.enums.GroupBuyingStatus;
+import com.honeypot.domain.post.entity.enums.PostType;
 import com.honeypot.domain.post.entity.enums.TradeStatus;
 import com.honeypot.domain.post.entity.enums.TradeType;
 import com.honeypot.domain.post.mapper.GroupBuyingPostMapper;
@@ -32,7 +33,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Validated
-public class GroupBuyingPostService {
+public class GroupBuyingPostService implements PostCrudService<GroupBuyingPostDto, GroupBuyingPostUploadRequest> {
 
     private final GroupBuyingPostQuerydslRepository groupBuyingPostQuerydslRepository;
 
@@ -44,10 +45,26 @@ public class GroupBuyingPostService {
 
     private final FileUploadService fileUploadService;
 
+    @Override
+    public PostType getPostType() {
+        return PostType.GROUP_BUYING;
+    }
+
     @Transactional(readOnly = true)
     public Page<GroupBuyingPostDto> pageList(Pageable pageable, Long memberId) {
         Page<GroupBuyingPostDto> result = groupBuyingPostQuerydslRepository
                 .findAllPostWithCommentAndReactionCount(pageable, memberId);
+        return new PageImpl<>(
+                result.getContent(),
+                pageable,
+                result.getTotalElements()
+        );
+    }
+
+    @Override
+    public Page<GroupBuyingPostDto> pageListByMemberId(Pageable pageable, Long memberId) {
+        Page<GroupBuyingPostDto> result = groupBuyingPostQuerydslRepository
+                .findAllPostWithCommentAndReactionCountByMemberId(pageable, memberId);
         return new PageImpl<>(
                 result.getContent(),
                 pageable,

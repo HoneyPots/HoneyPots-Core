@@ -3,8 +3,6 @@ package com.honeypot.domain.post.repository;
 import com.honeypot.domain.file.AttachedFileResponse;
 import com.honeypot.domain.file.QAttachedFileResponse;
 import com.honeypot.domain.member.dto.QWriterDto;
-import com.honeypot.domain.post.dto.NormalPostDto;
-import com.honeypot.domain.post.dto.QNormalPostDto;
 import com.honeypot.domain.post.dto.QUsedTradePostDto;
 import com.honeypot.domain.post.dto.UsedTradePostDto;
 import com.honeypot.domain.reaction.entity.enums.ReactionType;
@@ -24,6 +22,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 import static com.honeypot.domain.file.QFile.file;
+import static com.honeypot.domain.member.entity.QMember.member;
 import static com.honeypot.domain.post.entity.QPost.post;
 import static com.honeypot.domain.post.entity.QUsedTradePost.usedTradePost;
 import static com.honeypot.domain.reaction.entity.QReaction.reaction;
@@ -57,6 +56,32 @@ public class UsedTradePostQuerydslRepository {
         long totalCount = jpaQueryFactory
                 .selectFrom(post)
                 .innerJoin(usedTradePost).on(post.id.eq(usedTradePost.id))
+                .fetch()
+                .size();
+
+        return new PageImpl<>(result, pageable, totalCount);
+    }
+
+    public Page<UsedTradePostDto> findAllPostWithCommentAndReactionCountByMemberId(Pageable pageable, Long memberId) {
+        List<UsedTradePostDto> result = jpaQueryFactory
+                .select(getQNormalPostDtoSelectStatement(memberId))
+                .from(post)
+                .innerJoin(usedTradePost).on(post.id.eq(usedTradePost.id))
+                .innerJoin(member).on(post.writer.id.eq(memberId))
+                .leftJoin(file).on(post.id.eq(file.post.id))
+                .fetchJoin()
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(sort(pageable.getSort()))
+                .groupBy(post.id)
+                .fetch();
+
+        long totalCount = jpaQueryFactory
+                .select(post.id)
+                .from(post)
+                .innerJoin(usedTradePost).on(post.id.eq(usedTradePost.id))
+                .innerJoin(member).on(post.writer.id.eq(member.id))
+                .where(member.id.eq(memberId))
                 .fetch()
                 .size();
 

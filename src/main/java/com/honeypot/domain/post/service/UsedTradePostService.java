@@ -11,6 +11,7 @@ import com.honeypot.domain.post.dto.UsedTradeModifyRequest;
 import com.honeypot.domain.post.dto.UsedTradePostDto;
 import com.honeypot.domain.post.dto.UsedTradePostUploadRequest;
 import com.honeypot.domain.post.entity.UsedTradePost;
+import com.honeypot.domain.post.entity.enums.PostType;
 import com.honeypot.domain.post.entity.enums.TradeStatus;
 import com.honeypot.domain.post.entity.enums.TradeType;
 import com.honeypot.domain.post.mapper.UsedTradePostMapper;
@@ -32,7 +33,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Validated
-public class UsedTradePostService {
+public class UsedTradePostService implements PostCrudService<UsedTradePostDto, UsedTradePostUploadRequest> {
 
     private final UsedTradePostQuerydslRepository usedTradePostQuerydslRepository;
 
@@ -44,10 +45,26 @@ public class UsedTradePostService {
 
     private final FileUploadService fileUploadService;
 
+    @Override
+    public PostType getPostType() {
+        return PostType.USED_TRADE;
+    }
+
     @Transactional(readOnly = true)
     public Page<UsedTradePostDto> pageList(Pageable pageable, Long memberId) {
         Page<UsedTradePostDto> result = usedTradePostQuerydslRepository
                 .findAllPostWithCommentAndReactionCount(pageable, memberId);
+        return new PageImpl<>(
+                result.getContent(),
+                pageable,
+                result.getTotalElements()
+        );
+    }
+
+    @Override
+    public Page<UsedTradePostDto> pageListByMemberId(Pageable pageable, Long memberId) {
+        Page<UsedTradePostDto> result = usedTradePostQuerydslRepository
+                .findAllPostWithCommentAndReactionCountByMemberId(pageable, memberId);
         return new PageImpl<>(
                 result.getContent(),
                 pageable,
