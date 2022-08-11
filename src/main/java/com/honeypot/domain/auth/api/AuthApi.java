@@ -83,6 +83,7 @@ public class AuthApi {
         String newRefreshToken = authTokenManagerService.issueRefreshToken(member.getId());
 
         LoginResponse response = LoginResponse.builder()
+                .memberId(memberId)
                 .accessToken(newAccessToken)
                 .refreshToken(newRefreshToken)
                 .build();
