@@ -10,7 +10,9 @@ import com.honeypot.domain.member.repository.MemberRepository;
 import com.honeypot.domain.post.dto.NormalPostDto;
 import com.honeypot.domain.post.dto.NormalPostUploadRequest;
 import com.honeypot.domain.file.PostFileUploadRequest;
+import com.honeypot.domain.post.dto.PostDto;
 import com.honeypot.domain.post.entity.NormalPost;
+import com.honeypot.domain.post.entity.enums.PostType;
 import com.honeypot.domain.post.mapper.NormalPostMapper;
 import com.honeypot.domain.post.repository.NormalPostRepository;
 import com.honeypot.domain.post.repository.NormalPostQuerydslRepositoryImpl;
@@ -31,7 +33,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Validated
-public class NormalPostService {
+public class NormalPostService implements PostCrudService<NormalPostDto, NormalPostUploadRequest> {
 
     private final NormalPostQuerydslRepositoryImpl querydslRepository;
 
@@ -39,13 +41,14 @@ public class NormalPostService {
 
     private final NormalPostRepository normalPostRepository;
 
-    private final ReactionRepository reactionRepository;
-
-    private final CommentRepository commentRepository;
-
     private final MemberRepository memberRepository;
 
     private final FileUploadService fileUploadService;
+
+    @Override
+    public PostType getPostType() {
+        return PostType.NORMAL;
+    }
 
     @Transactional(readOnly = true)
     public Page<NormalPostDto> pageList(Pageable pageable, Long memberId) {
@@ -94,7 +97,7 @@ public class NormalPostService {
 
     @Transactional
     @Validated(InsertContext.class)
-    public NormalPostDto update(Long postId, NormalPostUploadRequest uploadRequest) {
+    public NormalPostDto update(Long postId, @Valid NormalPostUploadRequest uploadRequest) {
         NormalPost normalPost = normalPostRepository
                 .findById(postId)
                 .orElseThrow(EntityNotFoundException::new);
