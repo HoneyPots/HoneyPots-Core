@@ -1,6 +1,7 @@
 package com.honeypot.domain.member.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.honeypot.common.model.exceptions.InvalidAuthorizationException;
 import com.honeypot.common.utils.SecurityUtils;
 import com.honeypot.domain.auth.service.contracts.AuthTokenManagerService;
 import com.honeypot.domain.member.dto.NicknameModifyRequest;
@@ -22,9 +23,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.util.NestedServletException;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -133,6 +136,24 @@ class MemberApiTest {
 
         // Assert
         actions.andExpect(status().isNoContent()).andReturn();
+    }
+
+    @Test
+    void deleteMember_Fail_InvalidAuthorizationException() throws Exception {
+        // Arrange
+        String token = "Bearer test";
+        Long memberId = 1L;
+
+        when(SecurityUtils.getCurrentMemberId()).thenReturn(Optional.of(2L));
+        when(memberWithdrawService.withdraw(memberId)).thenReturn(true);
+
+        // Act & Assert
+        assertThrows(NestedServletException.class, () -> {
+            mockMvc.perform(delete("/api/members/" + memberId)
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .header("Authorization", token)
+            );
+        });
     }
 
     private NicknameModifyRequest createNicknameModifyRequest(String nickname) {
