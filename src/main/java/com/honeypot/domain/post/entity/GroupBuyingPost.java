@@ -1,6 +1,7 @@
 package com.honeypot.domain.post.entity;
 
 import com.honeypot.domain.post.entity.enums.GroupBuyingStatus;
+import com.honeypot.domain.post.entity.enums.PostType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,7 +16,7 @@ import java.time.LocalDateTime;
 @Entity
 @SuperBuilder
 @NoArgsConstructor
-@DiscriminatorValue("GROUP_BUYING")
+@DiscriminatorValue(PostType.Constant.GROUP_BUYING)
 @DynamicUpdate
 public class GroupBuyingPost extends Post {
 

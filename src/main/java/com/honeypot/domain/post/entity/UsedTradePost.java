@@ -1,5 +1,6 @@
 package com.honeypot.domain.post.entity;
 
+import com.honeypot.domain.post.entity.enums.PostType;
 import com.honeypot.domain.post.entity.enums.TradeStatus;
 import com.honeypot.domain.post.entity.enums.TradeType;
 import lombok.Getter;
@@ -15,7 +16,7 @@ import javax.persistence.*;
 @Entity
 @SuperBuilder
 @NoArgsConstructor
-@DiscriminatorValue("USED_TRADE")
+@DiscriminatorValue(PostType.Constant.USED_TRADE)
 @DynamicUpdate
 public class UsedTradePost extends Post {
 
