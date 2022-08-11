@@ -4,18 +4,16 @@ import com.honeypot.common.validation.constraints.Enum;
 import com.honeypot.common.validation.groups.InsertContext;
 import com.honeypot.domain.post.entity.enums.TradeStatus;
 import com.honeypot.domain.post.entity.enums.TradeType;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
 
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
 @SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
-public class UsedTradePostUploadRequest extends NormalPostUploadRequest {
+public class UsedTradePostUploadRequest extends PostUploadRequest {
 
     @PositiveOrZero
     private int goodsPrice;

@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @SuperBuilder
-public class GroupBuyingPostDto extends NormalPostDto {
+public class GroupBuyingPostDto extends PostDto {
 
     @QueryProjection
     public GroupBuyingPostDto(long postId, String title, String content, WriterDto writer,
