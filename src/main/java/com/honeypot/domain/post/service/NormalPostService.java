@@ -60,6 +60,16 @@ public class NormalPostService implements PostCrudService<NormalPostDto, NormalP
         );
     }
 
+    @Override
+    public Page<NormalPostDto> pageListByMemberId(Pageable pageable, Long memberId) {
+        Page<NormalPostDto> result = querydslRepository.findAllPostWithCommentAndReactionCountByMemberId(pageable, memberId);
+        return new PageImpl<>(
+                result.getContent(),
+                pageable,
+                result.getTotalElements()
+        );
+    }
+
     @Transactional(readOnly = true)
     public NormalPostDto find(@NotNull Long postId, Long memberId) {
         NormalPost normalPost = normalPostRepository

@@ -61,6 +61,17 @@ public class GroupBuyingPostService implements PostCrudService<GroupBuyingPostDt
         );
     }
 
+    @Override
+    public Page<GroupBuyingPostDto> pageListByMemberId(Pageable pageable, Long memberId) {
+        Page<GroupBuyingPostDto> result = groupBuyingPostQuerydslRepository
+                .findAllPostWithCommentAndReactionCountByMemberId(pageable, memberId);
+        return new PageImpl<>(
+                result.getContent(),
+                pageable,
+                result.getTotalElements()
+        );
+    }
+
     @Transactional(readOnly = true)
     public GroupBuyingPostDto find(@NotNull Long postId, Long memberId) {
         GroupBuyingPost post = groupBuyingPostRepository

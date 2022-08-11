@@ -22,6 +22,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 import static com.honeypot.domain.file.QFile.file;
+import static com.honeypot.domain.member.entity.QMember.member;
 import static com.honeypot.domain.post.entity.QGroupBuyingPost.groupBuyingPost;
 import static com.honeypot.domain.post.entity.QPost.post;
 import static com.honeypot.domain.reaction.entity.QReaction.reaction;
@@ -55,6 +56,32 @@ public class GroupBuyingPostQuerydslRepository {
         long totalCount = jpaQueryFactory
                 .selectFrom(post)
                 .innerJoin(groupBuyingPost).on(post.id.eq(groupBuyingPost.id))
+                .fetch()
+                .size();
+
+        return new PageImpl<>(result, pageable, totalCount);
+    }
+
+    public Page<GroupBuyingPostDto> findAllPostWithCommentAndReactionCountByMemberId(Pageable pageable, Long memberId) {
+        List<GroupBuyingPostDto> result = jpaQueryFactory
+                .select(getQGroupBuyingPostDtoSelectStatement(memberId))
+                .from(post)
+                .innerJoin(groupBuyingPost).on(post.id.eq(groupBuyingPost.id))
+                .innerJoin(member).on(post.writer.id.eq(memberId))
+                .leftJoin(file).on(post.id.eq(file.post.id))
+                .fetchJoin()
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(sort(pageable.getSort()))
+                .groupBy(post.id)
+                .fetch();
+
+        long totalCount = jpaQueryFactory
+                .select(post.id)
+                .from(post)
+                .innerJoin(groupBuyingPost).on(post.id.eq(groupBuyingPost.id))
+                .innerJoin(member).on(post.writer.id.eq(member.id))
+                .where(member.id.eq(memberId))
                 .fetch()
                 .size();
 

@@ -61,6 +61,17 @@ public class UsedTradePostService implements PostCrudService<UsedTradePostDto, U
         );
     }
 
+    @Override
+    public Page<UsedTradePostDto> pageListByMemberId(Pageable pageable, Long memberId) {
+        Page<UsedTradePostDto> result = usedTradePostQuerydslRepository
+                .findAllPostWithCommentAndReactionCountByMemberId(pageable, memberId);
+        return new PageImpl<>(
+                result.getContent(),
+                pageable,
+                result.getTotalElements()
+        );
+    }
+
     @Transactional(readOnly = true)
     public UsedTradePostDto find(@NotNull Long postId, Long memberId) {
         UsedTradePost usedTradePost = usedTradePostRepository

@@ -15,6 +15,8 @@ public interface PostCrudService<T extends PostDto, U extends PostUploadRequest>
 
     Page<T> pageList(Pageable pageable, Long memberId);
 
+    Page<T> pageListByMemberId(Pageable pageable, Long memberId);
+
     T find(@NotNull Long postId, Long memberId);
 
     T upload(@Valid U request);
