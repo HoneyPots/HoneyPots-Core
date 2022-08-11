@@ -7,16 +7,16 @@ import com.honeypot.domain.file.FileUploadService;
 import com.honeypot.domain.file.PostFileUploadRequest;
 import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.member.repository.MemberRepository;
-import com.honeypot.domain.post.dto.UsedTradeModifyRequest;
-import com.honeypot.domain.post.dto.UsedTradePostDto;
-import com.honeypot.domain.post.dto.UsedTradePostUploadRequest;
+import com.honeypot.domain.post.dto.*;
+import com.honeypot.domain.post.entity.GroupBuyingPost;
 import com.honeypot.domain.post.entity.UsedTradePost;
+import com.honeypot.domain.post.entity.enums.GroupBuyingStatus;
 import com.honeypot.domain.post.entity.enums.PostType;
 import com.honeypot.domain.post.entity.enums.TradeStatus;
 import com.honeypot.domain.post.entity.enums.TradeType;
-import com.honeypot.domain.post.mapper.UsedTradePostMapper;
-import com.honeypot.domain.post.repository.UsedTradePostQuerydslRepository;
-import com.honeypot.domain.post.repository.UsedTradePostRepository;
+import com.honeypot.domain.post.mapper.GroupBuyingPostMapper;
+import com.honeypot.domain.post.repository.GroupBuyingPostQuerydslRepository;
+import com.honeypot.domain.post.repository.GroupBuyingPostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -33,13 +33,13 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Validated
-public class UsedTradePostService implements PostCrudService<UsedTradePostDto, UsedTradePostUploadRequest> {
+public class GroupBuyingPostService implements PostCrudService<GroupBuyingPostDto, GroupBuyingPostUploadRequest> {
 
-    private final UsedTradePostQuerydslRepository usedTradePostQuerydslRepository;
+    private final GroupBuyingPostQuerydslRepository groupBuyingPostQuerydslRepository;
 
-    private final UsedTradePostMapper usedTradePostMapper;
+    private final GroupBuyingPostMapper groupBuyingPostMapper;
 
-    private final UsedTradePostRepository usedTradePostRepository;
+    private final GroupBuyingPostRepository groupBuyingPostRepository;
 
     private final MemberRepository memberRepository;
 
@@ -47,12 +47,12 @@ public class UsedTradePostService implements PostCrudService<UsedTradePostDto, U
 
     @Override
     public PostType getPostType() {
-        return PostType.USED_TRADE;
+        return PostType.GROUP_BUYING;
     }
 
     @Transactional(readOnly = true)
-    public Page<UsedTradePostDto> pageList(Pageable pageable, Long memberId) {
-        Page<UsedTradePostDto> result = usedTradePostQuerydslRepository
+    public Page<GroupBuyingPostDto> pageList(Pageable pageable, Long memberId) {
+        Page<GroupBuyingPostDto> result = groupBuyingPostQuerydslRepository
                 .findAllPostWithCommentAndReactionCount(pageable, memberId);
         return new PageImpl<>(
                 result.getContent(),
@@ -62,8 +62,8 @@ public class UsedTradePostService implements PostCrudService<UsedTradePostDto, U
     }
 
     @Override
-    public Page<UsedTradePostDto> pageListByMemberId(Pageable pageable, Long memberId) {
-        Page<UsedTradePostDto> result = usedTradePostQuerydslRepository
+    public Page<GroupBuyingPostDto> pageListByMemberId(Pageable pageable, Long memberId) {
+        Page<GroupBuyingPostDto> result = groupBuyingPostQuerydslRepository
                 .findAllPostWithCommentAndReactionCountByMemberId(pageable, memberId);
         return new PageImpl<>(
                 result.getContent(),
@@ -73,25 +73,25 @@ public class UsedTradePostService implements PostCrudService<UsedTradePostDto, U
     }
 
     @Transactional(readOnly = true)
-    public UsedTradePostDto find(@NotNull Long postId, Long memberId) {
-        UsedTradePost usedTradePost = usedTradePostRepository
+    public GroupBuyingPostDto find(@NotNull Long postId, Long memberId) {
+        GroupBuyingPost post = groupBuyingPostRepository
                 .findById(postId)
                 .orElseThrow(EntityNotFoundException::new);
-        return usedTradePostQuerydslRepository.findPostDetailById(postId, memberId);
+        return groupBuyingPostQuerydslRepository.findPostDetailById(postId, memberId);
     }
 
     @Transactional
     @Validated(InsertContext.class)
-    public UsedTradePostDto upload(@Valid UsedTradePostUploadRequest request) {
-        request.setTradeStatus(TradeStatus.ONGOING.toString());
-        UsedTradePost created = usedTradePostRepository.save(usedTradePostMapper.toEntity(request));
+    public GroupBuyingPostDto upload(@Valid GroupBuyingPostUploadRequest request) {
+        request.setGroupBuyingStatus(TradeStatus.ONGOING.toString());
+        GroupBuyingPost created = groupBuyingPostRepository.save(groupBuyingPostMapper.toEntity(request));
 
         long writerId = created.getWriter().getId();
         Member writer = memberRepository
                 .findById(writerId)
                 .orElseThrow(EntityNotFoundException::new);
 
-        UsedTradePostDto result = usedTradePostMapper.toDto(created);
+        GroupBuyingPostDto result = groupBuyingPostMapper.toDto(created);
         result.getWriter().setNickname(writer.getNickname());
 
         List<PostFileUploadRequest> attachedFiles = request.getAttachedFiles();
@@ -110,52 +110,53 @@ public class UsedTradePostService implements PostCrudService<UsedTradePostDto, U
 
     @Transactional
     @Validated(InsertContext.class)
-    public UsedTradePostDto update(Long postId, @Valid UsedTradePostUploadRequest uploadRequest) {
-        UsedTradePost usedTradePost = usedTradePostRepository
+    public GroupBuyingPostDto update(Long postId, @Valid GroupBuyingPostUploadRequest uploadRequest) {
+        GroupBuyingPost post = groupBuyingPostRepository
                 .findById(postId)
                 .orElseThrow(EntityNotFoundException::new);
 
-        if (!usedTradePost.getWriter().getId().equals(uploadRequest.getWriterId())) {
+        if (!post.getWriter().getId().equals(uploadRequest.getWriterId())) {
             throw new InvalidAuthorizationException();
         }
 
-        usedTradePost.setTitle(uploadRequest.getTitle());
-        usedTradePost.setContent(uploadRequest.getContent());
-        usedTradePost.setGoodsPrice(uploadRequest.getGoodsPrice());
-        usedTradePost.setTradeStatus(TradeStatus.valueOf(uploadRequest.getTradeStatus()));
-        usedTradePost.setTradeType(TradeType.valueOf(uploadRequest.getTradeType()));
-        usedTradePost.setChatRoomLink(uploadRequest.getChatRoomLink());
+        post.setTitle(uploadRequest.getTitle());
+        post.setContent(uploadRequest.getContent());
+        post.setGoodsPrice(uploadRequest.getGoodsPrice());
+        post.setCategory(uploadRequest.getCategory());
+        post.setGroupBuyingStatus(GroupBuyingStatus.valueOf(uploadRequest.getGroupBuyingStatus()));
+        post.setChatRoomLink(uploadRequest.getChatRoomLink());
+        post.setDeadline(uploadRequest.getDeadline());
 
-        return usedTradePostMapper.toDto(usedTradePostRepository.save(usedTradePost));
+        return groupBuyingPostMapper.toDto(groupBuyingPostRepository.save(post));
     }
 
     @Transactional
     @Validated(InsertContext.class)
-    public UsedTradePostDto updateTradeStatus(@NotNull Long postId, @Valid UsedTradeModifyRequest request) {
-        UsedTradePost usedTradePost = usedTradePostRepository
+    public GroupBuyingPostDto updateTradeStatus(@NotNull Long postId, @Valid GroupBuyingModifyRequest request) {
+        GroupBuyingPost post = groupBuyingPostRepository
                 .findById(postId)
                 .orElseThrow(EntityNotFoundException::new);
 
-        if (!usedTradePost.getWriter().getId().equals(request.getWriterId())) {
+        if (!post.getWriter().getId().equals(request.getWriterId())) {
             throw new InvalidAuthorizationException();
         }
 
-        usedTradePost.setTradeStatus(TradeStatus.valueOf(request.getTradeStatus()));
+        post.setGroupBuyingStatus(GroupBuyingStatus.valueOf(request.getGroupBuyingStatus()));
 
-        return usedTradePostMapper.toDto(usedTradePostRepository.save(usedTradePost));
+        return groupBuyingPostMapper.toDto(groupBuyingPostRepository.save(post));
     }
 
     @Transactional
     public void delete(Long postId, @NotNull Long memberId) {
-        UsedTradePost usedTradePost = usedTradePostRepository
+        GroupBuyingPost post = groupBuyingPostRepository
                 .findById(postId)
                 .orElseThrow(EntityNotFoundException::new);
 
-        if (!usedTradePost.getWriter().getId().equals(memberId)) {
+        if (!post.getWriter().getId().equals(memberId)) {
             throw new InvalidAuthorizationException();
         }
 
-        usedTradePostRepository.delete(usedTradePost);
+        groupBuyingPostRepository.delete(post);
     }
 
 }

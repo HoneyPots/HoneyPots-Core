@@ -1,5 +1,6 @@
 package com.honeypot.domain.post.entity;
 
+import com.honeypot.domain.post.entity.enums.PostType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,7 +13,7 @@ import javax.persistence.Entity;
 @Getter
 @Setter
 @Entity
-@DiscriminatorValue("NORMAL")
+@DiscriminatorValue(PostType.Constant.NORMAL)
 @SuperBuilder
 @NoArgsConstructor
 @DynamicUpdate

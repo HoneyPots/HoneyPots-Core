@@ -6,7 +6,7 @@ plugins {
 }
 
 group 'com.honeypot'
-version '0.0.7'
+version '0.0.8'
 sourceCompatibility = '17'
 
 repositories {
@@ -48,6 +48,9 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.1.Final'
+
+    // Mockito
+    testImplementation 'org.mockito:mockito-inline:4.6.1'
 }
 
 configurations {

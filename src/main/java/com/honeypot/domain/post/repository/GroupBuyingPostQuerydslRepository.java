@@ -3,8 +3,8 @@ package com.honeypot.domain.post.repository;
 import com.honeypot.domain.file.AttachedFileResponse;
 import com.honeypot.domain.file.QAttachedFileResponse;
 import com.honeypot.domain.member.dto.QWriterDto;
-import com.honeypot.domain.post.dto.QUsedTradePostDto;
-import com.honeypot.domain.post.dto.UsedTradePostDto;
+import com.honeypot.domain.post.dto.GroupBuyingPostDto;
+import com.honeypot.domain.post.dto.QGroupBuyingPostDto;
 import com.honeypot.domain.reaction.entity.enums.ReactionType;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Order;
@@ -23,28 +23,28 @@ import java.util.List;
 
 import static com.honeypot.domain.file.QFile.file;
 import static com.honeypot.domain.member.entity.QMember.member;
+import static com.honeypot.domain.post.entity.QGroupBuyingPost.groupBuyingPost;
 import static com.honeypot.domain.post.entity.QPost.post;
-import static com.honeypot.domain.post.entity.QUsedTradePost.usedTradePost;
 import static com.honeypot.domain.reaction.entity.QReaction.reaction;
 import static com.querydsl.jpa.JPAExpressions.select;
 import static com.querydsl.jpa.JPAExpressions.selectOne;
 
 @Repository
 @RequiredArgsConstructor
-public class UsedTradePostQuerydslRepository {
+public class GroupBuyingPostQuerydslRepository {
 
     @Value("${cloud.aws.s3.domain}")
     private String s3Domain;
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public Page<UsedTradePostDto> findAllPostWithCommentAndReactionCount(Pageable pageable, Long memberId) {
+    public Page<GroupBuyingPostDto> findAllPostWithCommentAndReactionCount(Pageable pageable, Long memberId) {
         memberId = memberId == null ? -1 : memberId;
 
-        List<UsedTradePostDto> result = jpaQueryFactory
-                .select(getQNormalPostDtoSelectStatement(memberId))
+        List<GroupBuyingPostDto> result = jpaQueryFactory
+                .select(getQGroupBuyingPostDtoSelectStatement(memberId))
                 .from(post)
-                .innerJoin(usedTradePost).on(post.id.eq(usedTradePost.id))
+                .innerJoin(groupBuyingPost).on(post.id.eq(groupBuyingPost.id))
                 .leftJoin(file).on(post.id.eq(file.post.id))
                 .fetchJoin()
                 .offset(pageable.getOffset())
@@ -55,18 +55,18 @@ public class UsedTradePostQuerydslRepository {
 
         long totalCount = jpaQueryFactory
                 .selectFrom(post)
-                .innerJoin(usedTradePost).on(post.id.eq(usedTradePost.id))
+                .innerJoin(groupBuyingPost).on(post.id.eq(groupBuyingPost.id))
                 .fetch()
                 .size();
 
         return new PageImpl<>(result, pageable, totalCount);
     }
 
-    public Page<UsedTradePostDto> findAllPostWithCommentAndReactionCountByMemberId(Pageable pageable, Long memberId) {
-        List<UsedTradePostDto> result = jpaQueryFactory
-                .select(getQNormalPostDtoSelectStatement(memberId))
+    public Page<GroupBuyingPostDto> findAllPostWithCommentAndReactionCountByMemberId(Pageable pageable, Long memberId) {
+        List<GroupBuyingPostDto> result = jpaQueryFactory
+                .select(getQGroupBuyingPostDtoSelectStatement(memberId))
                 .from(post)
-                .innerJoin(usedTradePost).on(post.id.eq(usedTradePost.id))
+                .innerJoin(groupBuyingPost).on(post.id.eq(groupBuyingPost.id))
                 .innerJoin(member).on(post.writer.id.eq(memberId))
                 .leftJoin(file).on(post.id.eq(file.post.id))
                 .fetchJoin()
@@ -79,7 +79,7 @@ public class UsedTradePostQuerydslRepository {
         long totalCount = jpaQueryFactory
                 .select(post.id)
                 .from(post)
-                .innerJoin(usedTradePost).on(post.id.eq(usedTradePost.id))
+                .innerJoin(groupBuyingPost).on(post.id.eq(groupBuyingPost.id))
                 .innerJoin(member).on(post.writer.id.eq(member.id))
                 .where(member.id.eq(memberId))
                 .fetch()
@@ -88,13 +88,13 @@ public class UsedTradePostQuerydslRepository {
         return new PageImpl<>(result, pageable, totalCount);
     }
 
-    public UsedTradePostDto findPostDetailById(Long postId, Long memberId) {
+    public GroupBuyingPostDto findPostDetailById(Long postId, Long memberId) {
         memberId = memberId == null ? -1 : memberId;
 
-        UsedTradePostDto result = jpaQueryFactory
-                .select(getQNormalPostDtoSelectStatement(memberId))
+        GroupBuyingPostDto result = jpaQueryFactory
+                .select(getQGroupBuyingPostDtoSelectStatement(memberId))
                 .from(post)
-                .innerJoin(usedTradePost).on(post.id.eq(usedTradePost.id))
+                .innerJoin(groupBuyingPost).on(post.id.eq(groupBuyingPost.id))
                 .leftJoin(file).on(post.id.eq(file.post.id))
                 .fetchJoin()
                 .where(post.id.eq(postId))
@@ -117,8 +117,8 @@ public class UsedTradePostQuerydslRepository {
         return result;
     }
 
-    private QUsedTradePostDto getQNormalPostDtoSelectStatement(Long memberId) {
-        return new QUsedTradePostDto(
+    private QGroupBuyingPostDto getQGroupBuyingPostDtoSelectStatement(Long memberId) {
+        return new QGroupBuyingPostDto(
                 post.id,
                 post.title,
                 post.content,
@@ -156,10 +156,11 @@ public class UsedTradePostQuerydslRepository {
                 ).skipNulls(),
                 post.createdAt,
                 post.lastModifiedAt,
-                usedTradePost.goodsPrice,
-                usedTradePost.tradeType,
-                usedTradePost.tradeStatus,
-                usedTradePost.chatRoomLink
+                groupBuyingPost.goodsPrice,
+                groupBuyingPost.category,
+                groupBuyingPost.groupBuyingStatus,
+                groupBuyingPost.chatRoomLink,
+                groupBuyingPost.deadline
         );
     }
 
