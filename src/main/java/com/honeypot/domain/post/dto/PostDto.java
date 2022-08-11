@@ -6,6 +6,7 @@ import com.honeypot.domain.member.dto.WriterDto;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 @Data
 @SuperBuilder
+@NoArgsConstructor
 @AllArgsConstructor
 public abstract class PostDto {
 

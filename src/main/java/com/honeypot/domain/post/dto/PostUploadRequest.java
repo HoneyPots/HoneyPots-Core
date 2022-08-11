@@ -2,7 +2,9 @@ package com.honeypot.domain.post.dto;
 
 import com.honeypot.common.validation.groups.InsertContext;
 import com.honeypot.domain.file.PostFileUploadRequest;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.validator.constraints.Length;
 
@@ -12,6 +14,8 @@ import java.util.List;
 
 @Data
 @SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 public abstract class PostUploadRequest {
 
     @Length(max = 30)
