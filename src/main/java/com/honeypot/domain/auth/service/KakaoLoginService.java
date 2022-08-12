@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class KakaoLoginService implements LoginService {
@@ -51,19 +53,28 @@ public class KakaoLoginService implements LoginService {
         String providerMemberId = String.valueOf(tokenInfo.getId());
 
         // find exist member or signup.
-        AuthProvider authProvider = authProviderRepository
-                .findByProviderTypeAndProviderMemberId(providerType, providerMemberId)
-                .orElseGet(() -> memberSignupService
-                        .signupWithOAuth(providerMemberId, providerType, userInfo.getConnectedAt())
-                        .getAuthProvider());
+        boolean isNewMember = false;
+        Optional<AuthProvider> authProviderOptional = authProviderRepository
+                .findByProviderTypeAndProviderMemberId(providerType, providerMemberId);
+
+        AuthProvider authProvider;
+        if (authProviderOptional.isPresent()) {
+            authProvider = authProviderOptional.get();
+        } else {
+            authProvider = memberSignupService
+                    .signupWithOAuth(providerMemberId, providerType, userInfo.getConnectedAt())
+                    .getAuthProvider();
+
+            isNewMember = true;
+        }
 
         Long memberId = authProvider.getMember().getId();
-
         String accessToken = authTokenManagerService.issueAccessToken(memberId);
         String refreshToken = authTokenManagerService.issueRefreshToken(memberId);
 
         return LoginResponse.builder()
                 .memberId(memberId)
+                .isNewMember(isNewMember)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();

@@ -9,6 +9,8 @@ public class LoginResponse {
 
     private Long memberId;
 
+    private boolean isNewMember;
+
     private String accessToken;
 
     private String refreshToken;
