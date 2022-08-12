@@ -18,11 +18,14 @@ public class PostSearchService {
 
     private final PostSearchQuerydslRepository postSearchQuerydslRepository;
 
+    private final SearchHistoryService searchHistoryService;
+
     @Transactional(readOnly = true)
     public Page<? extends PostDto> search(@Valid PostSearchCriteria criteria,
                                           Pageable pageable,
                                           Long memberId) {
         Page<? extends PostDto> result = postSearchQuerydslRepository.findAllPost(criteria, pageable, memberId);
+        searchHistoryService.save(criteria.getKeyword(), SearchType.POST, memberId);
         return new PageImpl<>(
                 result.getContent(),
                 pageable,
