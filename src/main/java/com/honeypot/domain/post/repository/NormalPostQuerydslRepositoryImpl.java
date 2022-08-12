@@ -2,14 +2,11 @@ package com.honeypot.domain.post.repository;
 
 import com.honeypot.domain.file.AttachedFileResponse;
 import com.honeypot.domain.file.QAttachedFileResponse;
-import com.honeypot.domain.member.dto.QWriterDto;
 import com.honeypot.domain.post.dto.NormalPostDto;
 import com.honeypot.domain.post.dto.QNormalPostDto;
-import com.honeypot.domain.reaction.entity.enums.ReactionType;
-import com.querydsl.core.types.ExpressionUtils;
+import com.honeypot.domain.post.entity.enums.PostType;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,9 +22,6 @@ import static com.honeypot.domain.file.QFile.file;
 import static com.honeypot.domain.member.entity.QMember.member;
 import static com.honeypot.domain.post.entity.QNormalPost.normalPost;
 import static com.honeypot.domain.post.entity.QPost.post;
-import static com.honeypot.domain.reaction.entity.QReaction.reaction;
-import static com.querydsl.jpa.JPAExpressions.select;
-import static com.querydsl.jpa.JPAExpressions.selectOne;
 
 @Repository
 @RequiredArgsConstructor
@@ -110,7 +104,7 @@ public class NormalPostQuerydslRepositoryImpl {
                 .where(file.post.id.eq(postId))
                 .fetch();
 
-        if(!attachedFiles.isEmpty()) {
+        if (!attachedFiles.isEmpty()) {
             result.setAttachedFiles(attachedFiles);
         }
 
@@ -118,45 +112,7 @@ public class NormalPostQuerydslRepositoryImpl {
     }
 
     private QNormalPostDto getQNormalPostDtoSelectStatement(Long memberId) {
-        return new QNormalPostDto(
-                post.id,
-                post.title,
-                post.content,
-                new QWriterDto(
-                        post.writer.id,
-                        post.writer.nickname
-                ),
-                post.comments.size().castToNum(Long.class),
-                ExpressionUtils.as(
-                        select(reaction.count())
-                                .from(reaction)
-                                .where(reaction.postId.eq(post.id)
-                                        .and(reaction.reactionType.eq(ReactionType.LIKE))),
-                        "likeReactionCount"),
-                ExpressionUtils.as(
-                        select(selectOne())
-                                .from(reaction)
-                                .where(reaction.postId.eq(post.id)
-                                        .and(reaction.reactionType.eq(ReactionType.LIKE))
-                                        .and(reaction.reactor.id.eq(memberId))
-                                )
-                                .exists(),
-                        "isLiked"),
-                ExpressionUtils.as(
-                        select(reaction.id)
-                                .from(reaction)
-                                .where(reaction.postId.eq(post.id)
-                                        .and(reaction.reactionType.eq(ReactionType.LIKE))
-                                        .and(reaction.reactor.id.eq(memberId))
-                                ),
-                        "likeReactionId"),
-                new QAttachedFileResponse(
-                        file.id.min().coalesce(Expressions.nullExpression()),
-                        file.filePath.min().prepend(s3Domain).coalesce(Expressions.nullExpression())
-                ).skipNulls(),
-                post.createdAt,
-                post.lastModifiedAt
-        );
+        return (QNormalPostDto) PostQuerydslSelectStatementFactory.of(PostType.NORMAL, memberId, s3Domain);
     }
 
     private OrderSpecifier<?> sort(Sort sort) {
