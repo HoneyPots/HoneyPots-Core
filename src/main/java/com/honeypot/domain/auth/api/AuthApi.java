@@ -3,6 +3,7 @@ package com.honeypot.domain.auth.api;
 import com.honeypot.common.model.exceptions.BadRequestException;
 import com.honeypot.common.model.exceptions.RefreshFailedException;
 import com.honeypot.common.model.properties.JwtProperties;
+import com.honeypot.domain.auth.dto.AuthCode;
 import com.honeypot.domain.auth.dto.LoginResponse;
 import com.honeypot.domain.auth.dto.RefreshTokenRequest;
 import com.honeypot.domain.auth.dto.kakao.KakaoAuthCode;
@@ -82,6 +83,7 @@ public class AuthApi {
         String newRefreshToken = authTokenManagerService.issueRefreshToken(member.getId());
 
         LoginResponse response = LoginResponse.builder()
+                .memberId(memberId)
                 .accessToken(newAccessToken)
                 .refreshToken(newRefreshToken)
                 .build();
