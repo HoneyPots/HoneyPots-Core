@@ -6,6 +6,7 @@ import com.honeypot.domain.post.entity.enums.GroupBuyingStatus;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.NotNull;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @SuperBuilder
+@NoArgsConstructor
 public class GroupBuyingPostDto extends PostDto {
 
     @QueryProjection

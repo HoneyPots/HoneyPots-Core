@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @SuperBuilder
+@NoArgsConstructor
 public class UsedTradePostDto extends PostDto {
 
     @QueryProjection
