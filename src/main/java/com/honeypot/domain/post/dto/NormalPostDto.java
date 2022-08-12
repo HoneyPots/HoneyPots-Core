@@ -5,6 +5,7 @@ import com.honeypot.domain.member.dto.WriterDto;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = false)
 @Data
 @SuperBuilder
+@NoArgsConstructor
 public class NormalPostDto extends PostDto {
 
     @QueryProjection

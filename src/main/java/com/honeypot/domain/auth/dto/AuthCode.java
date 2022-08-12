@@ -1,4 +1,4 @@
-package com.honeypot.domain.auth.api;
+package com.honeypot.domain.auth.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

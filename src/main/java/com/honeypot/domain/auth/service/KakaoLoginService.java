@@ -6,10 +6,10 @@ import com.honeypot.domain.auth.dto.kakao.KakaoTokenIssuance;
 import com.honeypot.domain.auth.dto.kakao.KakaoUserInfo;
 import com.honeypot.domain.auth.entity.AuthProvider;
 import com.honeypot.domain.auth.entity.enums.AuthProviderType;
+import com.honeypot.domain.auth.repository.AuthProviderRepository;
 import com.honeypot.domain.auth.repository.KakaoAuthRepository;
 import com.honeypot.domain.auth.service.contracts.AuthTokenManagerService;
 import com.honeypot.domain.auth.service.contracts.LoginService;
-import com.honeypot.domain.auth.repository.AuthProviderRepository;
 import com.honeypot.domain.member.service.MemberSignupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -53,18 +53,28 @@ public class KakaoLoginService implements LoginService {
         String providerMemberId = String.valueOf(tokenInfo.getId());
 
         // find exist member or signup.
-        AuthProvider authProvider = authProviderRepository
-                .findByProviderTypeAndProviderMemberId(providerType, providerMemberId)
-                .orElseGet(() -> memberSignupService
-                        .signupWithOAuth(providerMemberId, providerType, userInfo.getConnectedAt())
-                        .getAuthProvider());
+        boolean isNewMember = false;
+        Optional<AuthProvider> authProviderOptional = authProviderRepository
+                .findByProviderTypeAndProviderMemberId(providerType, providerMemberId);
+
+        AuthProvider authProvider;
+        if (authProviderOptional.isPresent()) {
+            authProvider = authProviderOptional.get();
+        } else {
+            authProvider = memberSignupService
+                    .signupWithOAuth(providerMemberId, providerType, userInfo.getConnectedAt())
+                    .getAuthProvider();
+
+            isNewMember = true;
+        }
 
         Long memberId = authProvider.getMember().getId();
-
         String accessToken = authTokenManagerService.issueAccessToken(memberId);
         String refreshToken = authTokenManagerService.issueRefreshToken(memberId);
 
         return LoginResponse.builder()
+                .memberId(memberId)
+                .isNewMember(isNewMember)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();

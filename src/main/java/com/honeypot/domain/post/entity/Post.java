@@ -53,4 +53,7 @@ public class Post extends BaseTimeEntity {
     @Builder.Default
     private List<CommentReaction> commentReactions = new ArrayList<>();
 
+    @Column(insertable = false, updatable = false)
+    private String type;
+
 }
