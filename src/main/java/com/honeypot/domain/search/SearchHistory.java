@@ -22,6 +22,7 @@ public class SearchHistory extends BaseTimeEntity {
     @Column(name = "keyword")
     private String keyword;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "type")
     private SearchType type;
 
