@@ -7,6 +7,8 @@ import lombok.Data;
 @Builder
 public class LoginResponse {
 
+    private Long memberId;
+
     private String accessToken;
 
     private String refreshToken;

@@ -6,16 +6,14 @@ import com.honeypot.domain.auth.dto.kakao.KakaoTokenIssuance;
 import com.honeypot.domain.auth.dto.kakao.KakaoUserInfo;
 import com.honeypot.domain.auth.entity.AuthProvider;
 import com.honeypot.domain.auth.entity.enums.AuthProviderType;
+import com.honeypot.domain.auth.repository.AuthProviderRepository;
 import com.honeypot.domain.auth.repository.KakaoAuthRepository;
 import com.honeypot.domain.auth.service.contracts.AuthTokenManagerService;
 import com.honeypot.domain.auth.service.contracts.LoginService;
-import com.honeypot.domain.auth.repository.AuthProviderRepository;
 import com.honeypot.domain.member.service.MemberSignupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -65,6 +63,7 @@ public class KakaoLoginService implements LoginService {
         String refreshToken = authTokenManagerService.issueRefreshToken(memberId);
 
         return LoginResponse.builder()
+                .memberId(memberId)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
