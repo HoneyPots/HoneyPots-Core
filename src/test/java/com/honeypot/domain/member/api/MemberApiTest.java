@@ -1,7 +1,6 @@
 package com.honeypot.domain.member.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.honeypot.common.model.exceptions.InvalidAuthorizationException;
 import com.honeypot.common.utils.SecurityUtils;
 import com.honeypot.domain.auth.service.contracts.AuthTokenManagerService;
 import com.honeypot.domain.member.dto.NicknameModifyRequest;
@@ -29,8 +28,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -68,6 +66,40 @@ class MemberApiTest {
     @AfterAll
     public static void teardown() {
         mockStatic.close();
+    }
+
+    @Test
+    void getNicknameProfile_200_OK() throws Exception {
+        // Arrange
+        String nickname = "admin";
+        when(memberNicknameModifyService.isAvailableNickname(nickname)).thenReturn(false);
+
+        // Act
+        ResultActions actions = mockMvc.perform(get("/api/members/profile")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .queryParam("nickname", nickname)
+        );
+
+        // Assert
+        actions.andExpect(status().isOk())
+                .andExpect(jsonPath("nickname").exists())
+                .andReturn();
+    }
+
+    @Test
+    void getNicknameProfile_404_NotFound() throws Exception {
+        // Arrange
+        String nickname = "admin";
+        when(memberNicknameModifyService.isAvailableNickname(nickname)).thenReturn(true);
+
+        // Act
+        ResultActions actions = mockMvc.perform(get("/api/members/profile")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .queryParam("nickname", nickname)
+        );
+
+        // Assert
+        actions.andExpect(status().isNotFound()).andReturn();
     }
 
     @Test

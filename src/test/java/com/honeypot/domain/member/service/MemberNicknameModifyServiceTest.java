@@ -87,7 +87,7 @@ public class MemberNicknameModifyServiceTest {
                 .build();
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
-        when(memberRepository.existsByNickname(afterNickname)).thenReturn(true);
+        when(memberRepository.isAvailableNickname(afterNickname)).thenReturn(false);
 
         // Act
         boolean result = memberNicknameModifyService.changeNickname(request);
@@ -114,7 +114,7 @@ public class MemberNicknameModifyServiceTest {
                 .build();
 
         when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
-        when(memberRepository.existsByNickname(afterNickname)).thenReturn(false);
+        when(memberRepository.isAvailableNickname(afterNickname)).thenReturn(true);
 
         // Act
         boolean result = memberNicknameModifyService.changeNickname(request);

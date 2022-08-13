@@ -32,25 +32,25 @@ class MemberRepositoryTest {
     }
 
     @Test
-    void existsByNickname_NotExist() {
+    void isAvailableNickname_NotAvailable() {
         // Arrange
         String nickname = "?";
+        createMember(nickname);
 
         // Act
-        boolean result = memberRepository.existsByNickname(nickname);
+        boolean result = memberRepository.isAvailableNickname(nickname);
 
         // Assert
         assertFalse(result);
     }
 
     @Test
-    void existsByNickname_Exist() {
+    void isAvailableNickname_Available() {
         // Arrange
         String nickname = "testNickname";
-        Member member = createMember(nickname);
 
         // Act
-        boolean result = memberRepository.existsByNickname(nickname);
+        boolean result = memberRepository.isAvailableNickname(nickname);
 
         // Assert
         assertTrue(result);
@@ -75,4 +75,5 @@ class MemberRepositoryTest {
                 .build();
         return memberRepository.save(member);
     }
+
 }
