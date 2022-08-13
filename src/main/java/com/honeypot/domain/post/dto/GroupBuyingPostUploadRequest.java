@@ -10,8 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.FutureOrPresent;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 @EqualsAndHashCode(callSuper = false)
@@ -21,15 +20,13 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class GroupBuyingPostUploadRequest extends PostUploadRequest {
 
-    @PositiveOrZero
-    private int goodsPrice;
-
-    @NotEmpty
+    @NotBlank
     private String category;
 
     @Enum(target = GroupBuyingStatus.class, ifNull = true, groups = InsertContext.class)
     private String groupBuyingStatus;
 
+    @NotBlank
     private String chatRoomLink;
 
     @FutureOrPresent
