@@ -41,7 +41,6 @@ class GroupBuyingPostMapperTest {
                 .uploadedAt(uploadedAt)
                 .lastModifiedAt(uploadedAt)
 
-                .goodsPrice(10000)
                 .category("한식")
                 .groupBuyingStatus(GroupBuyingStatus.COMPLETE)
                 .chatRoomLink(null)
@@ -57,7 +56,6 @@ class GroupBuyingPostMapperTest {
         assertEquals(dto.getContent(), entity.getContent());
         assertEquals(dto.getWriter().getId(), entity.getWriter().getId());
         assertEquals(dto.getWriter().getNickname(), entity.getWriter().getNickname());
-        assertEquals(dto.getGoodsPrice(), entity.getGoodsPrice());
         assertEquals(dto.getCategory(), entity.getCategory());
         assertEquals(dto.getGroupBuyingStatus(), entity.getGroupBuyingStatus());
         assertEquals(dto.getChatRoomLink(), entity.getChatRoomLink());
@@ -74,7 +72,6 @@ class GroupBuyingPostMapperTest {
                 .content("content")
                 .writerId(1L)
                 .attachedFiles(null)
-                .goodsPrice(20000)
                 .category("한식")
                 .groupBuyingStatus("ONGOING")
                 .chatRoomLink("chatRoomLink")
@@ -88,7 +85,6 @@ class GroupBuyingPostMapperTest {
         assertEquals(dto.getTitle(), entity.getTitle());
         assertEquals(dto.getContent(), entity.getContent());
         assertEquals(dto.getWriterId(), entity.getWriter().getId());
-        assertEquals(dto.getGoodsPrice(), entity.getGoodsPrice());
         assertEquals(dto.getCategory(), entity.getCategory());
         assertEquals(dto.getGroupBuyingStatus(), entity.getGroupBuyingStatus().toString());
     }
@@ -109,7 +105,6 @@ class GroupBuyingPostMapperTest {
                 .createdAt(uploadedAt)
                 .lastModifiedAt(uploadedAt)
 
-                .goodsPrice(15000)
                 .category("중식")
                 .groupBuyingStatus(GroupBuyingStatus.COMPLETE)
                 .chatRoomLink("https://example.com/adfsafsdca")
@@ -131,7 +126,6 @@ class GroupBuyingPostMapperTest {
         assertNull(dto.getIsLiked());
         assertEquals(entity.getCreatedAt(), dto.getUploadedAt());
         assertEquals(entity.getLastModifiedAt(), dto.getUploadedAt());
-        assertEquals(entity.getGoodsPrice(), dto.getGoodsPrice());
         assertEquals(entity.getCategory(), dto.getCategory());
         assertEquals(entity.getGroupBuyingStatus(), dto.getGroupBuyingStatus());
         assertEquals(entity.getChatRoomLink(), dto.getChatRoomLink());

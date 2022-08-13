@@ -11,7 +11,6 @@ import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 
 @EqualsAndHashCode(callSuper = false)
@@ -20,9 +19,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupBuyingPostUploadRequest extends PostUploadRequest {
-
-    @PositiveOrZero
-    private int goodsPrice;
 
     @NotEmpty
     private String category;
