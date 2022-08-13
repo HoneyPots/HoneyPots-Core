@@ -45,7 +45,7 @@ public class AuthApi {
 
         return ResponseEntity
                 .ok()
-                .header(HttpHeaders.SET_COOKIE, getHttpOnlyCookie(response.getRefreshToken()).toString())
+                .header(HttpHeaders.SET_COOKIE, getHttpOnlyCookie(response.getRefreshToken(), false).toString())
                 .body(response);
     }
 
@@ -57,7 +57,7 @@ public class AuthApi {
 
         return ResponseEntity
                 .ok()
-                .header(HttpHeaders.SET_COOKIE, getHttpOnlyCookie(response.getRefreshToken()).toString())
+                .header(HttpHeaders.SET_COOKIE, getHttpOnlyCookie(response.getRefreshToken(), false).toString())
                 .body(response);
     }
 
@@ -90,11 +90,20 @@ public class AuthApi {
 
         return ResponseEntity
                 .ok()
-                .header(HttpHeaders.SET_COOKIE, getHttpOnlyCookie(newRefreshToken).toString())
+                .header(HttpHeaders.SET_COOKIE, getHttpOnlyCookie(newRefreshToken, false).toString())
                 .body(response);
     }
 
-    private ResponseCookie getHttpOnlyCookie(String refreshToken) {
+    @DeleteMapping("/token")
+    public ResponseEntity<?> expireRefreshToken(@CookieValue("refreshToken") String refreshToken) {
+        return ResponseEntity
+                .noContent()
+                .header(HttpHeaders.SET_COOKIE, getHttpOnlyCookie(refreshToken, true).toString())
+                .build();
+    }
+
+
+    private ResponseCookie getHttpOnlyCookie(String refreshToken, boolean isExpired) {
         return ResponseCookie
                 .from("refreshToken", refreshToken)
                 .path("/")
@@ -102,7 +111,7 @@ public class AuthApi {
                 .secure(true)
                 .sameSite("None")
                 .domain(serverDomainName)
-                .maxAge(jwtProperties.expirationTimeInSeconds().refreshToken())
+                .maxAge(isExpired ? 0 : jwtProperties.expirationTimeInSeconds().refreshToken())
                 .build();
     }
 
