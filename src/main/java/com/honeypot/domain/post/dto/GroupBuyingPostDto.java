@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
@@ -33,12 +34,13 @@ public class GroupBuyingPostDto extends PostDto {
         this.deadline = deadline;
     }
 
-    @NotNull
+    @NotBlank
     private String category;
 
     @NotNull
     private GroupBuyingStatus groupBuyingStatus;
 
+    @NotBlank
     private String chatRoomLink;
 
     @NotNull
