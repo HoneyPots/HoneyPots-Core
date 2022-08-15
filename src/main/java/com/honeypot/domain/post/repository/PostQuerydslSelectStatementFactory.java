@@ -2,13 +2,15 @@ package com.honeypot.domain.post.repository;
 
 import com.honeypot.domain.file.QAttachedFileResponse;
 import com.honeypot.domain.member.dto.QWriterDto;
-import com.honeypot.domain.post.dto.*;
+import com.honeypot.domain.post.dto.PostDto;
+import com.honeypot.domain.post.dto.QGroupBuyingPostDto;
+import com.honeypot.domain.post.dto.QNormalPostDto;
+import com.honeypot.domain.post.dto.QUsedTradePostDto;
 import com.honeypot.domain.post.entity.enums.PostType;
 import com.honeypot.domain.reaction.entity.enums.ReactionType;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.dsl.Expressions;
-import org.springframework.beans.factory.annotation.Value;
 
 import static com.honeypot.domain.file.QFile.file;
 import static com.honeypot.domain.post.entity.QGroupBuyingPost.groupBuyingPost;
@@ -144,7 +146,6 @@ public class PostQuerydslSelectStatementFactory {
                     ).skipNulls(),
                     post.createdAt,
                     post.lastModifiedAt,
-                    groupBuyingPost.goodsPrice,
                     groupBuyingPost.category,
                     groupBuyingPost.groupBuyingStatus,
                     groupBuyingPost.chatRoomLink,

@@ -7,13 +7,13 @@ import com.honeypot.domain.file.FileUploadService;
 import com.honeypot.domain.file.PostFileUploadRequest;
 import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.member.repository.MemberRepository;
-import com.honeypot.domain.post.dto.*;
+import com.honeypot.domain.post.dto.GroupBuyingModifyRequest;
+import com.honeypot.domain.post.dto.GroupBuyingPostDto;
+import com.honeypot.domain.post.dto.GroupBuyingPostUploadRequest;
 import com.honeypot.domain.post.entity.GroupBuyingPost;
-import com.honeypot.domain.post.entity.UsedTradePost;
 import com.honeypot.domain.post.entity.enums.GroupBuyingStatus;
 import com.honeypot.domain.post.entity.enums.PostType;
 import com.honeypot.domain.post.entity.enums.TradeStatus;
-import com.honeypot.domain.post.entity.enums.TradeType;
 import com.honeypot.domain.post.mapper.GroupBuyingPostMapper;
 import com.honeypot.domain.post.repository.GroupBuyingPostQuerydslRepository;
 import com.honeypot.domain.post.repository.GroupBuyingPostRepository;
@@ -121,7 +121,6 @@ public class GroupBuyingPostService implements PostCrudService<GroupBuyingPostDt
 
         post.setTitle(uploadRequest.getTitle());
         post.setContent(uploadRequest.getContent());
-        post.setGoodsPrice(uploadRequest.getGoodsPrice());
         post.setCategory(uploadRequest.getCategory());
         post.setGroupBuyingStatus(GroupBuyingStatus.valueOf(uploadRequest.getGroupBuyingStatus()));
         post.setChatRoomLink(uploadRequest.getChatRoomLink());

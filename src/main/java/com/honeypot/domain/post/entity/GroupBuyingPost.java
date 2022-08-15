@@ -20,9 +20,6 @@ import java.time.LocalDateTime;
 @DynamicUpdate
 public class GroupBuyingPost extends Post {
 
-    @Column(name = "goods_price")
-    private int goodsPrice;
-
     @Column(name = "category")
     private String category;
 

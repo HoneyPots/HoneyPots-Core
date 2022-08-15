@@ -41,8 +41,8 @@ public class MemberNicknameModifyService {
     }
 
     @Transactional(readOnly = true)
-    private boolean isAvailableNickname(@NotEmpty String nickname) {
-        return !memberRepository.existsByNickname(nickname);
+    public boolean isAvailableNickname(@NotEmpty String nickname) {
+        return memberRepository.isAvailableNickname(nickname);
     }
 
 }

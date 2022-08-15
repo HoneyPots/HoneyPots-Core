@@ -3,6 +3,7 @@ package com.honeypot.domain.post.api;
 import com.honeypot.common.model.exceptions.InvalidTokenException;
 import com.honeypot.common.utils.SecurityUtils;
 import com.honeypot.common.validation.constraints.AllowedSortProperties;
+import com.honeypot.common.validation.groups.UsedTradePostUploadContext;
 import com.honeypot.domain.post.dto.UsedTradeModifyRequest;
 import com.honeypot.domain.post.dto.UsedTradePostDto;
 import com.honeypot.domain.post.dto.UsedTradePostUploadRequest;
@@ -37,6 +38,7 @@ public class UsedTradePostApi {
     }
 
     @PostMapping
+    @Validated(UsedTradePostUploadContext.class)
     public ResponseEntity<?> upload(@Valid @RequestBody UsedTradePostUploadRequest uploadRequest) {
         Long memberId = SecurityUtils.getCurrentMemberId().orElseThrow(InvalidTokenException::new);
         uploadRequest.setWriterId(memberId);
@@ -53,6 +55,7 @@ public class UsedTradePostApi {
     }
 
     @PutMapping("/{postId}")
+    @Validated(UsedTradePostUploadContext.class)
     public ResponseEntity<?> update(@PathVariable long postId,
                                     @Valid @RequestBody UsedTradePostUploadRequest uploadRequest) {
 

@@ -15,7 +15,11 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query(value = "SELECT * FROM member m WHERE m.member_id = :memberId AND is_withdrawal = false", nativeQuery = true)
     Optional<Member> findById(Long memberId);
 
-    boolean existsByNickname(String nickname);
+    @Query(value = "SELECT CASE WHEN COUNT(*) >= 1 THEN false ELSE true END " +
+            "FROM member m " +
+            "WHERE m.nickname = :nickname " +
+            "AND m.is_withdrawal = false", nativeQuery = true)
+    boolean isAvailableNickname(String nickname);
 
     @Modifying
     @Query(value = "UPDATE member m " +

@@ -10,6 +10,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 
 @RestControllerAdvice
 public class GlobalApiExceptionHandler {
@@ -32,6 +38,18 @@ public class GlobalApiExceptionHandler {
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ErrorResponse> badRequestException(BadRequestException e) {
         return ErrorResponse.of(e, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> constraintViolationException(ConstraintViolationException e) {
+        Map<String, String> errorMessages = new HashMap<>();
+        List<ConstraintViolation<?>> list = e.getConstraintViolations().stream().toList();
+        for (ConstraintViolation<?> cv : list) {
+            String property = cv.getPropertyPath().toString();
+            property = property.substring(property.lastIndexOf(".") + 1);
+            errorMessages.put(property, cv.getMessage());
+        }
+        return ErrorResponse.of(new BadRequestException(errorMessages), HttpStatus.BAD_REQUEST);
     }
 
 }

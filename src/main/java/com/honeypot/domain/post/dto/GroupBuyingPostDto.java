@@ -9,8 +9,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 
 @Data
@@ -24,26 +24,23 @@ public class GroupBuyingPostDto extends PostDto {
                               Long commentCount, Long likeReactionCount, Boolean isLiked,
                               Long likeReactionId, AttachedFileResponse thumbnailImageFile,
                               LocalDateTime uploadedAt, LocalDateTime lastModifiedAt,
-                              int goodsPrice, String category, GroupBuyingStatus groupBuyingStatus,
+                              String category, GroupBuyingStatus groupBuyingStatus,
                               String chatRoomLink, LocalDateTime deadline) {
         super(postId, title, content, writer, commentCount, likeReactionCount, isLiked,
                 likeReactionId, thumbnailImageFile, uploadedAt, lastModifiedAt);
-        this.goodsPrice = goodsPrice;
         this.category = category;
         this.groupBuyingStatus = groupBuyingStatus;
         this.chatRoomLink = chatRoomLink;
         this.deadline = deadline;
     }
 
-    @PositiveOrZero
-    private int goodsPrice;
-
-    @NotNull
+    @NotBlank
     private String category;
 
     @NotNull
     private GroupBuyingStatus groupBuyingStatus;
 
+    @NotBlank
     private String chatRoomLink;
 
     @NotNull

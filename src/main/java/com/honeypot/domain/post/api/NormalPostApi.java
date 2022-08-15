@@ -3,6 +3,7 @@ package com.honeypot.domain.post.api;
 import com.honeypot.common.model.exceptions.InvalidTokenException;
 import com.honeypot.common.utils.SecurityUtils;
 import com.honeypot.common.validation.constraints.AllowedSortProperties;
+import com.honeypot.common.validation.groups.NormalPostUploadContext;
 import com.honeypot.domain.post.dto.NormalPostDto;
 import com.honeypot.domain.post.dto.NormalPostUploadRequest;
 import com.honeypot.domain.post.service.NormalPostService;
@@ -36,6 +37,7 @@ public class NormalPostApi {
     }
 
     @PostMapping
+    @Validated(NormalPostUploadContext.class)
     public ResponseEntity<?> upload(@Valid @RequestBody NormalPostUploadRequest uploadRequest) {
 
         Long memberId = SecurityUtils.getCurrentMemberId().orElseThrow(InvalidTokenException::new);
@@ -53,6 +55,7 @@ public class NormalPostApi {
     }
 
     @PutMapping("/{postId}")
+    @Validated(NormalPostUploadContext.class)
     public ResponseEntity<?> update(@PathVariable long postId,
                                     @Valid @RequestBody NormalPostUploadRequest uploadRequest) {
 
