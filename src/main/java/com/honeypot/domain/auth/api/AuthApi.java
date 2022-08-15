@@ -71,6 +71,10 @@ public class AuthApi {
             throw new BadRequestException(errorMessages);
         }
 
+        if (refreshToken == null) {
+            return ResponseEntity.noContent().build();
+        }
+
         if (!authTokenManagerService.validate(refreshToken)) {
             throw new RefreshFailedException();
         }
