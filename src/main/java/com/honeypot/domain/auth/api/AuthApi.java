@@ -62,7 +62,7 @@ public class AuthApi {
     }
 
     @PostMapping("/token")
-    public ResponseEntity<?> refreshToken(@CookieValue("refreshToken") String refreshToken,
+    public ResponseEntity<?> refreshToken(@CookieValue(value = "refreshToken", required = false) String refreshToken,
                                           @RequestBody RefreshTokenRequest request) {
 
         if (!request.getGrantType().equals("refresh_token")) {
