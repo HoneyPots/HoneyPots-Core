@@ -1,10 +1,7 @@
 package com.honeypot.common.advice;
 
 import com.honeypot.common.model.dto.ErrorResponse;
-import com.honeypot.common.model.exceptions.BadRequestException;
-import com.honeypot.common.model.exceptions.InvalidAuthorizationException;
-import com.honeypot.common.model.exceptions.InvalidTokenException;
-import com.honeypot.common.model.exceptions.RefreshFailedException;
+import com.honeypot.common.model.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -37,6 +34,11 @@ public class GlobalApiExceptionHandler {
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ErrorResponse> badRequestException(BadRequestException e) {
+        return ErrorResponse.of(e, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ReportTargetNotFoundException.class)
+    public ResponseEntity<ErrorResponse> reportTargetNotFoundException(ReportTargetNotFoundException e) {
         return ErrorResponse.of(e, HttpStatus.BAD_REQUEST);
     }
 
