@@ -10,9 +10,8 @@ import com.honeypot.domain.member.service.MemberNicknameModifyService;
 import com.honeypot.domain.member.service.MemberWithdrawService;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.Length;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,6 +31,9 @@ public class MemberApi {
     private final MemberWithdrawService memberWithdrawService;
 
     private final ObjectMapper objectMapper;
+
+    @Value("${domain.server.domain-name}")
+    private String serverDomainName;
 
     @GetMapping(value = "/profile", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getNicknameProfile(@RequestParam @NotBlank @Length(max = 20) String nickname)
@@ -73,14 +75,30 @@ public class MemberApi {
     }
 
     @DeleteMapping("/{memberId}")
-    public ResponseEntity<?> deleteMember(@PathVariable Long memberId) throws JsonProcessingException {
+    public ResponseEntity<?> deleteMember(@PathVariable Long memberId,
+                                          @CookieValue(value = "refreshToken", required = false) String refreshToken) {
         Long currentMemberId = SecurityUtils.getCurrentMemberId().orElseThrow(InvalidTokenException::new);
         if (!currentMemberId.equals(memberId)) {
             throw new InvalidAuthorizationException();
         }
 
         boolean isSucceed = memberWithdrawService.withdraw(memberId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity
+                .noContent()
+                .header(HttpHeaders.SET_COOKIE, getHttpOnlyCookie(refreshToken).toString())
+                .build();
+    }
+
+    private ResponseCookie getHttpOnlyCookie(String refreshToken) {
+        return ResponseCookie
+                .from("refreshToken", refreshToken)
+                .path("/")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .domain(serverDomainName)
+                .maxAge(0)
+                .build();
     }
 
 }
