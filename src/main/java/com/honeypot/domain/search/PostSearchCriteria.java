@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 public class PostSearchCriteria {
 
     @NotNull
-    @Length(min = 2, max = 30)
+    @Length(min = 1, max = 30)
     private String keyword;
 
     @NotNull
