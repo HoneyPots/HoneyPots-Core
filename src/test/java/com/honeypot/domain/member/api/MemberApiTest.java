@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,8 +30,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(MemberApi.class)
 @ActiveProfiles("test")
@@ -163,15 +163,18 @@ class MemberApiTest {
         // Act
         ResultActions actions = mockMvc.perform(delete("/api/members/" + memberId)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("Authorization", token)
+                .header(HttpHeaders.AUTHORIZATION, token)
+                .header(HttpHeaders.COOKIE, "refreshToken=refreshToken;")
         );
 
         // Assert
-        actions.andExpect(status().isNoContent()).andReturn();
+        actions.andExpect(status().isNoContent())
+                .andExpect(header().exists(HttpHeaders.SET_COOKIE))
+                .andReturn();
     }
 
     @Test
-    void deleteMember_Fail_InvalidAuthorizationException() throws Exception {
+    void deleteMember_Fail_InvalidAuthorizationException() {
         // Arrange
         String token = "Bearer test";
         Long memberId = 1L;
@@ -183,7 +186,8 @@ class MemberApiTest {
         assertThrows(NestedServletException.class, () -> {
             mockMvc.perform(delete("/api/members/" + memberId)
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
-                    .header("Authorization", token)
+                    .header(HttpHeaders.AUTHORIZATION, token)
+                    .header(HttpHeaders.COOKIE, "refreshToken=refreshToken;")
             );
         });
     }
