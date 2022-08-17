@@ -75,7 +75,6 @@ public class GroupBuyingPostQuerydslRepository {
                 .select(post.id)
                 .from(post)
                 .innerJoin(member).on(post.writer.id.eq(member.id))
-                .fetchJoin()
                 .where(member.id.eq(memberId)
                         .and(post.type.eq(PostType.GROUP_BUYING.name()))
                 )
