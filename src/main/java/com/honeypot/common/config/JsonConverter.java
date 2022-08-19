@@ -8,6 +8,7 @@ import org.springframework.boot.jackson.JsonComponent;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 @JsonComponent
@@ -17,8 +18,12 @@ public class JsonConverter {
         @Override
         public LocalDateTime deserialize(JsonParser jsonParser,
                                          DeserializationContext deserializationContext) throws IOException {
-            Date in = new Date(jsonParser.getValueAsLong()*1000);
-            return LocalDateTime.ofInstant(in.toInstant(), ZoneId.systemDefault());
+            try {
+                return LocalDateTime.parse(jsonParser.getValueAsString());
+            } catch (Exception e) {
+                Date in = new Date(jsonParser.getValueAsLong() * 1000);
+                return LocalDateTime.ofInstant(in.toInstant(), ZoneId.systemDefault());
+            }
         }
     }
 }
