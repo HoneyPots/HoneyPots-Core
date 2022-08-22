@@ -69,3 +69,10 @@ jwt:
   expiration-time-in-seconds:
     access-token: 86400
     refresh-token: 604800
+
+# Client
+domain:
+  server:
+    domain-name: ".honeypots.kr"
+  client:
+    web: "https://www.honeypots.kr"
