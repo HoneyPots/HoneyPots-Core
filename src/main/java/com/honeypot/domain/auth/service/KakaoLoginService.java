@@ -57,18 +57,17 @@ public class KakaoLoginService implements LoginService {
         Optional<AuthProvider> authProviderOptional = authProviderRepository
                 .findByProviderTypeAndProviderMemberId(providerType, providerMemberId);
 
-        AuthProvider authProvider;
+        Long memberId;
         if (authProviderOptional.isPresent()) {
-            authProvider = authProviderOptional.get();
+            memberId = authProviderOptional.get().getMember().getId();
         } else {
-            authProvider = memberSignupService
+            memberId = memberSignupService
                     .signupWithOAuth(providerMemberId, providerType, userInfo.getConnectedAt())
-                    .getAuthProvider();
+                    .getId();
 
             isNewMember = true;
         }
 
-        Long memberId = authProvider.getMember().getId();
         String accessToken = authTokenManagerService.issueAccessToken(memberId);
         String refreshToken = authTokenManagerService.issueRefreshToken(memberId);
 

@@ -2,6 +2,7 @@ package com.honeypot.domain.post.dto;
 
 import com.honeypot.common.validation.constraints.Enum;
 import com.honeypot.common.validation.groups.InsertContext;
+import com.honeypot.common.validation.groups.UsedTradePostUploadContext;
 import com.honeypot.domain.post.entity.enums.TradeStatus;
 import com.honeypot.domain.post.entity.enums.TradeType;
 import lombok.AllArgsConstructor;
@@ -22,7 +23,7 @@ public class UsedTradePostUploadRequest extends PostUploadRequest {
     @PositiveOrZero
     private int goodsPrice;
 
-    @Enum(target = TradeType.class, groups = InsertContext.class)
+    @Enum(target = TradeType.class, groups = UsedTradePostUploadContext.class)
     private String tradeType;
 
     @Enum(target = TradeStatus.class, ifNull = true, groups = InsertContext.class)

@@ -21,7 +21,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 public abstract class PostDto {
 
     @QueryProjection
-    public PostDto(long postId, String title, String content, WriterDto writer,
+    public PostDto(Long postId, String title, String content, WriterDto writer,
                    Long commentCount, Long likeReactionCount, Boolean isLiked,
                    Long likeReactionId, AttachedFileResponse thumbnailImageFile,
                    LocalDateTime uploadedAt, LocalDateTime lastModifiedAt) {
@@ -38,7 +38,7 @@ public abstract class PostDto {
         this.lastModifiedAt = lastModifiedAt;
     }
 
-    private long postId;
+    private Long postId;
 
     private String title;
 

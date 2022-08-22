@@ -2,24 +2,20 @@ package com.honeypot.domain.post.service;
 
 import com.honeypot.common.model.exceptions.InvalidAuthorizationException;
 import com.honeypot.common.validation.groups.InsertContext;
-import com.honeypot.domain.comment.repository.CommentRepository;
 import com.honeypot.domain.file.AttachedFileResponse;
 import com.honeypot.domain.file.FileUploadService;
+import com.honeypot.domain.file.PostFileUploadRequest;
 import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.member.repository.MemberRepository;
 import com.honeypot.domain.post.dto.NormalPostDto;
 import com.honeypot.domain.post.dto.NormalPostUploadRequest;
-import com.honeypot.domain.file.PostFileUploadRequest;
-import com.honeypot.domain.post.dto.PostDto;
 import com.honeypot.domain.post.entity.NormalPost;
 import com.honeypot.domain.post.entity.enums.PostType;
 import com.honeypot.domain.post.mapper.NormalPostMapper;
+import com.honeypot.domain.post.repository.NormalPostQuerydslRepository;
 import com.honeypot.domain.post.repository.NormalPostRepository;
-import com.honeypot.domain.post.repository.NormalPostQuerydslRepositoryImpl;
-import com.honeypot.domain.reaction.repository.ReactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +31,7 @@ import java.util.List;
 @Validated
 public class NormalPostService implements PostCrudService<NormalPostDto, NormalPostUploadRequest> {
 
-    private final NormalPostQuerydslRepositoryImpl querydslRepository;
+    private final NormalPostQuerydslRepository querydslRepository;
 
     private final NormalPostMapper normalPostMapper;
 
@@ -50,24 +46,16 @@ public class NormalPostService implements PostCrudService<NormalPostDto, NormalP
         return PostType.NORMAL;
     }
 
+    @Override
     @Transactional(readOnly = true)
     public Page<NormalPostDto> pageList(Pageable pageable, Long memberId) {
-        Page<NormalPostDto> result = querydslRepository.findAllPostWithCommentAndReactionCount(pageable, memberId);
-        return new PageImpl<>(
-                result.getContent(),
-                pageable,
-                result.getTotalElements()
-        );
+        return querydslRepository.findAllPostWithCommentAndReactionCount(pageable, memberId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<NormalPostDto> pageListByMemberId(Pageable pageable, Long memberId) {
-        Page<NormalPostDto> result = querydslRepository.findAllPostWithCommentAndReactionCountByMemberId(pageable, memberId);
-        return new PageImpl<>(
-                result.getContent(),
-                pageable,
-                result.getTotalElements()
-        );
+        return querydslRepository.findAllPostWithCommentAndReactionCountByMemberId(pageable, memberId);
     }
 
     @Transactional(readOnly = true)
