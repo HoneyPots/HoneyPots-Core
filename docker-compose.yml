@@ -1,0 +1,50 @@
+version: "3"
+services:
+  db:
+    container_name: db-h2
+    image: oscarfonts/h2:2.1.210
+    ports:
+      - "1521:1521"
+      - "8082:8082"
+    environment:
+      H2_OPTIONS: -ifNotExists
+    volumes:
+      - ./h2/:/opt/h2-data
+    restart: always
+
+  # Honeypots Application
+  honeypots-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: honeypots-app
+    ports:
+      - "8090:8090"
+    environment:
+      SPRING_PROFILE: prod
+      SPRING_DATASOURCE_URL: jdbc:h2:tcp://db-h2:1521/honeypot
+      SPRING_DATASOURCE_USERNAME: sa
+      SPRING_DATASOURCE_PASSWORD:
+    depends_on:
+      - db
+
+  # Prometheus
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:v2.38.0
+    volumes:
+      - type: bind
+        source: ./prometheus.yml
+        target: /etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    restart: always
+
+  # Grafana
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:9.1.1
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus

@@ -8,7 +8,6 @@ import com.honeypot.domain.member.service.MemberNicknameModifyService;
 import com.honeypot.domain.member.service.MemberWithdrawService;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
@@ -22,13 +21,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.util.NestedServletException;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -44,6 +41,7 @@ class MemberApiTest {
     @MockBean
     private MemberWithdrawService memberWithdrawService;
 
+    @Autowired
     private MockMvc mockMvc;
 
     @Autowired
@@ -54,13 +52,6 @@ class MemberApiTest {
     @BeforeAll
     public static void setup() {
         mockStatic = mockStatic(SecurityUtils.class);
-    }
-
-    @BeforeEach
-    public void before() {
-        memberNicknameModifyService = mock(MemberNicknameModifyService.class);
-        MemberApi memberApi = new MemberApi(memberNicknameModifyService, memberWithdrawService, objectMapper);
-        mockMvc = MockMvcBuilders.standaloneSetup(memberApi).build();
     }
 
     @AfterAll
@@ -105,21 +96,18 @@ class MemberApiTest {
     @Test
     void changeNickname_Success_204_NoContent() throws Exception {
         // Arrange
-        String token = "Bearer test";
         Long memberId = 1L;
         NicknameModifyRequest request = createNicknameModifyRequest("nickname");
-
-        String requestBody = objectMapper.writeValueAsString(request);
 
         request.setMemberId(memberId);
         when(SecurityUtils.getCurrentMemberId()).thenReturn(Optional.of(memberId));
         when(memberNicknameModifyService.changeNickname(request)).thenReturn(true);
 
         // Act
-        ResultActions actions = mockMvc.perform(patch("/api/members/" + memberId + "/profile/nickname")
+        ResultActions actions = mockMvc.perform(patch("/api/members/{memberId}/profile/nickname", memberId)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("Authorization", token)
-                .content(requestBody)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer test")
+                .content(objectMapper.writeValueAsString(request))
         );
 
         // Assert
@@ -127,23 +115,41 @@ class MemberApiTest {
     }
 
     @Test
+    void changeNickname_Fail_401_Unauthorized() throws Exception {
+        // Arrange
+        Long memberId = 1L;
+        NicknameModifyRequest request = createNicknameModifyRequest("nickname");
+
+        when(SecurityUtils.getCurrentMemberId()).thenReturn(Optional.of(2L));
+
+        // Act
+        ResultActions actions = mockMvc.perform(patch("/api/members/{memberId}/profile/nickname", memberId)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer token")
+                .content(objectMapper.writeValueAsString(request))
+        );
+
+        // Assert
+        actions.andExpect(status().isForbidden())
+                .andExpect(jsonPath("code").value("HAE002"))
+                .andReturn();
+    }
+
+    @Test
     void changeNickname_Fail_409_Conflict() throws Exception {
         // Arrange
-        String token = "Bearer test";
         Long memberId = 1L;
         NicknameModifyRequest request = createNicknameModifyRequest("nicknameTest");
-
-        String requestBody = objectMapper.writeValueAsString(request);
 
         request.setMemberId(memberId);
         when(SecurityUtils.getCurrentMemberId()).thenReturn(Optional.of(memberId));
         when(memberNicknameModifyService.changeNickname(request)).thenReturn(false);
 
         // Act
-        ResultActions actions = mockMvc.perform(patch("/api/members/" + memberId + "/profile/nickname")
+        ResultActions actions = mockMvc.perform(patch("/api/members/{memberId}/profile/nickname", memberId)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("Authorization", token)
-                .content(requestBody)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer test")
+                .content(objectMapper.writeValueAsString(request))
         );
 
         // Assert
@@ -154,16 +160,15 @@ class MemberApiTest {
     @Test
     void deleteMember_Success_204_NoContent() throws Exception {
         // Arrange
-        String token = "Bearer test";
         Long memberId = 1L;
 
         when(SecurityUtils.getCurrentMemberId()).thenReturn(Optional.of(memberId));
         when(memberWithdrawService.withdraw(memberId)).thenReturn(true);
 
         // Act
-        ResultActions actions = mockMvc.perform(delete("/api/members/" + memberId)
+        ResultActions actions = mockMvc.perform(delete("/api/members/{memberId}", memberId)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header(HttpHeaders.AUTHORIZATION, token)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer test")
                 .header(HttpHeaders.COOKIE, "refreshToken=refreshToken;")
         );
 
@@ -174,22 +179,23 @@ class MemberApiTest {
     }
 
     @Test
-    void deleteMember_Fail_InvalidAuthorizationException() {
+    void deleteMember_Fail_InvalidAuthorizationException() throws Exception {
         // Arrange
-        String token = "Bearer test";
         Long memberId = 1L;
 
         when(SecurityUtils.getCurrentMemberId()).thenReturn(Optional.of(2L));
-        when(memberWithdrawService.withdraw(memberId)).thenReturn(true);
 
-        // Act & Assert
-        assertThrows(NestedServletException.class, () -> {
-            mockMvc.perform(delete("/api/members/" + memberId)
-                    .contentType(MediaType.APPLICATION_JSON_VALUE)
-                    .header(HttpHeaders.AUTHORIZATION, token)
-                    .header(HttpHeaders.COOKIE, "refreshToken=refreshToken;")
-            );
-        });
+        // Act
+        ResultActions actions = mockMvc.perform(delete("/api/members/{memberId}", memberId)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer test")
+                .header(HttpHeaders.COOKIE, "refreshToken=refreshToken;")
+        );
+
+        // Assert
+        actions.andExpect(status().isForbidden())
+                .andExpect(jsonPath("code").value("HAE002"))
+                .andReturn();
     }
 
     private NicknameModifyRequest createNicknameModifyRequest(String nickname) {

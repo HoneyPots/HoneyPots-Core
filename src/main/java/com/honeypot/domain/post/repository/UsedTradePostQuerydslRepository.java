@@ -8,7 +8,6 @@ import com.honeypot.domain.post.entity.enums.PostType;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -24,13 +23,17 @@ import static com.honeypot.domain.post.entity.QPost.post;
 import static com.honeypot.domain.post.entity.QUsedTradePost.usedTradePost;
 
 @Repository
-@RequiredArgsConstructor
 public class UsedTradePostQuerydslRepository {
 
-    @Value("${cloud.aws.s3.domain}")
-    private String s3Domain;
+    private final String s3Domain;
 
     private final JPAQueryFactory jpaQueryFactory;
+
+    public UsedTradePostQuerydslRepository(JPAQueryFactory jpaQueryFactory,
+                                           @Value("${cloud.aws.s3.domain}") String s3Domain) {
+        this.jpaQueryFactory = jpaQueryFactory;
+        this.s3Domain = s3Domain;
+    }
 
     public Page<UsedTradePostDto> findAllPostWithCommentAndReactionCount(Pageable pageable, Long memberId) {
         memberId = memberId == null ? -1 : memberId;
@@ -95,10 +98,6 @@ public class UsedTradePostQuerydslRepository {
                 .fetchJoin()
                 .where(post.id.eq(postId))
                 .fetchOne();
-
-        if (result == null) {
-            return null;
-        }
 
         List<AttachedFileResponse> attachedFiles = jpaQueryFactory
                 .select(new QAttachedFileResponse(file.id, file.filePath.prepend(s3Domain)).skipNulls())

@@ -1,0 +1,8 @@
+{
+  "token_type":"bearer",
+  "access_token":"ACCESS_TOKEN",
+  "expires_in":43199,
+  "refresh_token":"REFRESH_TOKEN",
+  "refresh_token_expires_in":25184000,
+  "scope":"account_email profile"
+}

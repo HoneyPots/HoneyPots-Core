@@ -3,6 +3,7 @@ package com.honeypot.domain.post.dto;
 import com.honeypot.common.validation.constraints.Enum;
 import com.honeypot.common.validation.groups.InsertContext;
 import com.honeypot.domain.post.entity.enums.GroupBuyingStatus;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -12,6 +13,7 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @ToString
+@Builder
 public class GroupBuyingModifyRequest {
 
     @Enum(target = GroupBuyingStatus.class)
