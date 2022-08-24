@@ -3,6 +3,7 @@ plugins {
     id 'org.springframework.boot' version '2.6.6'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
+    id 'distribution'
 }
 
 group 'com.honeypot'
@@ -104,3 +105,23 @@ tasks.named("bootRun") {
 tasks.named("bootJar") {
     mainClass = 'com.honeypot.HoneyPotApplication'
 }
+
+distributions {
+    main {
+        contents {
+            from 'Dockerfile'
+            from 'docker-compose.yml'
+            from 'prometheus.yml'
+            into('build/libs') {
+                from 'build/libs'
+            }
+            into('keystore') {
+                from 'keystore'
+            }
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        }
+    }
+}
+
+distTar.enabled = false
+distZip.dependsOn('bootJar')
