@@ -10,8 +10,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    @Value("${domain.client.web}")
-    private String webClientDomain;
+    @Value("${domain.client}")
+    private String[] corsAllowOrigins;
 
     @Bean
     public WebMvcConfigurer webMvcConfigurer() {
@@ -19,7 +19,7 @@ public class WebConfig implements WebMvcConfigurer {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins(webClientDomain)
+                        .allowedOrigins(corsAllowOrigins)
                         .allowCredentials(true)
                         .allowedMethods(
                                 HttpMethod.GET.name(),

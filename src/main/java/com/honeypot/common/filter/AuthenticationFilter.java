@@ -32,6 +32,7 @@ public class AuthenticationFilter extends GenericFilterBean {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         String token = resolveToken(httpServletRequest);
         String requestUri = httpServletRequest.getRequestURI();
+        String requestMethod = httpServletRequest.getMethod();
 
         if (token != null && authTokenManagerService.validate(token)) {
             Long memberId = authTokenManagerService.getMemberId(token);
@@ -39,10 +40,10 @@ public class AuthenticationFilter extends GenericFilterBean {
                     new UsernamePasswordAuthenticationToken(memberId, token, new ArrayList<>());
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.debug("Authentication information '{}' saved in security context. uri: {}",
-                    authentication.getName(), requestUri);
+            log.debug("Authentication information '{}' saved in security context. uri: {} method: {}",
+                    authentication.getName(), requestUri, requestMethod);
         } else {
-            log.debug("There is no valid JWT. uri: {}", requestUri);
+            log.debug("There is no valid JWT. uri: {} method: {}", requestUri, requestMethod);
         }
 
         chain.doFilter(request, response);

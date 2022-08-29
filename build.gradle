@@ -7,7 +7,7 @@ plugins {
 }
 
 group 'com.honeypot'
-version '1.0.1'
+version '1.0.2'
 sourceCompatibility = '17'
 
 repositories {
@@ -48,6 +48,9 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    // json-simple
+    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
 
     // Mapstruct & Lombok
     implementation 'org.mapstruct:mapstruct:1.5.1.Final'
