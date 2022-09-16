@@ -66,4 +66,19 @@ public class NotificationTokenManageService {
         return notificationTokenMapper.toDto(createdOrUpdated);
     }
 
+    @Transactional
+    @Validated
+    public void removeNotificationToken(@NotNull Long memberId, @NotNull Long notificationTokenId) {
+        memberFindService.findById(memberId).orElseThrow(EntityNotFoundException::new);
+        NotificationToken token = notificationTokenRepository
+                .findById(notificationTokenId)
+                .orElseThrow(EntityNotFoundException::new);
+
+        if (!memberId.equals(token.getMember().getId())) {
+            throw new InvalidAuthorizationException();
+        }
+
+        notificationTokenRepository.delete(token);
+    }
+
 }

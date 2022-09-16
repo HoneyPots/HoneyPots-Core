@@ -136,4 +136,24 @@ class NotificationApiTest {
                 .andDo(print());
     }
 
+    @Test
+    void removeNotificationToken() throws Exception {
+        // Arrange
+        Long memberId = 1L;
+        Long notificationTokenId = 12314112897L;
+
+        when(SecurityUtils.getCurrentMemberId()).thenReturn(Optional.of(memberId));
+        doNothing().when(notificationTokenManageService).removeNotificationToken(memberId, notificationTokenId);
+
+        // Act
+        ResultActions actions = mockMvc.perform(delete("/api/notifications/tokens/{notificationTokenId}", notificationTokenId)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer token")
+        );
+
+        // Assert
+        actions.andExpect(status().isNoContent())
+                .andDo(print());
+    }
+
 }

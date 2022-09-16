@@ -35,4 +35,12 @@ public class NotificationApi {
                 .body(created);
     }
 
+    @DeleteMapping("/tokens/{tokenId}")
+    public ResponseEntity<?> removeNotificationToken(@PathVariable Long tokenId) {
+        Long memberId = SecurityUtils.getCurrentMemberId().orElseThrow(InvalidTokenException::new);
+        notificationTokenManageService.removeNotificationToken(memberId, tokenId);
+
+        return ResponseEntity.noContent().build();
+    }
+
 }

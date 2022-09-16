@@ -164,4 +164,64 @@ class NotificationTokenManageServiceTest {
         });
     }
 
+    @Test
+    void removeNotificationToken() {
+        // Arrange
+        Member member = Member.builder().id(1L).build();
+        Long notificationTokenId = 192L;
+
+        NotificationToken exists = NotificationToken.builder()
+                .id(notificationTokenId)
+                .member(Member.builder().id(member.getId()).build())
+                .deviceToken("token")
+                .clientType(ClientType.WEB)
+                .build();
+
+        when(memberFindService.findById(member.getId())).thenReturn(Optional.of(member));
+        when(notificationTokenRepository.findById(notificationTokenId)).thenReturn(Optional.of(exists));
+        doNothing().when(notificationTokenRepository).delete(exists);
+
+        // Act
+        notificationTokenManageService.removeNotificationToken(member.getId(), notificationTokenId);
+
+        // Assert
+        verify(notificationTokenRepository, times(1)).delete(exists);
+    }
+
+    @Test
+    void removeNotificationToken_MemberNotFound() {
+        // Arrange
+        Member member = Member.builder().id(1L).build();
+        Long notificationTokenId = 192L;
+
+        when(memberFindService.findById(member.getId())).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(EntityNotFoundException.class, () -> {
+            notificationTokenManageService.removeNotificationToken(member.getId(), notificationTokenId);
+        });
+    }
+
+    @Test
+    void removeNotificationToken_InvalidAuthorizationException() {
+        // Arrange
+        Member member = Member.builder().id(1L).build();
+        Long notificationTokenId = 192L;
+
+        NotificationToken exists = NotificationToken.builder()
+                .id(notificationTokenId)
+                .member(Member.builder().id(member.getId() + 1).build())
+                .deviceToken("token")
+                .clientType(ClientType.WEB)
+                .build();
+
+        when(memberFindService.findById(member.getId())).thenReturn(Optional.of(member));
+        when(notificationTokenRepository.findById(notificationTokenId)).thenReturn(Optional.of(exists));
+
+        // Act & Assert
+        assertThrows(InvalidAuthorizationException.class, () -> {
+            notificationTokenManageService.removeNotificationToken(member.getId(), notificationTokenId);
+        });
+    }
+
 }
