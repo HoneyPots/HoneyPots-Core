@@ -265,7 +265,7 @@ class AuthApiTest {
         );
 
         // Assert
-        actions.andExpect(status().isForbidden()).andDo(print());
+        actions.andExpect(status().isNoContent()).andDo(print());
     }
 
 }
