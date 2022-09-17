@@ -99,8 +99,11 @@ public class AuthApi {
     }
 
     @DeleteMapping("/token")
-    public ResponseEntity<?> expireRefreshToken(@CookieValue("refreshToken") String refreshToken) {
-        return getExpiredRefreshTokenResponse(refreshToken);
+    public ResponseEntity<?> expireRefreshToken(@CookieValue(value = "refreshToken", required = false) String refreshToken) {
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .header(HttpHeaders.SET_COOKIE, getHttpOnlyCookie(refreshToken, true).toString())
+                .build();
     }
 
     private ResponseEntity<?> getExpiredRefreshTokenResponse(String refreshToken) {
