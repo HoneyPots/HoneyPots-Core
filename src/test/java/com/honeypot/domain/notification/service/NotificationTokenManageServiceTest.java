@@ -54,7 +54,7 @@ class NotificationTokenManageServiceTest {
     }
 
     @Test
-    void saveNotificationToken_UploadNewToken() {
+    void save_UploadNewToken() {
         // Arrange
         Member member = Member.builder().id(1L).nickname("nickname").build();
         NotificationTokenUploadRequest request = NotificationTokenUploadRequest.builder()
@@ -91,7 +91,7 @@ class NotificationTokenManageServiceTest {
         when(notificationTokenMapperMock.toDto(any(NotificationToken.class))).thenReturn(expected);
 
         // Act
-        NotificationTokenDto result = notificationTokenManageService.saveNotificationToken(request);
+        NotificationTokenDto result = notificationTokenManageService.save(request);
 
         // Assert
         assertNotNull(result);
@@ -99,7 +99,7 @@ class NotificationTokenManageServiceTest {
     }
 
     @Test
-    void saveNotificationToken_UpdateExistsToken() {
+    void save_UpdateExistsToken() {
         // Arrange
         Member member = Member.builder().id(1L).nickname("nickname").build();
         NotificationTokenUploadRequest request = NotificationTokenUploadRequest.builder()
@@ -139,7 +139,7 @@ class NotificationTokenManageServiceTest {
         when(notificationTokenMapperMock.toDto(any(NotificationToken.class))).thenReturn(expected);
 
         // Act
-        NotificationTokenDto result = notificationTokenManageService.saveNotificationToken(request);
+        NotificationTokenDto result = notificationTokenManageService.save(request);
 
         // Assert
         assertNotNull(result);
@@ -147,7 +147,7 @@ class NotificationTokenManageServiceTest {
     }
 
     @Test
-    void saveNotificationToken_MemberNotFound() {
+    void save_MemberNotFound() {
         // Arrange
         Member member = Member.builder().id(1L).nickname("nickname").build();
         NotificationTokenUploadRequest request = NotificationTokenUploadRequest.builder()
@@ -160,12 +160,12 @@ class NotificationTokenManageServiceTest {
 
         // Act & Assert
         assertThrows(EntityNotFoundException.class, () -> {
-            notificationTokenManageService.saveNotificationToken(request);
+            notificationTokenManageService.save(request);
         });
     }
 
     @Test
-    void removeNotificationToken() {
+    void remove() {
         // Arrange
         Member member = Member.builder().id(1L).build();
         Long notificationTokenId = 192L;
@@ -182,14 +182,14 @@ class NotificationTokenManageServiceTest {
         doNothing().when(notificationTokenRepository).delete(exists);
 
         // Act
-        notificationTokenManageService.removeNotificationToken(member.getId(), notificationTokenId);
+        notificationTokenManageService.remove(member.getId(), notificationTokenId);
 
         // Assert
         verify(notificationTokenRepository, times(1)).delete(exists);
     }
 
     @Test
-    void removeNotificationToken_MemberNotFound() {
+    void remove_MemberNotFound() {
         // Arrange
         Member member = Member.builder().id(1L).build();
         Long notificationTokenId = 192L;
@@ -198,12 +198,12 @@ class NotificationTokenManageServiceTest {
 
         // Act & Assert
         assertThrows(EntityNotFoundException.class, () -> {
-            notificationTokenManageService.removeNotificationToken(member.getId(), notificationTokenId);
+            notificationTokenManageService.remove(member.getId(), notificationTokenId);
         });
     }
 
     @Test
-    void removeNotificationToken_InvalidAuthorizationException() {
+    void remove_InvalidAuthorizationException() {
         // Arrange
         Member member = Member.builder().id(1L).build();
         Long notificationTokenId = 192L;
@@ -220,7 +220,7 @@ class NotificationTokenManageServiceTest {
 
         // Act & Assert
         assertThrows(InvalidAuthorizationException.class, () -> {
-            notificationTokenManageService.removeNotificationToken(member.getId(), notificationTokenId);
+            notificationTokenManageService.remove(member.getId(), notificationTokenId);
         });
     }
 
