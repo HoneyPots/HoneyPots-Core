@@ -9,7 +9,6 @@ import com.honeypot.domain.notification.entity.NotificationToken;
 import com.honeypot.domain.notification.entity.enums.ClientType;
 import com.honeypot.domain.notification.mapper.NotificationTokenMapper;
 import com.honeypot.domain.notification.repository.NotificationTokenRepository;
-import com.honeypot.domain.notification.service.NotificationTokenManageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +20,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -51,6 +52,28 @@ class NotificationTokenManageServiceTest {
                 notificationTokenMapperMock,
                 notificationTokenRepository
         );
+    }
+
+    @Test
+    void findByMemberId() {
+        // Arrange
+        Long memberId = 1212414L;
+        Member member = Member.builder().id(1L).nickname("nickname").build();
+
+        List<NotificationToken> tokens = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            tokens.add(create(i + 1L, "token" + i, ClientType.WEB, member));
+        }
+
+        when(memberFindService.findById(memberId)).thenReturn(Optional.of(member));
+        when(notificationTokenRepository.findByMember(member)).thenReturn(tokens);
+
+        // Act
+        List<NotificationTokenDto> result = notificationTokenManageService.findByMemberId(memberId);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(tokens.size(), result.size());
     }
 
     @Test
@@ -170,12 +193,7 @@ class NotificationTokenManageServiceTest {
         Member member = Member.builder().id(1L).build();
         Long notificationTokenId = 192L;
 
-        NotificationToken exists = NotificationToken.builder()
-                .id(notificationTokenId)
-                .member(Member.builder().id(member.getId()).build())
-                .deviceToken("token")
-                .clientType(ClientType.WEB)
-                .build();
+        NotificationToken exists = create(notificationTokenId, "token", ClientType.WEB, member);
 
         when(memberFindService.findById(member.getId())).thenReturn(Optional.of(member));
         when(notificationTokenRepository.findById(notificationTokenId)).thenReturn(Optional.of(exists));
@@ -208,12 +226,8 @@ class NotificationTokenManageServiceTest {
         Member member = Member.builder().id(1L).build();
         Long notificationTokenId = 192L;
 
-        NotificationToken exists = NotificationToken.builder()
-                .id(notificationTokenId)
-                .member(Member.builder().id(member.getId() + 1).build())
-                .deviceToken("token")
-                .clientType(ClientType.WEB)
-                .build();
+        NotificationToken exists = create(notificationTokenId, "token", ClientType.WEB,
+                Member.builder().id(member.getId() + 1).build());
 
         when(memberFindService.findById(member.getId())).thenReturn(Optional.of(member));
         when(notificationTokenRepository.findById(notificationTokenId)).thenReturn(Optional.of(exists));
@@ -224,4 +238,15 @@ class NotificationTokenManageServiceTest {
         });
     }
 
+    private NotificationToken create(Long id, String token, ClientType clientType, Member member) {
+        LocalDateTime now = LocalDateTime.now();
+        return NotificationToken.builder()
+                .id(id)
+                .deviceToken(token)
+                .clientType(clientType)
+                .member(member)
+                .createdAt(now)
+                .lastModifiedAt(now)
+                .build();
+    }
 }
