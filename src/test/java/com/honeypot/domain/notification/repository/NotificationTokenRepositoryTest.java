@@ -1,22 +1,22 @@
 package com.honeypot.domain.notification.repository;
 
+import com.honeypot.config.TestConfig;
 import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.member.repository.MemberRepository;
 import com.honeypot.domain.notification.entity.NotificationToken;
 import com.honeypot.domain.notification.entity.enums.ClientType;
-import com.honeypot.domain.notification.repository.NotificationTokenRepository;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.context.annotation.Import;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-@ExtendWith(SpringExtension.class)
+@Import({TestConfig.class})
 class NotificationTokenRepositoryTest {
 
     @Autowired
@@ -24,6 +24,26 @@ class NotificationTokenRepositoryTest {
 
     @Autowired
     private MemberRepository memberRepository;
+
+    @Test
+    void findByMember() {
+        // Arrange
+        String deviceToken = "notificationDeviceToken";
+
+        Member member = createMember("testNickname");
+
+        int tokenCount = 5;
+        for (int i = 0; i < tokenCount; i++) {
+            createNotificationToken(member, deviceToken + i, ClientType.WEB);
+        }
+
+        // Act
+        List<NotificationToken> result = notificationTokenRepository.findByMember(member);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(tokenCount, result.size());
+    }
 
     @Test
     void findByMemberAndDeviceToken() {

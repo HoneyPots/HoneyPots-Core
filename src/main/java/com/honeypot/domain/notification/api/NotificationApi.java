@@ -24,7 +24,7 @@ public class NotificationApi {
         Long memberId = SecurityUtils.getCurrentMemberId().orElseThrow(InvalidTokenException::new);
         request.setMemberId(memberId);
 
-        NotificationTokenDto created = notificationTokenManageService.saveNotificationToken(request);
+        NotificationTokenDto created = notificationTokenManageService.save(request);
 
         return ResponseEntity
                 .created(ServletUriComponentsBuilder
@@ -38,7 +38,7 @@ public class NotificationApi {
     @DeleteMapping("/tokens/{tokenId}")
     public ResponseEntity<?> removeNotificationToken(@PathVariable Long tokenId) {
         Long memberId = SecurityUtils.getCurrentMemberId().orElseThrow(InvalidTokenException::new);
-        notificationTokenManageService.removeNotificationToken(memberId, tokenId);
+        notificationTokenManageService.remove(memberId, tokenId);
 
         return ResponseEntity.noContent().build();
     }

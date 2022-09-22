@@ -19,7 +19,9 @@ import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,9 +34,19 @@ public class NotificationTokenManageService {
 
     private final NotificationTokenRepository notificationTokenRepository;
 
+    @Transactional(readOnly = true)
+    public List<NotificationTokenDto> findByMemberId(@NotNull Long memberId) {
+        Member member = memberFindService.findById(memberId).orElseThrow(EntityNotFoundException::new);
+        List<NotificationToken> tokens = notificationTokenRepository.findByMember(member);
+
+        return tokens.stream()
+                .map(notificationTokenMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     @Validated(InsertContext.class)
-    public NotificationTokenDto saveNotificationToken(@Valid NotificationTokenUploadRequest request) {
+    public NotificationTokenDto save(@Valid NotificationTokenUploadRequest request) {
         Member member = memberFindService.findById(request.getMemberId()).orElseThrow(EntityNotFoundException::new);
         String deviceToken = request.getDeviceToken();
         ClientType clientType = request.getClientType();
@@ -68,7 +80,7 @@ public class NotificationTokenManageService {
 
     @Transactional
     @Validated
-    public void removeNotificationToken(@NotNull Long memberId, @NotNull Long notificationTokenId) {
+    public void remove(@NotNull Long memberId, @NotNull Long notificationTokenId) {
         memberFindService.findById(memberId).orElseThrow(EntityNotFoundException::new);
         NotificationToken token = notificationTokenRepository
                 .findById(notificationTokenId)

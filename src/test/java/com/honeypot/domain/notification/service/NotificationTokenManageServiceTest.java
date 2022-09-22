@@ -9,7 +9,6 @@ import com.honeypot.domain.notification.entity.NotificationToken;
 import com.honeypot.domain.notification.entity.enums.ClientType;
 import com.honeypot.domain.notification.mapper.NotificationTokenMapper;
 import com.honeypot.domain.notification.repository.NotificationTokenRepository;
-import com.honeypot.domain.notification.service.NotificationTokenManageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +20,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -54,7 +55,29 @@ class NotificationTokenManageServiceTest {
     }
 
     @Test
-    void saveNotificationToken_UploadNewToken() {
+    void findByMemberId() {
+        // Arrange
+        Long memberId = 1212414L;
+        Member member = Member.builder().id(1L).nickname("nickname").build();
+
+        List<NotificationToken> tokens = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            tokens.add(create(i + 1L, "token" + i, ClientType.WEB, member));
+        }
+
+        when(memberFindService.findById(memberId)).thenReturn(Optional.of(member));
+        when(notificationTokenRepository.findByMember(member)).thenReturn(tokens);
+
+        // Act
+        List<NotificationTokenDto> result = notificationTokenManageService.findByMemberId(memberId);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(tokens.size(), result.size());
+    }
+
+    @Test
+    void save_UploadNewToken() {
         // Arrange
         Member member = Member.builder().id(1L).nickname("nickname").build();
         NotificationTokenUploadRequest request = NotificationTokenUploadRequest.builder()
@@ -91,7 +114,7 @@ class NotificationTokenManageServiceTest {
         when(notificationTokenMapperMock.toDto(any(NotificationToken.class))).thenReturn(expected);
 
         // Act
-        NotificationTokenDto result = notificationTokenManageService.saveNotificationToken(request);
+        NotificationTokenDto result = notificationTokenManageService.save(request);
 
         // Assert
         assertNotNull(result);
@@ -99,7 +122,7 @@ class NotificationTokenManageServiceTest {
     }
 
     @Test
-    void saveNotificationToken_UpdateExistsToken() {
+    void save_UpdateExistsToken() {
         // Arrange
         Member member = Member.builder().id(1L).nickname("nickname").build();
         NotificationTokenUploadRequest request = NotificationTokenUploadRequest.builder()
@@ -139,7 +162,7 @@ class NotificationTokenManageServiceTest {
         when(notificationTokenMapperMock.toDto(any(NotificationToken.class))).thenReturn(expected);
 
         // Act
-        NotificationTokenDto result = notificationTokenManageService.saveNotificationToken(request);
+        NotificationTokenDto result = notificationTokenManageService.save(request);
 
         // Assert
         assertNotNull(result);
@@ -147,7 +170,7 @@ class NotificationTokenManageServiceTest {
     }
 
     @Test
-    void saveNotificationToken_MemberNotFound() {
+    void save_MemberNotFound() {
         // Arrange
         Member member = Member.builder().id(1L).nickname("nickname").build();
         NotificationTokenUploadRequest request = NotificationTokenUploadRequest.builder()
@@ -160,36 +183,31 @@ class NotificationTokenManageServiceTest {
 
         // Act & Assert
         assertThrows(EntityNotFoundException.class, () -> {
-            notificationTokenManageService.saveNotificationToken(request);
+            notificationTokenManageService.save(request);
         });
     }
 
     @Test
-    void removeNotificationToken() {
+    void remove() {
         // Arrange
         Member member = Member.builder().id(1L).build();
         Long notificationTokenId = 192L;
 
-        NotificationToken exists = NotificationToken.builder()
-                .id(notificationTokenId)
-                .member(Member.builder().id(member.getId()).build())
-                .deviceToken("token")
-                .clientType(ClientType.WEB)
-                .build();
+        NotificationToken exists = create(notificationTokenId, "token", ClientType.WEB, member);
 
         when(memberFindService.findById(member.getId())).thenReturn(Optional.of(member));
         when(notificationTokenRepository.findById(notificationTokenId)).thenReturn(Optional.of(exists));
         doNothing().when(notificationTokenRepository).delete(exists);
 
         // Act
-        notificationTokenManageService.removeNotificationToken(member.getId(), notificationTokenId);
+        notificationTokenManageService.remove(member.getId(), notificationTokenId);
 
         // Assert
         verify(notificationTokenRepository, times(1)).delete(exists);
     }
 
     @Test
-    void removeNotificationToken_MemberNotFound() {
+    void remove_MemberNotFound() {
         // Arrange
         Member member = Member.builder().id(1L).build();
         Long notificationTokenId = 192L;
@@ -198,30 +216,37 @@ class NotificationTokenManageServiceTest {
 
         // Act & Assert
         assertThrows(EntityNotFoundException.class, () -> {
-            notificationTokenManageService.removeNotificationToken(member.getId(), notificationTokenId);
+            notificationTokenManageService.remove(member.getId(), notificationTokenId);
         });
     }
 
     @Test
-    void removeNotificationToken_InvalidAuthorizationException() {
+    void remove_InvalidAuthorizationException() {
         // Arrange
         Member member = Member.builder().id(1L).build();
         Long notificationTokenId = 192L;
 
-        NotificationToken exists = NotificationToken.builder()
-                .id(notificationTokenId)
-                .member(Member.builder().id(member.getId() + 1).build())
-                .deviceToken("token")
-                .clientType(ClientType.WEB)
-                .build();
+        NotificationToken exists = create(notificationTokenId, "token", ClientType.WEB,
+                Member.builder().id(member.getId() + 1).build());
 
         when(memberFindService.findById(member.getId())).thenReturn(Optional.of(member));
         when(notificationTokenRepository.findById(notificationTokenId)).thenReturn(Optional.of(exists));
 
         // Act & Assert
         assertThrows(InvalidAuthorizationException.class, () -> {
-            notificationTokenManageService.removeNotificationToken(member.getId(), notificationTokenId);
+            notificationTokenManageService.remove(member.getId(), notificationTokenId);
         });
     }
 
+    private NotificationToken create(Long id, String token, ClientType clientType, Member member) {
+        LocalDateTime now = LocalDateTime.now();
+        return NotificationToken.builder()
+                .id(id)
+                .deviceToken(token)
+                .clientType(clientType)
+                .member(member)
+                .createdAt(now)
+                .lastModifiedAt(now)
+                .build();
+    }
 }

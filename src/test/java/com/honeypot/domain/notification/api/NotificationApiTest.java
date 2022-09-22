@@ -78,7 +78,7 @@ class NotificationApiTest {
                 .build();
 
         when(SecurityUtils.getCurrentMemberId()).thenReturn(Optional.of(memberId));
-        when(notificationTokenManageService.saveNotificationToken(request)).thenReturn(created);
+        when(notificationTokenManageService.save(request)).thenReturn(created);
 
         // Act
         ResultActions actions = mockMvc.perform(post("/api/notifications/tokens")
@@ -143,7 +143,7 @@ class NotificationApiTest {
         Long notificationTokenId = 12314112897L;
 
         when(SecurityUtils.getCurrentMemberId()).thenReturn(Optional.of(memberId));
-        doNothing().when(notificationTokenManageService).removeNotificationToken(memberId, notificationTokenId);
+        doNothing().when(notificationTokenManageService).remove(memberId, notificationTokenId);
 
         // Act
         ResultActions actions = mockMvc.perform(delete("/api/notifications/tokens/{notificationTokenId}", notificationTokenId)

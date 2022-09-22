@@ -5,7 +5,7 @@ import com.honeypot.common.utils.SecurityUtils;
 import com.honeypot.domain.reaction.dto.ReactionDto;
 import com.honeypot.domain.reaction.dto.ReactionRequest;
 import com.honeypot.domain.reaction.entity.enums.ReactionType;
-import com.honeypot.domain.reaction.service.ReactionService;
+import com.honeypot.domain.reaction.service.PostReactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -20,11 +20,11 @@ import javax.validation.Valid;
 @Validated
 public class ReactionApi {
 
-    private final ReactionService reactionService;
+    private final PostReactionService postReactionService;
 
     @GetMapping("/likes/{reactionId}")
     public ResponseEntity<?> getLikeReaction(@PathVariable Long reactionId) {
-        return ResponseEntity.ok(reactionService.find(reactionId));
+        return ResponseEntity.ok(postReactionService.find(reactionId));
     }
 
     @PostMapping("/likes")
@@ -34,7 +34,7 @@ public class ReactionApi {
         reactionRequest.setReactorId(memberId);
         reactionRequest.setReactionType(ReactionType.LIKE);
 
-        ReactionDto result = reactionService.save(reactionRequest);
+        ReactionDto result = postReactionService.save(reactionRequest);
 
         if (result.isAlreadyExists()) {
             return ResponseEntity.ok(result);
@@ -53,7 +53,7 @@ public class ReactionApi {
     public ResponseEntity<?> cancelLikeReaction(@PathVariable Long reactionId) {
 
         Long memberId = SecurityUtils.getCurrentMemberId().orElseThrow(InvalidTokenException::new);
-        reactionService.cancel(memberId, reactionId);
+        postReactionService.cancel(memberId, reactionId);
 
         return ResponseEntity.noContent().build();
     }
