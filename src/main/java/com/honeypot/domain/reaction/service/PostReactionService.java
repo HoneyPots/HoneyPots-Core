@@ -83,6 +83,12 @@ public class PostReactionService {
         Member reactor = memberFindService.findById(reactorId).orElseThrow(EntityNotFoundException::new);
         result.getReactor().setNickname(reactor.getNickname());
 
+        // Async tasks
+        Long targetPostWriterId = targetPost.getWriter().getId();
+        if (!request.getReactorId().equals(targetPostWriterId) && !alreadyExists) {
+            notificationSendService.send(targetPostWriterId, NotificationType.LIKE_REACTION_TO_MY_POST);
+        }
+
         return result;
     }
 
