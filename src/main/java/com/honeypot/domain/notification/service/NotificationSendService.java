@@ -1,10 +1,12 @@
 package com.honeypot.domain.notification.service;
 
-import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-import com.google.firebase.messaging.*;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.Notification;
+import com.honeypot.domain.notification.dto.NotificationTokenDto;
 import com.honeypot.domain.notification.entity.enums.NotificationType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,10 +29,14 @@ public class NotificationSendService {
 
     private final String[] fcmKeyScope;
 
+    private final NotificationTokenManageService notificationTokenManageService;
+
     public NotificationSendService(@Value("${fcm.key.path}") String fcmKeyPath,
-                                   @Value("${fcm.key.scope}") String[] fcmKeyScope) {
+                                   @Value("${fcm.key.scope}") String[] fcmKeyScope,
+                                   NotificationTokenManageService notificationTokenManageService) {
         this.fcmKeyPath = fcmKeyPath;
         this.fcmKeyScope = fcmKeyScope;
+        this.notificationTokenManageService = notificationTokenManageService;
     }
 
     @PostConstruct
@@ -55,16 +61,27 @@ public class NotificationSendService {
     }
 
     @Async
-    public ApiFuture<String> send(String token, NotificationType messageType) {
-        return FirebaseMessaging.getInstance().sendAsync(message(token, messageType));
+    public void send(String token, NotificationType messageType) {
+        FirebaseMessaging.getInstance().sendAsync(message(token, messageType));
     }
 
     @Async
-    public ApiFuture<BatchResponse> send(List<String> tokenList, NotificationType messageType) {
+    public void send(List<String> tokenList, NotificationType messageType) {
         List<Message> messages = tokenList.stream()
                 .map(token -> message(token, messageType))
                 .collect(Collectors.toList());
-        return FirebaseMessaging.getInstance().sendAllAsync(messages);
+        FirebaseMessaging.getInstance().sendAllAsync(messages);
+    }
+
+    @Async
+    public void send(Long memberId, NotificationType messageType) {
+        List<String> tokenList
+                = notificationTokenManageService.findByMemberId(memberId)
+                .stream()
+                .map(NotificationTokenDto::getDeviceToken)
+                .toList();
+
+        send(tokenList, messageType);
     }
 
     private static Message message(String token, NotificationType notificationType) {
