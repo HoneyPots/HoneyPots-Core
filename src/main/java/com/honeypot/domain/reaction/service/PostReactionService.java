@@ -10,11 +10,11 @@ import com.honeypot.domain.post.entity.Post;
 import com.honeypot.domain.post.repository.PostRepository;
 import com.honeypot.domain.reaction.dto.ReactionDto;
 import com.honeypot.domain.reaction.dto.ReactionRequest;
+import com.honeypot.domain.reaction.entity.PostReaction;
 import com.honeypot.domain.reaction.entity.Reaction;
 import com.honeypot.domain.reaction.entity.enums.ReactionTarget;
 import com.honeypot.domain.reaction.mapper.ReactionMapper;
 import com.honeypot.domain.reaction.repository.PostReactionRepository;
-import com.honeypot.domain.reaction.repository.ReactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,8 +33,6 @@ public class PostReactionService {
     private final ReactionMapper reactionMapper;
 
     private final PostRepository postRepository;
-
-    private final ReactionRepository reactionRepository;
 
     private final PostReactionRepository postReactionRepository;
 
@@ -62,9 +60,8 @@ public class PostReactionService {
         }
 
         Post targetPost = postRepository.findById(request.getTargetId()).orElseThrow(EntityNotFoundException::new);
-
-        Optional<Reaction> founded = reactionRepository.findByReactorIdAndPostIdAndReactionType(
-                request.getReactorId(), request.getTargetId(), request.getReactionType());
+        Optional<PostReaction> founded = postReactionRepository
+                .findByReactorIdAndPostId(request.getReactorId(), targetPost.getId());
 
         boolean alreadyExists = false;
 
@@ -94,15 +91,15 @@ public class PostReactionService {
 
     @Transactional
     public void cancel(@NotNull Long memberId, @NotNull Long reactionId) {
-        Reaction reaction = reactionRepository
-                .findByIdAndTargetType(reactionId, ReactionTarget.POST)
+        PostReaction reaction = postReactionRepository
+                .findById(reactionId)
                 .orElseThrow(EntityNotFoundException::new);
 
         if (!reaction.getReactor().getId().equals(memberId)) {
             throw new InvalidAuthorizationException();
         }
 
-        reactionRepository.delete(reaction);
+        postReactionRepository.delete(reaction);
     }
 
 }

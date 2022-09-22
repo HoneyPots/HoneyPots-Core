@@ -7,11 +7,11 @@ import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.member.service.MemberFindService;
 import com.honeypot.domain.reaction.dto.ReactionDto;
 import com.honeypot.domain.reaction.dto.ReactionRequest;
+import com.honeypot.domain.reaction.entity.CommentReaction;
 import com.honeypot.domain.reaction.entity.Reaction;
 import com.honeypot.domain.reaction.entity.enums.ReactionTarget;
 import com.honeypot.domain.reaction.mapper.ReactionMapper;
 import com.honeypot.domain.reaction.repository.CommentReactionRepository;
-import com.honeypot.domain.reaction.repository.ReactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,15 +31,13 @@ public class CommentReactionService {
 
     private final CommentRepository commentRepository;
 
-    private final ReactionRepository reactionRepository;
-
     private final CommentReactionRepository commentReactionRepository;
 
     private final MemberFindService memberFindService;
 
     @Transactional(readOnly = true)
     public ReactionDto find(@NotNull Long reactionId) {
-        Reaction reaction = reactionRepository
+        Reaction reaction = commentReactionRepository
                 .findById(reactionId)
                 .orElseThrow(EntityNotFoundException::new);
 
@@ -59,8 +57,8 @@ public class CommentReactionService {
         commentRepository.findById(request.getTargetId())
                 .orElseThrow(EntityNotFoundException::new);
 
-        Optional<Reaction> founded = reactionRepository.findByReactorIdAndCommentIdAndReactionType(
-                request.getReactorId(), request.getTargetId(), request.getReactionType());
+        Optional<CommentReaction> founded = commentReactionRepository.findByReactorIdAndCommentId(
+                request.getReactorId(), request.getTargetId());
 
         boolean alreadyExists = false;
 
@@ -86,15 +84,15 @@ public class CommentReactionService {
 
     @Transactional
     public void cancel(@NotNull Long memberId, @NotNull Long reactionId) {
-        Reaction reaction = reactionRepository
-                .findByIdAndTargetType(reactionId, ReactionTarget.COMMENT)
+        CommentReaction reaction = commentReactionRepository
+                .findById(reactionId)
                 .orElseThrow(EntityNotFoundException::new);
 
         if (!reaction.getReactor().getId().equals(memberId)) {
             throw new InvalidAuthorizationException();
         }
 
-        reactionRepository.delete(reaction);
+        commentReactionRepository.delete(reaction);
     }
-    
+
 }
