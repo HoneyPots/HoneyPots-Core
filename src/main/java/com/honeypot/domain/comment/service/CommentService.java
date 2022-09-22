@@ -8,10 +8,9 @@ import com.honeypot.domain.comment.entity.Comment;
 import com.honeypot.domain.comment.mapper.CommentMapper;
 import com.honeypot.domain.comment.repository.CommentRepository;
 import com.honeypot.domain.member.entity.Member;
-import com.honeypot.domain.member.repository.MemberRepository;
+import com.honeypot.domain.member.service.MemberFindService;
 import com.honeypot.domain.notification.entity.enums.NotificationType;
 import com.honeypot.domain.notification.service.NotificationSendService;
-import com.honeypot.domain.notification.service.NotificationTokenManageService;
 import com.honeypot.domain.post.entity.Post;
 import com.honeypot.domain.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +36,7 @@ public class CommentService {
 
     private final PostRepository postRepository;
 
-    private final MemberRepository memberRepository;
+    private final MemberFindService memberFindService;
 
     private final NotificationSendService notificationSendService;
 
@@ -72,7 +71,7 @@ public class CommentService {
         Comment created = commentRepository.save(commentMapper.toEntity(request));
 
         long writerId = created.getWriter().getId();
-        Member writer = memberRepository
+        Member writer = memberFindService
                 .findById(writerId)
                 .orElseThrow(EntityNotFoundException::new);
 

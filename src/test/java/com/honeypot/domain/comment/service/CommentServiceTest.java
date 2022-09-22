@@ -7,6 +7,7 @@ import com.honeypot.domain.comment.mapper.CommentMapper;
 import com.honeypot.domain.comment.repository.CommentRepository;
 import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.member.repository.MemberRepository;
+import com.honeypot.domain.member.service.MemberFindService;
 import com.honeypot.domain.notification.entity.enums.NotificationType;
 import com.honeypot.domain.notification.service.NotificationSendService;
 import com.honeypot.domain.post.entity.Post;
@@ -41,7 +42,7 @@ class CommentServiceTest {
     private PostRepository postRepository;
 
     @Mock
-    private MemberRepository memberRepository;
+    private MemberFindService memberFindService;
 
     @Mock
     private NotificationSendService notificationSendService;
@@ -52,7 +53,7 @@ class CommentServiceTest {
     @BeforeEach
     private void before() {
         this.commentService = new CommentService(commentMapperMock, commentRepository,
-                postRepository, memberRepository, notificationSendService);
+                postRepository, memberFindService, notificationSendService);
     }
 
     @Test
@@ -74,7 +75,7 @@ class CommentServiceTest {
         when(postRepository.findById(request.getPostId())).thenReturn(Optional.of(targetPost));
         when(commentMapperMock.toEntity(request)).thenReturn(uploadCommentMock);
         when(commentRepository.save(uploadCommentMock)).thenReturn(created);
-        when(memberRepository.findById(created.getWriter().getId())).thenReturn(Optional.of(commentWriter));
+        when(memberFindService.findById(created.getWriter().getId())).thenReturn(Optional.of(commentWriter));
         CommentDto expected = commentMapper.toDto(created);
         when(commentMapperMock.toDto(created)).thenReturn(expected);
 
@@ -106,7 +107,7 @@ class CommentServiceTest {
         when(postRepository.findById(request.getPostId())).thenReturn(Optional.of(targetPost));
         when(commentMapperMock.toEntity(request)).thenReturn(uploadCommentMock);
         when(commentRepository.save(uploadCommentMock)).thenReturn(created);
-        when(memberRepository.findById(created.getWriter().getId())).thenReturn(Optional.of(commentWriter));
+        when(memberFindService.findById(created.getWriter().getId())).thenReturn(Optional.of(commentWriter));
         CommentDto expected = commentMapper.toDto(created);
         when(commentMapperMock.toDto(created)).thenReturn(expected);
 

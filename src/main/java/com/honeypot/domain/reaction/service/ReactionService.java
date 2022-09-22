@@ -4,7 +4,7 @@ import com.honeypot.common.model.exceptions.InvalidAuthorizationException;
 import com.honeypot.common.validation.groups.InsertContext;
 import com.honeypot.domain.comment.repository.CommentRepository;
 import com.honeypot.domain.member.entity.Member;
-import com.honeypot.domain.member.repository.MemberRepository;
+import com.honeypot.domain.member.service.MemberFindService;
 import com.honeypot.domain.post.repository.PostRepository;
 import com.honeypot.domain.reaction.dto.ReactionDto;
 import com.honeypot.domain.reaction.dto.ReactionRequest;
@@ -35,8 +35,10 @@ public class ReactionService {
     private final ReactionRepository reactionRepository;
     private final PostReactionRepository postReactionRepository;
     private final CommentReactionRepository commentReactionRepository;
-    private final MemberRepository memberRepository;
 
+    private final MemberFindService memberFindService;
+
+    @Transactional(readOnly = true)
     public ReactionDto find(@NotNull Long reactionId) {
         Reaction reaction = reactionRepository
                 .findById(reactionId)
@@ -67,7 +69,7 @@ public class ReactionService {
         result.setAlreadyExists(alreadyExists);
 
         long reactorId = result.getReactor().getId();
-        Member reactor = memberRepository
+        Member reactor = memberFindService
                 .findById(reactorId)
                 .orElseThrow(EntityNotFoundException::new);
 
