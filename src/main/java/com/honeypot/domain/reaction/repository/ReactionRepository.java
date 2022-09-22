@@ -1,6 +1,7 @@
 package com.honeypot.domain.reaction.repository;
 
 import com.honeypot.domain.reaction.entity.Reaction;
+import com.honeypot.domain.reaction.entity.enums.ReactionTarget;
 import com.honeypot.domain.reaction.entity.enums.ReactionType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -10,6 +11,8 @@ import java.util.Optional;
 
 @Repository
 public interface ReactionRepository extends JpaRepository<Reaction, Long> {
+
+    Optional<Reaction> findByIdAndTargetType(Long id, ReactionTarget reactionTarget);
 
     Optional<Reaction> findByReactorIdAndPostIdAndReactionType(Long reactorId, Long postId, ReactionType reactionType);
 
