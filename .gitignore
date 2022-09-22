@@ -38,3 +38,6 @@ keystore
 # AWS
 application*.yml
 aws.yml
+
+# FCM
+fcm-admin.json

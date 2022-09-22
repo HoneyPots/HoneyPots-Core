@@ -41,29 +41,27 @@ public class AuthApi {
     @GetMapping("/kakao")
     public ResponseEntity<?> kakao(KakaoAuthCode authCode) {
         LoginResponse response = loginService.loginWithOAuth("kakao", authCode.getCode());
-
+        long maxAge = jwtProperties.expirationTimeInSeconds().refreshToken();
         return ResponseEntity
                 .ok()
-                .header(HttpHeaders.SET_COOKIE, getHttpOnlyCookie(response.getRefreshToken(), false).toString())
+                .header(HttpHeaders.SET_COOKIE, getHttpOnlyRefreshTokenCookie(response.getRefreshToken(), maxAge).toString())
                 .body(response);
     }
 
     @PostMapping("/login/{provider}")
     public ResponseEntity<?> login(@PathVariable String provider,
                                    @RequestBody AuthCode authorizationCode) {
-
         LoginResponse response = loginService.loginWithOAuth(provider, authorizationCode.getAuthorizationCode());
-
+        long maxAge = jwtProperties.expirationTimeInSeconds().refreshToken();
         return ResponseEntity
                 .ok()
-                .header(HttpHeaders.SET_COOKIE, getHttpOnlyCookie(response.getRefreshToken(), false).toString())
+                .header(HttpHeaders.SET_COOKIE, getHttpOnlyRefreshTokenCookie(response.getRefreshToken(), maxAge).toString())
                 .body(response);
     }
 
     @PostMapping("/token")
     public ResponseEntity<?> refreshToken(@CookieValue(value = "refreshToken", required = false) String refreshToken,
                                           @RequestBody RefreshTokenRequest request) {
-
         if (!request.getGrantType().equals("refresh_token")) {
             Map<String, String> errorMessages = new HashMap<>();
             errorMessages.put("grantType", "grantType is must be 'refresh_token'");
@@ -84,12 +82,13 @@ public class AuthApi {
             return getExpiredRefreshTokenResponse(refreshToken);
         }
 
+        long maxAge = jwtProperties.expirationTimeInSeconds().refreshToken();
         String newAccessToken = authTokenManagerService.issueAccessToken(memberId);
         String newRefreshToken = authTokenManagerService.issueRefreshToken(memberId);
 
         return ResponseEntity
                 .ok()
-                .header(HttpHeaders.SET_COOKIE, getHttpOnlyCookie(newRefreshToken, false).toString())
+                .header(HttpHeaders.SET_COOKIE, getHttpOnlyRefreshTokenCookie(newRefreshToken, maxAge).toString())
                 .body(LoginResponse.builder()
                         .memberId(memberId)
                         .accessToken(newAccessToken)
@@ -99,18 +98,21 @@ public class AuthApi {
     }
 
     @DeleteMapping("/token")
-    public ResponseEntity<?> expireRefreshToken(@CookieValue("refreshToken") String refreshToken) {
-        return getExpiredRefreshTokenResponse(refreshToken);
+    public ResponseEntity<?> expireRefreshToken(@CookieValue(value = "refreshToken", required = false) String refreshToken) {
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .header(HttpHeaders.SET_COOKIE, getHttpOnlyRefreshTokenCookie(refreshToken, 0).toString())
+                .build();
     }
 
     private ResponseEntity<?> getExpiredRefreshTokenResponse(String refreshToken) {
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
-                .header(HttpHeaders.SET_COOKIE, getHttpOnlyCookie(refreshToken, true).toString())
+                .header(HttpHeaders.SET_COOKIE, getHttpOnlyRefreshTokenCookie(refreshToken, 0).toString())
                 .build();
     }
 
-    private ResponseCookie getHttpOnlyCookie(String refreshToken, boolean isExpired) {
+    private ResponseCookie getHttpOnlyRefreshTokenCookie(String refreshToken, long maxAge) {
         return ResponseCookie
                 .from("refreshToken", refreshToken)
                 .path("/")
@@ -118,7 +120,7 @@ public class AuthApi {
                 .secure(true)
                 .sameSite("None")
                 .domain(serverDomainName)
-                .maxAge(isExpired ? 0 : jwtProperties.expirationTimeInSeconds().refreshToken())
+                .maxAge(maxAge)
                 .build();
     }
 
