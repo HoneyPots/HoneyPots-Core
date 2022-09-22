@@ -2,14 +2,18 @@ package com.honeypot.domain.comment.service;
 
 import com.honeypot.common.model.exceptions.InvalidAuthorizationException;
 import com.honeypot.common.validation.groups.InsertContext;
-import com.honeypot.domain.comment.entity.Comment;
 import com.honeypot.domain.comment.dto.CommentDto;
 import com.honeypot.domain.comment.dto.CommentUploadRequest;
+import com.honeypot.domain.comment.entity.Comment;
 import com.honeypot.domain.comment.mapper.CommentMapper;
 import com.honeypot.domain.comment.repository.CommentRepository;
-import com.honeypot.domain.post.repository.PostRepository;
 import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.member.repository.MemberRepository;
+import com.honeypot.domain.notification.entity.enums.NotificationType;
+import com.honeypot.domain.notification.service.NotificationSendService;
+import com.honeypot.domain.notification.service.NotificationTokenManageService;
+import com.honeypot.domain.post.entity.Post;
+import com.honeypot.domain.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -34,6 +38,8 @@ public class CommentService {
     private final PostRepository postRepository;
 
     private final MemberRepository memberRepository;
+
+    private final NotificationSendService notificationSendService;
 
     @Transactional(readOnly = true)
     public Page<CommentDto> pageList(@NotNull Long postId, Pageable pageable) {
@@ -60,7 +66,7 @@ public class CommentService {
     @Transactional
     @Validated(InsertContext.class)
     public CommentDto save(@Valid CommentUploadRequest request) {
-        postRepository.findById(request.getPostId())
+        Post post = postRepository.findById(request.getPostId())
                 .orElseThrow(EntityNotFoundException::new);
 
         Comment created = commentRepository.save(commentMapper.toEntity(request));
@@ -73,6 +79,11 @@ public class CommentService {
         CommentDto result = commentMapper.toDto(created);
         result.getWriter().setNickname(writer.getNickname());
 
+        // Async tasks
+        if (!request.getWriterId().equals(post.getWriter().getId())) {
+            notificationSendService.send(post.getWriter().getId(), NotificationType.COMMENT_TO_MY_POST);
+        }
+
         return result;
     }
 
@@ -83,7 +94,7 @@ public class CommentService {
                 .findById(commentId)
                 .orElseThrow(EntityNotFoundException::new);
 
-        if(!comment.getWriter().getId().equals(uploadRequest.getWriterId())) {
+        if (!comment.getWriter().getId().equals(uploadRequest.getWriterId())) {
             throw new InvalidAuthorizationException();
         }
 
@@ -98,7 +109,7 @@ public class CommentService {
                 .findById(commentId)
                 .orElseThrow(EntityNotFoundException::new);
 
-        if(!comment.getWriter().getId().equals(memberId)) {
+        if (!comment.getWriter().getId().equals(memberId)) {
             throw new InvalidAuthorizationException();
         }
 
