@@ -3,6 +3,7 @@ package com.honeypot.domain.member.api;
 import com.honeypot.common.model.exceptions.InvalidTokenException;
 import com.honeypot.common.utils.SecurityUtils;
 import com.honeypot.common.validation.constraints.AllowedSortProperties;
+import com.honeypot.domain.notification.service.NotificationHistoryService;
 import com.honeypot.domain.post.entity.enums.PostType;
 import com.honeypot.domain.post.service.PostCrudServiceFactory;
 import lombok.RequiredArgsConstructor;
@@ -22,13 +23,29 @@ public class MyPageApi {
 
     private final PostCrudServiceFactory postCrudServiceFactory;
 
+    private final NotificationHistoryService notificationHistoryService;
+
     @GetMapping("/posts")
-    public ResponseEntity<?> pageList(@RequestParam PostType postType,
-                                      @AllowedSortProperties("createdAt") Pageable pageable) {
+    public ResponseEntity<?> getMyPostList(
+            @RequestParam PostType postType,
+            @AllowedSortProperties("createdAt") Pageable pageable
+    ) {
         Long memberId = SecurityUtils.getCurrentMemberId().orElseThrow(InvalidTokenException::new);
-        return ResponseEntity.ok(postCrudServiceFactory
-                .getService(postType)
-                .pageListByMemberId(pageable, memberId));
+        return ResponseEntity.ok(
+                postCrudServiceFactory
+                        .getService(postType)
+                        .pageListByMemberId(pageable, memberId)
+        );
+    }
+
+    @GetMapping("/notifications")
+    public ResponseEntity<?> getNotificationHistory(
+            @AllowedSortProperties("createdAt") Pageable pageable
+    ) {
+        Long memberId = SecurityUtils.getCurrentMemberId().orElseThrow(InvalidTokenException::new);
+        return ResponseEntity.ok(
+                notificationHistoryService.findByMemberWithPagination(memberId, pageable)
+        );
     }
 
 }

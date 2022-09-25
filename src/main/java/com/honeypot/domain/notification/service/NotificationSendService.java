@@ -6,8 +6,11 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
+import com.honeypot.domain.member.entity.Member;
+import com.honeypot.domain.member.service.MemberFindService;
 import com.honeypot.domain.notification.dto.NotificationTokenDto;
 import com.honeypot.domain.notification.entity.enums.NotificationType;
+import com.honeypot.domain.notification.repository.NotificationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -18,6 +21,7 @@ import org.springframework.validation.annotation.Validated;
 import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -29,14 +33,22 @@ public class NotificationSendService {
 
     private final String[] fcmKeyScope;
 
+    private final MemberFindService memberFindService;
+
     private final NotificationTokenManageService notificationTokenManageService;
+
+    private final NotificationRepository notificationRepository;
 
     public NotificationSendService(@Value("${fcm.key.path}") String fcmKeyPath,
                                    @Value("${fcm.key.scope}") String[] fcmKeyScope,
-                                   NotificationTokenManageService notificationTokenManageService) {
+                                   MemberFindService memberFindService,
+                                   NotificationTokenManageService notificationTokenManageService,
+                                   NotificationRepository notificationRepository) {
         this.fcmKeyPath = fcmKeyPath;
         this.fcmKeyScope = fcmKeyScope;
+        this.memberFindService = memberFindService;
         this.notificationTokenManageService = notificationTokenManageService;
+        this.notificationRepository = notificationRepository;
     }
 
     @PostConstruct
@@ -75,6 +87,19 @@ public class NotificationSendService {
 
     @Async
     public void send(Long memberId, NotificationType messageType) {
+        Optional<Member> member = memberFindService.findById(memberId);
+        if (member.isEmpty()) {
+            return;
+        }
+
+        notificationRepository.save(
+                com.honeypot.domain.notification.entity.Notification.builder()
+                        .member(member.get())
+                        .message(messageType.getBody())
+                        .type(messageType)
+                        .build()
+        );
+
         List<String> tokenList
                 = notificationTokenManageService.findByMemberId(memberId)
                 .stream()
