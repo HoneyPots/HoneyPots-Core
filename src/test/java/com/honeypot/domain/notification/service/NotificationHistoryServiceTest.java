@@ -86,7 +86,7 @@ class NotificationHistoryServiceTest {
 
         Page<Notification> page = createNotificationPage(pageable, member);
         when(memberFindService.findById(memberId)).thenReturn(Optional.of(member));
-        when(notificationRepository.findByMemberWithPagination(member, pageable)).thenReturn(page);
+        when(notificationRepository.findByMember(member, pageable)).thenReturn(page);
 
         // Act
         Page<NotificationDto> result = notificationHistoryService.findByMemberWithPagination(memberId, pageable);

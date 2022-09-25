@@ -34,7 +34,7 @@ public class NotificationHistoryService {
             @NotNull Pageable pageable
     ) {
         Member member = memberFindService.findById(memberId).orElseThrow(EntityNotFoundException::new);
-        Page<Notification> page = notificationRepository.findByMemberWithPagination(member, pageable);
+        Page<Notification> page = notificationRepository.findByMember(member, pageable);
 
         return new PageImpl<>(
                 page.getContent()
