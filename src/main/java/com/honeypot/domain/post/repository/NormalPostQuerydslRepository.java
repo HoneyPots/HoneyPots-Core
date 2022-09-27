@@ -53,7 +53,7 @@ public class NormalPostQuerydslRepository {
         long totalCount = jpaQueryFactory
                 .select(post.id)
                 .from(post)
-                .where(post.type.eq(PostType.NORMAL.name()))
+                .where(post.type.eq(PostType.NORMAL))
                 .fetch()
                 .size();
 
@@ -79,7 +79,7 @@ public class NormalPostQuerydslRepository {
                 .from(post)
                 .innerJoin(member).on(post.writer.id.eq(member.id))
                 .where(member.id.eq(memberId)
-                        .and(post.type.eq(PostType.NORMAL.name()))
+                        .and(post.type.eq(PostType.NORMAL))
                 )
                 .fetch()
                 .size();

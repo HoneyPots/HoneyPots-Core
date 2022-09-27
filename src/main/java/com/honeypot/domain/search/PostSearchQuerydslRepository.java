@@ -41,7 +41,7 @@ public class PostSearchQuerydslRepository {
                 .leftJoin(groupBuyingPost).on(post.id.eq(groupBuyingPost.id))
                 .leftJoin(file).on(post.id.eq(file.post.id))
                 .fetchJoin()
-                .where(post.type.eq(criteria.getPostType().name())
+                .where(post.type.eq(criteria.getPostType())
                         .and(post.title.containsIgnoreCase(criteria.getKeyword())
                                 .or(post.content.containsIgnoreCase(criteria.getKeyword()))
                         )
@@ -55,7 +55,7 @@ public class PostSearchQuerydslRepository {
         long totalCount = jpaQueryFactory
                 .select(post.id)
                 .from(post)
-                .where(post.type.eq(criteria.getPostType().name())
+                .where(post.type.eq(criteria.getPostType())
                         .and(post.title.containsIgnoreCase(criteria.getKeyword())
                                 .or(post.content.containsIgnoreCase(criteria.getKeyword()))
                         )
