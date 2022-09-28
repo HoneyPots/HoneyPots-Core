@@ -4,6 +4,7 @@ import com.honeypot.common.entity.BaseTimeEntity;
 import com.honeypot.domain.comment.entity.Comment;
 import com.honeypot.domain.file.File;
 import com.honeypot.domain.member.entity.Member;
+import com.honeypot.domain.post.entity.enums.PostType;
 import com.honeypot.domain.reaction.entity.CommentReaction;
 import com.honeypot.domain.reaction.entity.PostReaction;
 import lombok.Builder;
@@ -59,6 +60,7 @@ public class Post extends BaseTimeEntity {
     private List<File> attachedFiles = new ArrayList<>();
 
     @Column(insertable = false, updatable = false)
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private PostType type;
 
 }

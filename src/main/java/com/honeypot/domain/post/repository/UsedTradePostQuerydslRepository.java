@@ -53,7 +53,7 @@ public class UsedTradePostQuerydslRepository {
         long totalCount = jpaQueryFactory
                 .select(post.id)
                 .from(post)
-                .where(post.type.eq(PostType.USED_TRADE.name()))
+                .where(post.type.eq(PostType.USED_TRADE))
                 .fetch()
                 .size();
 
@@ -79,7 +79,7 @@ public class UsedTradePostQuerydslRepository {
                 .from(post)
                 .innerJoin(member).on(post.writer.id.eq(member.id))
                 .where(member.id.eq(memberId)
-                        .and(post.type.eq(PostType.USED_TRADE.name()))
+                        .and(post.type.eq(PostType.USED_TRADE))
                 )
                 .fetch()
                 .size();

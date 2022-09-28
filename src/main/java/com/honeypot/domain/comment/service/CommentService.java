@@ -9,6 +9,9 @@ import com.honeypot.domain.comment.mapper.CommentMapper;
 import com.honeypot.domain.comment.repository.CommentRepository;
 import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.member.service.MemberFindService;
+import com.honeypot.domain.notification.dto.NotificationData;
+import com.honeypot.domain.notification.dto.CommentNotificationResource;
+import com.honeypot.domain.notification.dto.PostNotificationResource;
 import com.honeypot.domain.notification.entity.enums.NotificationType;
 import com.honeypot.domain.notification.service.NotificationSendService;
 import com.honeypot.domain.post.entity.Post;
@@ -80,7 +83,23 @@ public class CommentService {
 
         // Async tasks
         if (!request.getWriterId().equals(post.getWriter().getId())) {
-            notificationSendService.send(post.getWriter().getId(), NotificationType.COMMENT_TO_MY_POST);
+            CommentNotificationResource resource = CommentNotificationResource.builder()
+                    .postResource(PostNotificationResource.builder()
+                            .id(post.getId())
+                            .type(post.getType())
+                            .writer(post.getWriter().getNickname())
+                            .build())
+                    .commentId(result.getCommentId())
+                    .commenter(result.getWriter().getNickname())
+                    .build();
+
+            notificationSendService.send(
+                    post.getWriter().getId(),
+                    NotificationData.<CommentNotificationResource>builder()
+                            .type(NotificationType.COMMENT_TO_MY_POST)
+                            .resource(resource)
+                            .build()
+            );
         }
 
         return result;
