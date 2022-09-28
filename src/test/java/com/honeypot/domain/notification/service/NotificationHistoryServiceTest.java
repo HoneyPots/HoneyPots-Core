@@ -60,7 +60,7 @@ class NotificationHistoryServiceTest {
                     .id(i + 1L)
                     .member(member)
                     .message(String.format("this is test message (%d)", i + 1L))
-                    .type(NotificationType.COMMENT_TO_MY_POST)
+                    .type(NotificationType.COMMENT_TO_POST)
                     .createdAt(now)
                     .lastModifiedAt(now)
                     .build();

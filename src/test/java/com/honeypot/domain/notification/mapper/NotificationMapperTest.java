@@ -23,7 +23,7 @@ class NotificationMapperTest {
                 .id(1L)
                 .member(Member.builder().id(1L).build())
                 .message("this is test message")
-                .type(NotificationType.LIKE_REACTION_TO_MY_POST)
+                .type(NotificationType.LIKE_REACTION_TO_POST)
                 .createdAt(createdAt)
                 .lastModifiedAt(createdAt)
                 .build();

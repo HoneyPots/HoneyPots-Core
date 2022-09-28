@@ -99,7 +99,7 @@ class CommentServiceTest {
         verify(notificationSendService, never()).send(
                 targetPost.getWriter().getId(),
                 NotificationData.<CommentNotificationResource>builder()
-                        .type(NotificationType.COMMENT_TO_MY_POST)
+                        .type(NotificationType.COMMENT_TO_POST)
                         .resource(resource)
                         .build()
         );
@@ -147,7 +147,7 @@ class CommentServiceTest {
         verify(notificationSendService, times(1)).send(
                 targetPost.getWriter().getId(),
                 NotificationData.<CommentNotificationResource>builder()
-                        .type(NotificationType.COMMENT_TO_MY_POST)
+                        .type(NotificationType.COMMENT_TO_POST)
                         .resource(resource)
                         .build()
         );

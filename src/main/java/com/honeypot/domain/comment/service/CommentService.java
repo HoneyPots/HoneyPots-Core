@@ -96,7 +96,7 @@ public class CommentService {
             notificationSendService.send(
                     post.getWriter().getId(),
                     NotificationData.<CommentNotificationResource>builder()
-                            .type(NotificationType.COMMENT_TO_MY_POST)
+                            .type(NotificationType.COMMENT_TO_POST)
                             .resource(resource)
                             .build()
             );

@@ -99,7 +99,7 @@ public class PostReactionService {
             notificationSendService.send(
                     targetPostWriterId,
                     NotificationData.<ReactionNotificationResource>builder()
-                            .type(NotificationType.LIKE_REACTION_TO_MY_POST)
+                            .type(NotificationType.LIKE_REACTION_TO_POST)
                             .resource(resource)
                             .build()
             );

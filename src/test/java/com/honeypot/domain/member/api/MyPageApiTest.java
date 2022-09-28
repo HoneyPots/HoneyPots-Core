@@ -168,7 +168,7 @@ class MyPageApiTest {
             NotificationDto dto = NotificationDto.builder()
                     .notificationId(i + 1L)
                     .message(String.format("this is test message (%d)", i + 1L))
-                    .type(NotificationType.COMMENT_TO_MY_POST)
+                    .type(NotificationType.COMMENT_TO_POST)
                     .createdAt(now)
                     .lastModifiedAt(now)
                     .build();

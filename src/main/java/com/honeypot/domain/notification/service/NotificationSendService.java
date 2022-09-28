@@ -13,6 +13,7 @@ import com.honeypot.domain.member.service.MemberFindService;
 import com.honeypot.domain.notification.dto.NotificationData;
 import com.honeypot.domain.notification.dto.NotificationResource;
 import com.honeypot.domain.notification.dto.NotificationTokenDto;
+import com.honeypot.domain.notification.entity.enums.NotificationType;
 import com.honeypot.domain.notification.repository.NotificationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +32,12 @@ import java.util.stream.Collectors;
 @Service
 @Validated
 public class NotificationSendService {
+
+    private static final String MESSAGE_TITLE = "꿀단지";
+
+    private static final String MESSAGE_COMMENT_TO_POST = "'%s'님이 새로운 댓글을 남겼습니다.";
+
+    private static final String MESSAGE_LIKE_REACTION_TO_POST = "'%s'님이 게시글을 좋아합니다.";
 
     private final String fcmKeyPath;
 
@@ -94,10 +101,13 @@ public class NotificationSendService {
             return;
         }
 
+        String message = data.getType() == NotificationType.COMMENT_TO_POST ?
+                MESSAGE_COMMENT_TO_POST : MESSAGE_LIKE_REACTION_TO_POST;
+
         notificationRepository.save(
                 com.honeypot.domain.notification.entity.Notification.builder()
                         .member(member.get())
-                        .message(data.getType().getBody())
+                        .message(message)
                         .type(data.getType())
                         .build()
         );
@@ -121,13 +131,16 @@ public class NotificationSendService {
             log.error(e.getMessage());
         }
 
+        String message = data.getType() == NotificationType.COMMENT_TO_POST ?
+                MESSAGE_COMMENT_TO_POST : MESSAGE_LIKE_REACTION_TO_POST;
+
         return Message.builder()
                 .putData("time", LocalDateTime.now().toString())
                 .putData("data", dataJson)
                 .setNotification(
                         Notification.builder()
-                                .setTitle(data.getType().getTitle())
-                                .setBody(data.getType().getBody())
+                                .setTitle(MESSAGE_TITLE)
+                                .setBody(message)
                                 .build())
                 .setToken(token)
                 .build();

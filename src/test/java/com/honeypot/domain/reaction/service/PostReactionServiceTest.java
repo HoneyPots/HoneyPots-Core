@@ -198,7 +198,7 @@ class PostReactionServiceTest {
         verify(notificationSendService, verificationMode).send(
                 targetPost.getWriter().getId(),
                 NotificationData.<ReactionNotificationResource>builder()
-                        .type(NotificationType.LIKE_REACTION_TO_MY_POST)
+                        .type(NotificationType.LIKE_REACTION_TO_POST)
                         .resource(resource)
                         .build()
         );
