@@ -61,7 +61,8 @@ class NotificationSendServiceTest {
         Member receiver = Member.builder().id(receiverId).nickname("nickname").build();
         Notification notification = Notification.builder()
                 .member(receiver)
-                .message("test message")
+                .titleMessage("test message")
+                .contentMessage("test message")
                 .type(type)
                 .build();
 

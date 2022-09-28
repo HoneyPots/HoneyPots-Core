@@ -25,8 +25,11 @@ public class Notification extends BaseTimeEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @Column(name = "message", length = 100, nullable = false)
-    private String message;
+    @Column(name = "title_message", length = 100, nullable = false)
+    private String titleMessage;
+
+    @Column(name = "content_message", length = 100, nullable = false)
+    private String contentMessage;
 
     @Column(name = "type")
     @Enumerated(EnumType.STRING)

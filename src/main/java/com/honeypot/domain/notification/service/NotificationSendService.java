@@ -107,7 +107,8 @@ public class NotificationSendService {
         notificationRepository.save(
                 com.honeypot.domain.notification.entity.Notification.builder()
                         .member(member.get())
-                        .message(message)
+                        .titleMessage(message)
+                        .contentMessage(message)
                         .type(data.getType())
                         .build()
         );

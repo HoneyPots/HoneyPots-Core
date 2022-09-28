@@ -59,7 +59,8 @@ class NotificationHistoryServiceTest {
             Notification notification = Notification.builder()
                     .id(i + 1L)
                     .member(member)
-                    .message(String.format("this is test message (%d)", i + 1L))
+                    .titleMessage(String.format("this is test message (%d)", i + 1L))
+                    .contentMessage(String.format("this is test message (%d)", i + 1L))
                     .type(NotificationType.COMMENT_TO_POST)
                     .createdAt(now)
                     .lastModifiedAt(now)
@@ -98,7 +99,8 @@ class NotificationHistoryServiceTest {
             Notification compare = findDummy(dto.getNotificationId());
             assertEquals(compare.getId(), dto.getNotificationId());
             assertEquals(compare.getType(), dto.getType());
-            assertEquals(compare.getMessage(), dto.getMessage());
+            assertEquals(compare.getTitleMessage(), dto.getTitleMessage());
+            assertEquals(compare.getContentMessage(), dto.getContentMessage());
             assertEquals(compare.getCreatedAt(), dto.getCreatedAt());
             assertEquals(compare.getLastModifiedAt(), dto.getLastModifiedAt());
         }

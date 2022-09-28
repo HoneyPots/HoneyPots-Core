@@ -22,7 +22,8 @@ class NotificationMapperTest {
         Notification entity = Notification.builder()
                 .id(1L)
                 .member(Member.builder().id(1L).build())
-                .message("this is test message")
+                .titleMessage("this is test message")
+                .contentMessage("this is test message")
                 .type(NotificationType.LIKE_REACTION_TO_POST)
                 .createdAt(createdAt)
                 .lastModifiedAt(createdAt)
@@ -33,7 +34,8 @@ class NotificationMapperTest {
 
         // Assert
         assertEquals(entity.getId(), dto.getNotificationId());
-        assertEquals(entity.getMessage(), dto.getMessage());
+        assertEquals(entity.getTitleMessage(), dto.getTitleMessage());
+        assertEquals(entity.getContentMessage(), dto.getContentMessage());
         assertEquals(entity.getType(), dto.getType());
         assertEquals(entity.getCreatedAt(), dto.getCreatedAt());
         assertEquals(entity.getLastModifiedAt(), dto.getLastModifiedAt());
