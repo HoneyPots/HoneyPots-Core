@@ -1,5 +1,6 @@
 package com.honeypot.domain.notification.dto;
 
+import com.google.common.base.Objects;
 import com.honeypot.domain.reaction.entity.enums.ReactionType;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,5 +14,20 @@ public class ReactionNotificationResource extends NotificationResource {
     private final ReactionType reactionType;
 
     private final String reactor;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ReactionNotificationResource that = (ReactionNotificationResource) o;
+        return Objects.equal(postResource, that.postResource)
+                && reactionType == that.reactionType
+                && Objects.equal(reactor, that.reactor);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(postResource, reactionType, reactor);
+    }
 
 }
