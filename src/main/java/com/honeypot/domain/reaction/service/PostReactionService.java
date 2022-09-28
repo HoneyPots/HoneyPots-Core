@@ -4,6 +4,9 @@ import com.honeypot.common.model.exceptions.InvalidAuthorizationException;
 import com.honeypot.common.validation.groups.InsertContext;
 import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.member.service.MemberFindService;
+import com.honeypot.domain.notification.dto.NotificationData;
+import com.honeypot.domain.notification.dto.PostNotificationResource;
+import com.honeypot.domain.notification.dto.ReactionNotificationResource;
 import com.honeypot.domain.notification.entity.enums.NotificationType;
 import com.honeypot.domain.notification.service.NotificationSendService;
 import com.honeypot.domain.post.entity.Post;
@@ -83,7 +86,23 @@ public class PostReactionService {
         // Async tasks
         Long targetPostWriterId = targetPost.getWriter().getId();
         if (!request.getReactorId().equals(targetPostWriterId) && !alreadyExists) {
-            notificationSendService.send(targetPostWriterId, NotificationType.LIKE_REACTION_TO_MY_POST);
+            ReactionNotificationResource resource = ReactionNotificationResource.builder()
+                    .postResource(PostNotificationResource.builder()
+                            .id(targetPost.getId())
+                            .type(targetPost.getType())
+                            .writer(targetPost.getWriter().getNickname())
+                            .build())
+                    .reactionType(request.getReactionType())
+                    .reactor(reactor.getNickname())
+                    .build();
+
+            notificationSendService.send(
+                    targetPostWriterId,
+                    NotificationData.<ReactionNotificationResource>builder()
+                            .type(NotificationType.LIKE_REACTION_TO_MY_POST)
+                            .resource(resource)
+                            .build()
+            );
         }
 
         return result;
