@@ -92,6 +92,7 @@ public class PostReactionService {
                             .type(targetPost.getType())
                             .writer(targetPost.getWriter().getNickname())
                             .build())
+                    .reactionId(result.getReactionId())
                     .reactionType(request.getReactionType())
                     .reactor(reactor.getNickname())
                     .build();

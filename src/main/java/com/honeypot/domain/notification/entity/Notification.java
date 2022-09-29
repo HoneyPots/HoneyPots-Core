@@ -31,6 +31,9 @@ public class Notification extends BaseTimeEntity {
     @Column(name = "content_message", length = 100, nullable = false)
     private String contentMessage;
 
+    @Column(name = "reference_id")
+    private Long referenceId;
+
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
     private NotificationType type;

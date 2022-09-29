@@ -7,13 +7,18 @@ import lombok.Getter;
 
 @Builder
 @Getter
-public class PostNotificationResource extends NotificationResource {
+public class PostNotificationResource implements NotificationResource {
 
     private final Long id;
 
     private final PostType type;
 
     private final String writer;
+
+    @Override
+    public Long getReferenceId() {
+        return id;
+    }
 
     @Override
     public boolean equals(Object o) {

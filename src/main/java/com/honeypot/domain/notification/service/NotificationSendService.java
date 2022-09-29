@@ -110,6 +110,7 @@ public class NotificationSendService {
                         .titleMessage(message)
                         .contentMessage(message)
                         .type(data.getType())
+                        .referenceId(data.getResource().getReferenceId())
                         .build()
         );
 

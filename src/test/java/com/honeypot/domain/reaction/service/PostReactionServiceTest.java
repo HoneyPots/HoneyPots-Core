@@ -191,6 +191,7 @@ class PostReactionServiceTest {
                         .type(targetPost.getType())
                         .writer(targetPost.getWriter().getNickname())
                         .build())
+                .reactionId(createdReaction.getReactionId())
                 .reactionType(createdReaction.getReactionType())
                 .reactor(createdReaction.getReactor().getNickname())
                 .build();
