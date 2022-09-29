@@ -32,6 +32,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 class CommentServiceTest {
 
+    private static final String MESSAGE_COMMENT_TO_POST = "'%s'님이 새로운 댓글을 남겼습니다.";
+
     private final CommentMapper commentMapper = Mappers.getMapper(CommentMapper.class);
 
     @Mock
@@ -148,6 +150,8 @@ class CommentServiceTest {
                 targetPost.getWriter().getId(),
                 NotificationData.<CommentNotificationResource>builder()
                         .type(NotificationType.COMMENT_TO_POST)
+                        .titleMessage(String.format(MESSAGE_COMMENT_TO_POST, commentWriter.getNickname()))
+                        .contentMessage(result.getContent())
                         .resource(resource)
                         .build()
         );
