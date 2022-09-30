@@ -134,7 +134,8 @@ class MyPageApiTest {
                 .andExpect(jsonPath("content").isArray())
                 .andExpect(jsonPath("content.length()", is(pageResult.getContent().size())))
                 .andExpect(jsonPath("content[0].notificationId").isNotEmpty())
-                .andExpect(jsonPath("content[0].message").isNotEmpty())
+                .andExpect(jsonPath("content[0].titleMessage").isNotEmpty())
+                .andExpect(jsonPath("content[0].contentMessage").isNotEmpty())
                 .andExpect(jsonPath("content[0].type").isNotEmpty())
                 .andExpect(jsonPath("content[0].createdAt").isNotEmpty())
                 .andExpect(jsonPath("content[0].lastModifiedAt").isNotEmpty())
@@ -167,8 +168,9 @@ class MyPageApiTest {
         for (int i = start; i < end; i++) {
             NotificationDto dto = NotificationDto.builder()
                     .notificationId(i + 1L)
-                    .message(String.format("this is test message (%d)", i + 1L))
-                    .type(NotificationType.COMMENT_TO_MY_POST)
+                    .titleMessage(String.format("this is test message (%d)", i + 1L))
+                    .contentMessage(String.format("this is test message (%d)", i + 1L))
+                    .type(NotificationType.COMMENT_TO_POST)
                     .createdAt(now)
                     .lastModifiedAt(now)
                     .build();

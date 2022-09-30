@@ -33,6 +33,8 @@ import javax.validation.constraints.NotNull;
 @Validated
 public class CommentService {
 
+    private static final String MESSAGE_COMMENT_TO_POST = "'%s'님이 새로운 댓글을 남겼습니다.";
+
     private final CommentMapper commentMapper;
 
     private final CommentRepository commentRepository;
@@ -93,12 +95,16 @@ public class CommentService {
                     .commenter(result.getWriter().getNickname())
                     .build();
 
+            String commentContent = result.getContent();
+            String contentMessage = commentContent.substring(0, Math.min(commentContent.length(), 100));
             notificationSendService.send(
                     post.getWriter().getId(),
                     NotificationData.<CommentNotificationResource>builder()
-                            .type(NotificationType.COMMENT_TO_MY_POST)
+                            .type(NotificationType.COMMENT_TO_POST)
+                            .titleMessage(String.format(MESSAGE_COMMENT_TO_POST, writer.getNickname()))
+                            .contentMessage(contentMessage)
                             .resource(resource)
-                            .build()
+                    .build()
             );
         }
 

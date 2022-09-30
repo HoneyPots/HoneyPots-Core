@@ -33,6 +33,8 @@ import java.util.Optional;
 @Validated
 public class PostReactionService {
 
+    private static final String MESSAGE_LIKE_REACTION_TO_POST = "'%s'님이 게시글을 좋아합니다.";
+
     private final ReactionMapper reactionMapper;
 
     private final PostRepository postRepository;
@@ -92,14 +94,19 @@ public class PostReactionService {
                             .type(targetPost.getType())
                             .writer(targetPost.getWriter().getNickname())
                             .build())
+                    .reactionId(result.getReactionId())
                     .reactionType(request.getReactionType())
                     .reactor(reactor.getNickname())
                     .build();
 
+            String postTitle = targetPost.getTitle();
+            String contentMessage = postTitle.substring(0, Math.min(postTitle.length(), 100));
             notificationSendService.send(
                     targetPostWriterId,
                     NotificationData.<ReactionNotificationResource>builder()
-                            .type(NotificationType.LIKE_REACTION_TO_MY_POST)
+                            .type(NotificationType.LIKE_REACTION_TO_POST)
+                            .titleMessage(String.format(MESSAGE_LIKE_REACTION_TO_POST, reactor.getNickname()))
+                            .contentMessage(contentMessage)
                             .resource(resource)
                             .build()
             );

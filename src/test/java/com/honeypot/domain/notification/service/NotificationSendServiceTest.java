@@ -50,7 +50,7 @@ class NotificationSendServiceTest {
     void send_ToSingleMember() {
         // Arrange
         Long receiverId = 1L;
-        NotificationType type = NotificationType.COMMENT_TO_MY_POST;
+        NotificationType type = NotificationType.COMMENT_TO_POST;
 
         String token = "f2JVeYJgpSuPx_2J4854lE:APA91bGL7lNvfZMR7_TQNXgbldxoyB11FuSoODvRggXywx4OUU7Zrg-b_1q3v5UDXwTtBi02CgHc6b9ZzF93FTHNXNpn8ewdxdhy5h8iG2gLy20y5mgj-x0yEfwx8iJ-zBDfcPQFMBae";
         String token2 = "eZPPh7NxWIiWMWSSRN1YLx:APA91bEnewBtElUaFzvlg_sz5f3B58o0KdGsVf3ONJH9ZnKjOhER59o__LPrGTy0qc99PuuwamX7EbT6yV7eAdiSLjiP-7YhF2XDrvYBFRBHD27V38Iqg81AGkh0d9t41Uy6QqsgJHma";
@@ -61,7 +61,8 @@ class NotificationSendServiceTest {
         Member receiver = Member.builder().id(receiverId).nickname("nickname").build();
         Notification notification = Notification.builder()
                 .member(receiver)
-                .message(type.getBody())
+                .titleMessage("test message")
+                .contentMessage("test message")
                 .type(type)
                 .build();
 

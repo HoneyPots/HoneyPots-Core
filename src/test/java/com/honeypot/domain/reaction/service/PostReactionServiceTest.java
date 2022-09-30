@@ -30,10 +30,11 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
 
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 class PostReactionServiceTest {
+
+    private static final String MESSAGE_LIKE_REACTION_TO_POST = "'%s'님이 게시글을 좋아합니다.";
 
     private final ReactionMapper reactionMapper = Mappers.getMapper(ReactionMapper.class);
 
@@ -147,6 +148,7 @@ class PostReactionServiceTest {
         return Post.builder()
                 .id(id)
                 .writer(writer)
+                .title("this is title.")
                 .build();
     }
 
@@ -191,6 +193,7 @@ class PostReactionServiceTest {
                         .type(targetPost.getType())
                         .writer(targetPost.getWriter().getNickname())
                         .build())
+                .reactionId(createdReaction.getReactionId())
                 .reactionType(createdReaction.getReactionType())
                 .reactor(createdReaction.getReactor().getNickname())
                 .build();
@@ -198,7 +201,9 @@ class PostReactionServiceTest {
         verify(notificationSendService, verificationMode).send(
                 targetPost.getWriter().getId(),
                 NotificationData.<ReactionNotificationResource>builder()
-                        .type(NotificationType.LIKE_REACTION_TO_MY_POST)
+                        .type(NotificationType.LIKE_REACTION_TO_POST)
+                        .titleMessage(String.format(MESSAGE_LIKE_REACTION_TO_POST, createdReaction.getReactor().getNickname()))
+                        .contentMessage(targetPost.getTitle())
                         .resource(resource)
                         .build()
         );

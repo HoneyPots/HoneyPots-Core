@@ -13,6 +13,7 @@ import com.honeypot.domain.member.service.MemberFindService;
 import com.honeypot.domain.notification.dto.NotificationData;
 import com.honeypot.domain.notification.dto.NotificationResource;
 import com.honeypot.domain.notification.dto.NotificationTokenDto;
+import com.honeypot.domain.notification.entity.enums.NotificationType;
 import com.honeypot.domain.notification.repository.NotificationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +32,8 @@ import java.util.stream.Collectors;
 @Service
 @Validated
 public class NotificationSendService {
+
+    private static final String MESSAGE_TITLE = "꿀단지";
 
     private final String fcmKeyPath;
 
@@ -97,8 +100,10 @@ public class NotificationSendService {
         notificationRepository.save(
                 com.honeypot.domain.notification.entity.Notification.builder()
                         .member(member.get())
-                        .message(data.getType().getBody())
+                        .titleMessage(data.getTitleMessage())
+                        .contentMessage(data.getContentMessage())
                         .type(data.getType())
+                        .referenceId(data.getResource().getReferenceId())
                         .build()
         );
 
@@ -126,8 +131,8 @@ public class NotificationSendService {
                 .putData("data", dataJson)
                 .setNotification(
                         Notification.builder()
-                                .setTitle(data.getType().getTitle())
-                                .setBody(data.getType().getBody())
+                                .setTitle(MESSAGE_TITLE)
+                                .setBody(data.getTitleMessage())
                                 .build())
                 .setToken(token)
                 .build();
