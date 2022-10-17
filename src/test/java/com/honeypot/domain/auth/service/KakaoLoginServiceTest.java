@@ -16,6 +16,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -44,7 +46,7 @@ class KakaoLoginServiceTest {
     @Test
     void loginWithOAuth_WhenNewMemberLogin() {
         // Arrange
-        String provider = "kakao";
+        AuthProviderType provider = AuthProviderType.KAKAO;
         String authCode = "authCode";
 
         KakaoTokenIssuance issuance = new KakaoTokenIssuance();
@@ -62,45 +64,52 @@ class KakaoLoginServiceTest {
         KakaoUserInfo kakaoUserInfo = new KakaoUserInfo();
         kakaoUserInfo.setConnectedAt(LocalDateTime.now());
 
-        AuthProviderType providerType = AuthProviderType.valueOf(provider.toUpperCase());
         String providerMemberId = String.valueOf(kakaoTokenInfo.getId());
 
         Optional<AuthProvider> optionalAuthProvider = Optional.empty();
 
+        AuthProvider newAuthProvider = AuthProvider.builder().providerMemberId(providerMemberId)
+                .providerType(provider)
+                .build();
         Member newMember = Member.builder()
                 .id(1L)
-                .authProvider(AuthProvider.builder().providerMemberId(providerMemberId)
-                        .providerType(providerType)
-                        .build())
+                .authProvider(newAuthProvider)
                 .build();
 
         String accessToken = "accessToken";
         String refreshToken = "refreshToken";
 
-        when(kakaoAuthRepository.getAccessToken(authCode)).thenReturn(issuance);
-        when(kakaoAuthRepository.getTokenInfo(issuance.getAccessToken())).thenReturn(kakaoTokenInfo);
-        when(kakaoAuthRepository.getUserInfoByAccessToken(issuance.getAccessToken())).thenReturn(kakaoUserInfo);
-        when(authProviderRepository.findByProviderTypeAndProviderMemberId(providerType, providerMemberId))
+        when(kakaoAuthRepository.getAccessToken(authCode)).thenReturn(Mono.just(issuance));
+        when(kakaoAuthRepository.getTokenInfo(issuance.getAccessToken())).thenReturn(Mono.just(kakaoTokenInfo));
+        when(kakaoAuthRepository.getUserInfoByAccessToken(issuance.getAccessToken())).thenReturn(Mono.just(kakaoUserInfo));
+        when(authProviderRepository.findByProviderTypeAndProviderMemberId(provider, providerMemberId))
                 .thenReturn(optionalAuthProvider);
-        when(memberSignupService.signupWithOAuth(providerMemberId, providerType, kakaoUserInfo.getConnectedAt()))
-                .thenReturn(newMember);
+        when(memberSignupService.signupWithOAuth(providerMemberId, provider, kakaoUserInfo.getConnectedAt()))
+                .thenAnswer(invocation -> {
+                    newAuthProvider.setMember(newMember);
+                    return newMember;
+                });
         when(authTokenManagerService.issueAccessToken(newMember.getId())).thenReturn(accessToken);
         when(authTokenManagerService.issueRefreshToken(newMember.getId())).thenReturn(refreshToken);
 
         // Act
-        LoginResponse result = kakaoLoginService.loginWithOAuth(provider, authCode);
+        Mono<LoginResponse> result = kakaoLoginService.loginWithOAuth(provider, authCode);
 
         // Assert
-        assertTrue(result.isNewMember());
-        assertEquals(newMember.getId(), result.getMemberId());
-        assertEquals(accessToken, result.getAccessToken());
-        assertEquals(refreshToken, result.getRefreshToken());
+        StepVerifier.create(result)
+                .assertNext(response -> {
+                    assertTrue(response.isNewMember());
+                    assertEquals(newMember.getId(), response.getMemberId());
+                    assertEquals(accessToken, response.getAccessToken());
+                    assertEquals(refreshToken, response.getRefreshToken());
+                })
+                .verifyComplete();
     }
 
     @Test
     void loginWithOAuth_WhenExistMemberLogin() {
         // Arrange
-        String provider = "kakao";
+        AuthProviderType provider = AuthProviderType.KAKAO;
         String authCode = "authCode";
 
         KakaoTokenIssuance issuance = new KakaoTokenIssuance();
@@ -118,11 +127,10 @@ class KakaoLoginServiceTest {
         KakaoUserInfo kakaoUserInfo = new KakaoUserInfo();
         kakaoUserInfo.setConnectedAt(LocalDateTime.now());
 
-        AuthProviderType providerType = AuthProviderType.valueOf(provider.toUpperCase());
         String providerMemberId = String.valueOf(kakaoTokenInfo.getId());
 
         AuthProvider authProvider = AuthProvider.builder().providerMemberId(providerMemberId)
-                .providerType(providerType)
+                .providerType(provider)
                 .member(Member.builder().id(1L).build())
                 .build();
 
@@ -133,22 +141,26 @@ class KakaoLoginServiceTest {
         String accessToken = "accessToken";
         String refreshToken = "refreshToken";
 
-        when(kakaoAuthRepository.getAccessToken(authCode)).thenReturn(issuance);
-        when(kakaoAuthRepository.getTokenInfo(issuance.getAccessToken())).thenReturn(kakaoTokenInfo);
-        when(kakaoAuthRepository.getUserInfoByAccessToken(issuance.getAccessToken())).thenReturn(kakaoUserInfo);
-        when(authProviderRepository.findByProviderTypeAndProviderMemberId(providerType, providerMemberId))
+        when(kakaoAuthRepository.getAccessToken(authCode)).thenReturn(Mono.just(issuance));
+        when(kakaoAuthRepository.getTokenInfo(issuance.getAccessToken())).thenReturn(Mono.just(kakaoTokenInfo));
+        when(kakaoAuthRepository.getUserInfoByAccessToken(issuance.getAccessToken())).thenReturn(Mono.just(kakaoUserInfo));
+        when(authProviderRepository.findByProviderTypeAndProviderMemberId(provider, providerMemberId))
                 .thenReturn(optionalAuthProvider);
         when(authTokenManagerService.issueAccessToken(memberId)).thenReturn(accessToken);
         when(authTokenManagerService.issueRefreshToken(memberId)).thenReturn(refreshToken);
 
         // Act
-        LoginResponse result = kakaoLoginService.loginWithOAuth(provider, authCode);
+        Mono<LoginResponse> result = kakaoLoginService.loginWithOAuth(provider, authCode);
 
         // Assert
-        assertFalse(result.isNewMember());
-        assertEquals(memberId, result.getMemberId());
-        assertEquals(accessToken, result.getAccessToken());
-        assertEquals(refreshToken, result.getRefreshToken());
+        StepVerifier.create(result)
+                .assertNext(response -> {
+                    assertFalse(response.isNewMember());
+                    assertEquals(memberId, response.getMemberId());
+                    assertEquals(accessToken, response.getAccessToken());
+                    assertEquals(refreshToken, response.getRefreshToken());
+                })
+                .verifyComplete();
     }
 
 }

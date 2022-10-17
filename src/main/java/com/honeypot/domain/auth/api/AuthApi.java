@@ -6,6 +6,7 @@ import com.honeypot.domain.auth.dto.AuthCode;
 import com.honeypot.domain.auth.dto.LoginResponse;
 import com.honeypot.domain.auth.dto.RefreshTokenRequest;
 import com.honeypot.domain.auth.dto.kakao.KakaoAuthCode;
+import com.honeypot.domain.auth.entity.enums.AuthProviderType;
 import com.honeypot.domain.auth.service.contracts.AuthTokenManagerService;
 import com.honeypot.domain.auth.service.contracts.LoginService;
 import com.honeypot.domain.member.service.MemberFindService;
@@ -17,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,24 +41,31 @@ public class AuthApi {
     private String serverDomainName;
 
     @GetMapping("/kakao")
-    public ResponseEntity<?> kakao(KakaoAuthCode authCode) {
-        LoginResponse response = loginService.loginWithOAuth("kakao", authCode.getCode());
+    public Mono<ResponseEntity<LoginResponse>> kakao(KakaoAuthCode authCode) {
         long maxAge = jwtProperties.expirationTimeInSeconds().refreshToken();
-        return ResponseEntity
-                .ok()
-                .header(HttpHeaders.SET_COOKIE, getHttpOnlyRefreshTokenCookie(response.getRefreshToken(), maxAge).toString())
-                .body(response);
+        Mono<LoginResponse> response = loginService.loginWithOAuth(AuthProviderType.KAKAO, authCode.getCode());
+        return response
+                .map(r -> ResponseEntity.ok()
+                        .header(HttpHeaders.SET_COOKIE,
+                                getHttpOnlyRefreshTokenCookie(r.getRefreshToken(), maxAge).toString()
+                        )
+                        .body(r)
+                );
     }
 
     @PostMapping("/login/{provider}")
-    public ResponseEntity<?> login(@PathVariable String provider,
-                                   @RequestBody AuthCode authorizationCode) {
-        LoginResponse response = loginService.loginWithOAuth(provider, authorizationCode.getAuthorizationCode());
+    public Mono<ResponseEntity<LoginResponse>> login(@PathVariable String provider,
+                                                     @RequestBody AuthCode authorizationCode) {
+        AuthProviderType providerType = AuthProviderType.valueOf(provider.toUpperCase());
         long maxAge = jwtProperties.expirationTimeInSeconds().refreshToken();
-        return ResponseEntity
-                .ok()
-                .header(HttpHeaders.SET_COOKIE, getHttpOnlyRefreshTokenCookie(response.getRefreshToken(), maxAge).toString())
-                .body(response);
+        Mono<LoginResponse> response = loginService.loginWithOAuth(providerType, authorizationCode.getAuthorizationCode());
+        return response
+                .map(r -> ResponseEntity.ok()
+                        .header(HttpHeaders.SET_COOKIE,
+                                getHttpOnlyRefreshTokenCookie(r.getRefreshToken(), maxAge).toString()
+                        )
+                        .body(r)
+                );
     }
 
     @PostMapping("/token")

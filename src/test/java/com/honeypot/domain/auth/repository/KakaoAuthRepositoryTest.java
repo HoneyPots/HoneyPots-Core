@@ -82,7 +82,7 @@ class KakaoAuthRepositoryTest {
         server.enqueue(response);
 
         // Act
-        KakaoTokenIssuance result = kakaoAuthRepository.getAccessToken(authorizationCode);
+        KakaoTokenIssuance result = kakaoAuthRepository.getAccessToken(authorizationCode).block();
 
         // Assert
         RecordedRequest request = server.takeRequest();
@@ -122,7 +122,7 @@ class KakaoAuthRepositoryTest {
         server.enqueue(response);
 
         // Act
-        KakaoTokenInfo result = kakaoAuthRepository.getTokenInfo(accessToken);
+        KakaoTokenInfo result = kakaoAuthRepository.getTokenInfo(accessToken).block();
 
         // Assert
         RecordedRequest request = server.takeRequest();
@@ -154,7 +154,7 @@ class KakaoAuthRepositoryTest {
         server.enqueue(response);
 
         // Act
-        KakaoUserInfo result = kakaoAuthRepository.getUserInfoByAccessToken(accessToken);
+        KakaoUserInfo result = kakaoAuthRepository.getUserInfoByAccessToken(accessToken).block();
 
         // Assert
         RecordedRequest request = server.takeRequest();

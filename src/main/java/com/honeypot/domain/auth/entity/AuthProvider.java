@@ -15,6 +15,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Getter
+@Setter
 @ToString
 @SuperBuilder
 @NoArgsConstructor

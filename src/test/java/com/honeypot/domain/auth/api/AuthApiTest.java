@@ -3,7 +3,6 @@ package com.honeypot.domain.auth.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.honeypot.common.config.PropertiesConfig;
 import com.honeypot.common.model.properties.JwtProperties;
-import com.honeypot.domain.auth.dto.AuthCode;
 import com.honeypot.domain.auth.dto.LoginResponse;
 import com.honeypot.domain.auth.dto.RefreshTokenRequest;
 import com.honeypot.domain.auth.service.contracts.AuthTokenManagerService;
@@ -31,7 +30,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -61,67 +61,6 @@ class AuthApiTest {
     public void before() {
         AuthApi authApi = new AuthApi(loginService, authTokenManagerService, memberFindService, jwtProperties);
         mockMvc = MockMvcBuilders.standaloneSetup(authApi).build();
-    }
-
-    @Test
-    void kakao() throws Exception {
-        // Arrange
-        String authCode = "authCode";
-
-        LoginResponse loginResponse = LoginResponse.builder()
-                .memberId(1L)
-                .accessToken("accessToken")
-                .refreshToken("refreshToken")
-                .isNewMember(false)
-                .build();
-
-        when(loginService.loginWithOAuth("kakao", authCode)).thenReturn(loginResponse);
-
-        // Act
-        ResultActions actions = mockMvc.perform(get("/api/auth/kakao")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .queryParam("code", authCode)
-        );
-
-        // Assert
-        actions.andExpect(status().isOk())
-                .andExpect(header().exists(HttpHeaders.SET_COOKIE))
-                .andExpect(jsonPath("memberId").value(loginResponse.getMemberId()))
-                .andExpect(jsonPath("newMember").value(loginResponse.isNewMember()))
-                .andExpect(jsonPath("accessToken").value(loginResponse.getAccessToken()))
-                .andExpect(jsonPath("refreshToken").value(loginResponse.getRefreshToken()))
-                .andDo(print());
-    }
-
-    @Test
-    void login_kakao() throws Exception {
-        // Arrange
-        AuthCode authCode = new AuthCode();
-        authCode.setAuthorizationCode("authCode");
-
-        LoginResponse loginResponse = LoginResponse.builder()
-                .memberId(1L)
-                .accessToken("accessToken")
-                .refreshToken("refreshToken")
-                .isNewMember(false)
-                .build();
-
-        when(loginService.loginWithOAuth("kakao", authCode.getAuthorizationCode())).thenReturn(loginResponse);
-
-        // Act
-        ResultActions actions = mockMvc.perform(post("/api/auth/login/{provider}", "kakao")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(objectMapper.writeValueAsString(authCode))
-        );
-
-        // Assert
-        actions.andExpect(status().isOk())
-                .andExpect(header().exists(HttpHeaders.SET_COOKIE))
-                .andExpect(jsonPath("memberId").value(loginResponse.getMemberId()))
-                .andExpect(jsonPath("newMember").value(loginResponse.isNewMember()))
-                .andExpect(jsonPath("accessToken").value(loginResponse.getAccessToken()))
-                .andExpect(jsonPath("refreshToken").value(loginResponse.getRefreshToken()))
-                .andDo(print());
     }
 
     @Test
