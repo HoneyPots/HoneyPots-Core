@@ -42,7 +42,7 @@ import static org.mockito.Mockito.when;
         MemberFindService.class
 })
 @ExtendWith(MockitoExtension.class)
-class AuthApiWebFluxTest {
+class AuthApiTest {
 
     @Autowired
     WebTestClient webTestClient;
