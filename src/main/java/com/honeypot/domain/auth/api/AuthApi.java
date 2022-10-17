@@ -6,6 +6,7 @@ import com.honeypot.domain.auth.dto.AuthCode;
 import com.honeypot.domain.auth.dto.LoginResponse;
 import com.honeypot.domain.auth.dto.RefreshTokenRequest;
 import com.honeypot.domain.auth.dto.kakao.KakaoAuthCode;
+import com.honeypot.domain.auth.entity.enums.AuthProviderType;
 import com.honeypot.domain.auth.service.contracts.AuthTokenManagerService;
 import com.honeypot.domain.auth.service.contracts.LoginService;
 import com.honeypot.domain.member.service.MemberFindService;
@@ -17,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,29 +41,36 @@ public class AuthApi {
     private String serverDomainName;
 
     @GetMapping("/kakao")
-    public ResponseEntity<?> kakao(KakaoAuthCode authCode) {
-        LoginResponse response = loginService.loginWithOAuth("kakao", authCode.getCode());
+    public Mono<ResponseEntity<LoginResponse>> kakao(KakaoAuthCode authCode) {
         long maxAge = jwtProperties.expirationTimeInSeconds().refreshToken();
-        return ResponseEntity
-                .ok()
-                .header(HttpHeaders.SET_COOKIE, getHttpOnlyRefreshTokenCookie(response.getRefreshToken(), maxAge).toString())
-                .body(response);
+        Mono<LoginResponse> response = loginService.loginWithOAuth(AuthProviderType.KAKAO, authCode.getCode());
+        return response
+                .map(r -> ResponseEntity.ok()
+                        .header(HttpHeaders.SET_COOKIE,
+                                getHttpOnlyRefreshTokenCookie(r.getRefreshToken(), maxAge).toString()
+                        )
+                        .body(r)
+                );
     }
 
     @PostMapping("/login/{provider}")
-    public ResponseEntity<?> login(@PathVariable String provider,
-                                   @RequestBody AuthCode authorizationCode) {
-        LoginResponse response = loginService.loginWithOAuth(provider, authorizationCode.getAuthorizationCode());
+    public Mono<ResponseEntity<LoginResponse>> login(@PathVariable String provider,
+                                                     @RequestBody AuthCode authorizationCode) {
+        AuthProviderType providerType = AuthProviderType.valueOf(provider.toUpperCase());
         long maxAge = jwtProperties.expirationTimeInSeconds().refreshToken();
-        return ResponseEntity
-                .ok()
-                .header(HttpHeaders.SET_COOKIE, getHttpOnlyRefreshTokenCookie(response.getRefreshToken(), maxAge).toString())
-                .body(response);
+        Mono<LoginResponse> response = loginService.loginWithOAuth(providerType, authorizationCode.getAuthorizationCode());
+        return response
+                .map(r -> ResponseEntity.ok()
+                        .header(HttpHeaders.SET_COOKIE,
+                                getHttpOnlyRefreshTokenCookie(r.getRefreshToken(), maxAge).toString()
+                        )
+                        .body(r)
+                );
     }
 
     @PostMapping("/token")
-    public ResponseEntity<?> refreshToken(@CookieValue(value = "refreshToken", required = false) String refreshToken,
-                                          @RequestBody RefreshTokenRequest request) {
+    public Mono<ResponseEntity<LoginResponse>> refreshToken(@CookieValue(value = "refreshToken", required = false) String refreshToken,
+                                                            @RequestBody RefreshTokenRequest request) {
         if (!request.getGrantType().equals("refresh_token")) {
             Map<String, String> errorMessages = new HashMap<>();
             errorMessages.put("grantType", "grantType is must be 'refresh_token'");
@@ -69,32 +78,33 @@ public class AuthApi {
         }
 
         if (refreshToken == null) {
-            return ResponseEntity.noContent().build();
+            return Mono.just(ResponseEntity.noContent().build());
         }
 
         if (!authTokenManagerService.validate(refreshToken)) {
-            return getExpiredRefreshTokenResponse(refreshToken);
-//            throw new RefreshFailedException();
+            return Mono.just(getExpiredRefreshTokenResponse(refreshToken));
         }
 
         Long memberId = authTokenManagerService.getMemberId(refreshToken);
         if (memberFindService.findById(memberId).isEmpty()) {
-            return getExpiredRefreshTokenResponse(refreshToken);
+            return Mono.just(getExpiredRefreshTokenResponse(refreshToken));
         }
 
         long maxAge = jwtProperties.expirationTimeInSeconds().refreshToken();
         String newAccessToken = authTokenManagerService.issueAccessToken(memberId);
         String newRefreshToken = authTokenManagerService.issueRefreshToken(memberId);
 
-        return ResponseEntity
-                .ok()
-                .header(HttpHeaders.SET_COOKIE, getHttpOnlyRefreshTokenCookie(newRefreshToken, maxAge).toString())
-                .body(LoginResponse.builder()
-                        .memberId(memberId)
-                        .accessToken(newAccessToken)
-                        .refreshToken(newRefreshToken)
-                        .build()
-                );
+        return Mono.just(
+                ResponseEntity
+                        .ok()
+                        .header(HttpHeaders.SET_COOKIE, getHttpOnlyRefreshTokenCookie(newRefreshToken, maxAge).toString())
+                        .body(LoginResponse.builder()
+                                .memberId(memberId)
+                                .accessToken(newAccessToken)
+                                .refreshToken(newRefreshToken)
+                                .build()
+                        )
+        );
     }
 
     @DeleteMapping("/token")
@@ -105,7 +115,7 @@ public class AuthApi {
                 .build();
     }
 
-    private ResponseEntity<?> getExpiredRefreshTokenResponse(String refreshToken) {
+    private ResponseEntity<LoginResponse> getExpiredRefreshTokenResponse(String refreshToken) {
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .header(HttpHeaders.SET_COOKIE, getHttpOnlyRefreshTokenCookie(refreshToken, 0).toString())

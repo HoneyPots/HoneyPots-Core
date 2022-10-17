@@ -2,43 +2,50 @@ package com.honeypot.domain.auth.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.honeypot.common.config.PropertiesConfig;
-import com.honeypot.common.model.properties.JwtProperties;
 import com.honeypot.domain.auth.dto.AuthCode;
 import com.honeypot.domain.auth.dto.LoginResponse;
 import com.honeypot.domain.auth.dto.RefreshTokenRequest;
+import com.honeypot.domain.auth.entity.enums.AuthProviderType;
 import com.honeypot.domain.auth.service.contracts.AuthTokenManagerService;
 import com.honeypot.domain.auth.service.contracts.LoginService;
 import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.member.service.MemberFindService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.util.NestedServletException;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Mono;
 
 import javax.servlet.http.Cookie;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ActiveProfiles("test")
-@SpringBootTest(classes = {PropertiesConfig.class, ObjectMapper.class})
-@ExtendWith({SpringExtension.class, MockitoExtension.class})
+@WebFluxTest(
+        value = {AuthApi.class, PropertiesConfig.class, ObjectMapper.class},
+        excludeAutoConfiguration = {ReactiveSecurityAutoConfiguration.class}
+)
+@MockBean(value = {
+        JpaMetamodelMappingContext.class,
+        AuthTokenManagerService.class,
+        MemberFindService.class
+})
+@ExtendWith(MockitoExtension.class)
 class AuthApiTest {
+
+    @Autowired
+    WebTestClient webTestClient;
 
     @MockBean
     private LoginService loginService;
@@ -49,22 +56,11 @@ class AuthApiTest {
     @MockBean
     private MemberFindService memberFindService;
 
-    @Autowired
-    private JwtProperties jwtProperties;
-
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @BeforeEach
-    public void before() {
-        AuthApi authApi = new AuthApi(loginService, authTokenManagerService, memberFindService, jwtProperties);
-        mockMvc = MockMvcBuilders.standaloneSetup(authApi).build();
-    }
+    @Value("${domain.server.domain-name}")
+    private String serverDomainName;
 
     @Test
-    void kakao() throws Exception {
+    void kakao() {
         // Arrange
         String authCode = "authCode";
 
@@ -75,26 +71,26 @@ class AuthApiTest {
                 .isNewMember(false)
                 .build();
 
-        when(loginService.loginWithOAuth("kakao", authCode)).thenReturn(loginResponse);
+        when(loginService.loginWithOAuth(AuthProviderType.KAKAO, authCode)).thenReturn(Mono.just(loginResponse));
 
-        // Act
-        ResultActions actions = mockMvc.perform(get("/api/auth/kakao")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .queryParam("code", authCode)
-        );
-
-        // Assert
-        actions.andExpect(status().isOk())
-                .andExpect(header().exists(HttpHeaders.SET_COOKIE))
-                .andExpect(jsonPath("memberId").value(loginResponse.getMemberId()))
-                .andExpect(jsonPath("newMember").value(loginResponse.isNewMember()))
-                .andExpect(jsonPath("accessToken").value(loginResponse.getAccessToken()))
-                .andExpect(jsonPath("refreshToken").value(loginResponse.getRefreshToken()))
-                .andDo(print());
+        webTestClient
+                .get()
+                .uri("/api/auth/kakao?code=" + authCode)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().exists(HttpHeaders.SET_COOKIE)
+                .expectBody(LoginResponse.class)
+                .value(response -> {
+                    assertEquals(loginResponse.getMemberId(), response.getMemberId());
+                    assertEquals(loginResponse.isNewMember(), response.isNewMember());
+                    assertEquals(loginResponse.getAccessToken(), response.getAccessToken());
+                    assertEquals(loginResponse.getRefreshToken(), response.getRefreshToken());
+                });
     }
 
     @Test
-    void login_kakao() throws Exception {
+    void login_kakao() {
         // Arrange
         AuthCode authCode = new AuthCode();
         authCode.setAuthorizationCode("authCode");
@@ -106,26 +102,32 @@ class AuthApiTest {
                 .isNewMember(false)
                 .build();
 
-        when(loginService.loginWithOAuth("kakao", authCode.getAuthorizationCode())).thenReturn(loginResponse);
+        when(loginService.loginWithOAuth(
+                AuthProviderType.KAKAO,
+                authCode.getAuthorizationCode()
+        )).thenReturn(Mono.just(loginResponse));
 
-        // Act
-        ResultActions actions = mockMvc.perform(post("/api/auth/login/{provider}", "kakao")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(objectMapper.writeValueAsString(authCode))
-        );
-
-        // Assert
-        actions.andExpect(status().isOk())
-                .andExpect(header().exists(HttpHeaders.SET_COOKIE))
-                .andExpect(jsonPath("memberId").value(loginResponse.getMemberId()))
-                .andExpect(jsonPath("newMember").value(loginResponse.isNewMember()))
-                .andExpect(jsonPath("accessToken").value(loginResponse.getAccessToken()))
-                .andExpect(jsonPath("refreshToken").value(loginResponse.getRefreshToken()))
-                .andDo(print());
+        // Act & Assert
+        webTestClient
+                .post()
+                .uri("/api/auth/login/kakao")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(authCode)
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().exists(HttpHeaders.SET_COOKIE)
+                .expectBody(LoginResponse.class)
+                .value(response -> {
+                    assertEquals(loginResponse.getMemberId(), response.getMemberId());
+                    assertEquals(loginResponse.isNewMember(), response.isNewMember());
+                    assertEquals(loginResponse.getAccessToken(), response.getAccessToken());
+                    assertEquals(loginResponse.getRefreshToken(), response.getRefreshToken());
+                });
     }
 
     @Test
-    void refreshToken() throws Exception {
+    void refreshToken() {
         // Arrange
         String refreshTokenCookie = "refreshToken";
         RefreshTokenRequest request = new RefreshTokenRequest();
@@ -150,38 +152,44 @@ class AuthApiTest {
         when(authTokenManagerService.issueAccessToken(member.getId())).thenReturn(newAccessToken);
         when(authTokenManagerService.issueRefreshToken(member.getId())).thenReturn(newRefreshToken);
 
-        // Act
-        ResultActions actions = mockMvc.perform(post("/api/auth/token")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .cookie(cookie)
-                .content(objectMapper.writeValueAsString(request))
-        );
-
-        // Assert
-        actions.andExpect(status().isOk())
-                .andExpect(header().exists(HttpHeaders.SET_COOKIE))
-                .andExpect(jsonPath("memberId").value(loginResponse.getMemberId()))
-                .andExpect(jsonPath("newMember").value(loginResponse.isNewMember()))
-                .andExpect(jsonPath("accessToken").value(loginResponse.getAccessToken()))
-                .andExpect(jsonPath("refreshToken").value(loginResponse.getRefreshToken()))
-                .andDo(print());
+        // Act & Assert
+        webTestClient
+                .post()
+                .uri("/api/auth/token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .cookie("refreshToken", cookie.getValue())
+                .bodyValue(request)
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().exists(HttpHeaders.SET_COOKIE)
+                .expectBody(LoginResponse.class)
+                .value(response -> {
+                    assertEquals(loginResponse.getMemberId(), response.getMemberId());
+                    assertEquals(loginResponse.isNewMember(), response.isNewMember());
+                    assertEquals(loginResponse.getAccessToken(), response.getAccessToken());
+                    assertEquals(loginResponse.getRefreshToken(), response.getRefreshToken());
+                });
     }
 
     @Test
-    void refreshToken_204_NoContent_WhenCookieValueIsNull() throws Exception {
+    void refreshToken_204_NoContent_WhenCookieValueIsNull() {
         // Arrange
         RefreshTokenRequest request = new RefreshTokenRequest();
         request.setGrantType("refresh_token");
 
-        // Act
-        ResultActions actions = mockMvc.perform(post("/api/auth/token")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(objectMapper.writeValueAsString(request))
-        );
-
-        // Assert
-        actions.andExpect(status().isNoContent()).andDo(print());
+        // Act & Assert
+        webTestClient
+                .post()
+                .uri("/api/auth/token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(request)
+                .exchange()
+                .expectStatus().isNoContent()
+                .expectBody().isEmpty();
     }
+
 
     @Test
     void refreshToken_400_BadRequest_WhenInvalidGrantType() {
@@ -193,19 +201,21 @@ class AuthApiTest {
         Cookie cookie = new Cookie("refreshToken", refreshTokenCookie);
 
         // Act & Assert
-        assertThrows(NestedServletException.class, () -> {
-            ResultActions actions = mockMvc.perform(post("/api/auth/token")
-                    .contentType(MediaType.APPLICATION_JSON_VALUE)
-                    .cookie(cookie)
-                    .content(objectMapper.writeValueAsString(request))
-            );
-
-            actions.andExpect(status().isBadRequest()).andDo(print());
-        });
+        webTestClient
+                .post()
+                .uri("/api/auth/token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .cookie("refreshToken", cookie.getValue())
+                .bodyValue(request)
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("code").isEqualTo("HRE001");
     }
 
     @Test
-    void refreshToken_403_Forbidden_WhenInvalidTokenValue() throws Exception {
+    void refreshToken_403_Forbidden_WhenInvalidTokenValue() {
         // Arrange
         String refreshTokenValue = "refreshToken";
         RefreshTokenRequest request = new RefreshTokenRequest();
@@ -215,19 +225,21 @@ class AuthApiTest {
 
         Cookie cookie = new Cookie("refreshToken", refreshTokenValue);
 
-        // Act
-        ResultActions actions = mockMvc.perform(post("/api/auth/token")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .cookie(cookie)
-                .content(objectMapper.writeValueAsString(request))
-        );
-
-        // Assert
-        actions.andExpect(status().isForbidden()).andDo(print());
+        // Act & Assert
+        webTestClient
+                .post()
+                .uri("/api/auth/token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .cookie("refreshToken", cookie.getValue())
+                .bodyValue(request)
+                .exchange()
+                .expectStatus().isForbidden()
+                .expectBody().isEmpty();
     }
 
     @Test
-    void refreshToken_403_Forbidden_WhenMemberNotFound() throws Exception {
+    void refreshToken_403_Forbidden_WhenMemberNotFound() {
         // Arrange
         String refreshTokenValue = "refreshToken";
         RefreshTokenRequest request = new RefreshTokenRequest();
@@ -241,31 +253,33 @@ class AuthApiTest {
 
         Cookie cookie = new Cookie("refreshToken", refreshTokenValue);
 
-        // Act
-        ResultActions actions = mockMvc.perform(post("/api/auth/token")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .cookie(cookie)
-                .content(objectMapper.writeValueAsString(request))
-        );
-
-        // Assert
-        actions.andExpect(status().isForbidden()).andDo(print());
+        // Act & Assert
+        webTestClient
+                .post()
+                .uri("/api/auth/token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .cookie("refreshToken", cookie.getValue())
+                .bodyValue(request)
+                .exchange()
+                .expectStatus().isForbidden()
+                .expectBody().isEmpty();
     }
 
     @Test
-    void expireRefreshToken() throws Exception {
+    void expireRefreshToken() {
         // Arrange
-        String refreshTokenCookie = "refreshToken";
-        Cookie cookie = new Cookie("refreshToken", refreshTokenCookie);
+        Cookie cookie = new Cookie("refreshToken", "refreshToken");
 
-        // Act
-        ResultActions actions = mockMvc.perform(delete("/api/auth/token")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .cookie(cookie)
-        );
-
-        // Assert
-        actions.andExpect(status().isNoContent()).andDo(print());
+        // Act & Assert
+        webTestClient
+                .delete()
+                .uri("/api/auth/token")
+                .accept(MediaType.APPLICATION_JSON)
+                .cookie("refreshToken", cookie.getValue())
+                .exchange()
+                .expectStatus().isNoContent()
+                .expectBody().isEmpty();
     }
 
 }
