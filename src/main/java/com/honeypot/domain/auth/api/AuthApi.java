@@ -69,8 +69,8 @@ public class AuthApi {
     }
 
     @PostMapping("/token")
-    public ResponseEntity<?> refreshToken(@CookieValue(value = "refreshToken", required = false) String refreshToken,
-                                          @RequestBody RefreshTokenRequest request) {
+    public Mono<ResponseEntity<LoginResponse>> refreshToken(@CookieValue(value = "refreshToken", required = false) String refreshToken,
+                                                            @RequestBody RefreshTokenRequest request) {
         if (!request.getGrantType().equals("refresh_token")) {
             Map<String, String> errorMessages = new HashMap<>();
             errorMessages.put("grantType", "grantType is must be 'refresh_token'");
@@ -78,32 +78,33 @@ public class AuthApi {
         }
 
         if (refreshToken == null) {
-            return ResponseEntity.noContent().build();
+            return Mono.just(ResponseEntity.noContent().build());
         }
 
         if (!authTokenManagerService.validate(refreshToken)) {
-            return getExpiredRefreshTokenResponse(refreshToken);
-//            throw new RefreshFailedException();
+            return Mono.just(getExpiredRefreshTokenResponse(refreshToken));
         }
 
         Long memberId = authTokenManagerService.getMemberId(refreshToken);
         if (memberFindService.findById(memberId).isEmpty()) {
-            return getExpiredRefreshTokenResponse(refreshToken);
+            return Mono.just(getExpiredRefreshTokenResponse(refreshToken));
         }
 
         long maxAge = jwtProperties.expirationTimeInSeconds().refreshToken();
         String newAccessToken = authTokenManagerService.issueAccessToken(memberId);
         String newRefreshToken = authTokenManagerService.issueRefreshToken(memberId);
 
-        return ResponseEntity
-                .ok()
-                .header(HttpHeaders.SET_COOKIE, getHttpOnlyRefreshTokenCookie(newRefreshToken, maxAge).toString())
-                .body(LoginResponse.builder()
-                        .memberId(memberId)
-                        .accessToken(newAccessToken)
-                        .refreshToken(newRefreshToken)
-                        .build()
-                );
+        return Mono.just(
+                ResponseEntity
+                        .ok()
+                        .header(HttpHeaders.SET_COOKIE, getHttpOnlyRefreshTokenCookie(newRefreshToken, maxAge).toString())
+                        .body(LoginResponse.builder()
+                                .memberId(memberId)
+                                .accessToken(newAccessToken)
+                                .refreshToken(newRefreshToken)
+                                .build()
+                        )
+        );
     }
 
     @DeleteMapping("/token")
@@ -114,7 +115,7 @@ public class AuthApi {
                 .build();
     }
 
-    private ResponseEntity<?> getExpiredRefreshTokenResponse(String refreshToken) {
+    private ResponseEntity<LoginResponse> getExpiredRefreshTokenResponse(String refreshToken) {
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .header(HttpHeaders.SET_COOKIE, getHttpOnlyRefreshTokenCookie(refreshToken, 0).toString())
