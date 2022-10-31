@@ -1,13 +1,20 @@
 package com.honeypot.domain.notification.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
+import com.honeypot.domain.member.entity.Member;
+import com.honeypot.domain.member.service.MemberFindService;
+import com.honeypot.domain.notification.dto.NotificationData;
+import com.honeypot.domain.notification.dto.NotificationResource;
 import com.honeypot.domain.notification.dto.NotificationTokenDto;
 import com.honeypot.domain.notification.entity.enums.NotificationType;
+import com.honeypot.domain.notification.repository.NotificationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -18,6 +25,7 @@ import org.springframework.validation.annotation.Validated;
 import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -25,18 +33,32 @@ import java.util.stream.Collectors;
 @Validated
 public class NotificationSendService {
 
+    private static final String MESSAGE_TITLE = "꿀단지";
+
     private final String fcmKeyPath;
 
     private final String[] fcmKeyScope;
 
+    private final MemberFindService memberFindService;
+
     private final NotificationTokenManageService notificationTokenManageService;
+
+    private final NotificationRepository notificationRepository;
+
+    private final ObjectMapper objectMapper;
 
     public NotificationSendService(@Value("${fcm.key.path}") String fcmKeyPath,
                                    @Value("${fcm.key.scope}") String[] fcmKeyScope,
-                                   NotificationTokenManageService notificationTokenManageService) {
+                                   MemberFindService memberFindService,
+                                   NotificationTokenManageService notificationTokenManageService,
+                                   NotificationRepository notificationRepository,
+                                   ObjectMapper objectMapper) {
         this.fcmKeyPath = fcmKeyPath;
         this.fcmKeyScope = fcmKeyScope;
+        this.memberFindService = memberFindService;
         this.notificationTokenManageService = notificationTokenManageService;
+        this.notificationRepository = notificationRepository;
+        this.objectMapper = objectMapper;
     }
 
     @PostConstruct
@@ -61,36 +83,56 @@ public class NotificationSendService {
     }
 
     @Async
-    public void send(String token, NotificationType messageType) {
-        FirebaseMessaging.getInstance().sendAsync(message(token, messageType));
-    }
-
-    @Async
-    public void send(List<String> tokenList, NotificationType messageType) {
+    private <T extends NotificationResource> void send(List<String> tokenList, NotificationData<T> data) {
         List<Message> messages = tokenList.stream()
-                .map(token -> message(token, messageType))
+                .map(token -> message(token, data))
                 .collect(Collectors.toList());
         FirebaseMessaging.getInstance().sendAllAsync(messages);
     }
 
     @Async
-    public void send(Long memberId, NotificationType messageType) {
+    public <T extends NotificationResource> void send(Long memberId, NotificationData<T> data) {
+        Optional<Member> member = memberFindService.findById(memberId);
+        if (member.isEmpty()) {
+            return;
+        }
+
+        notificationRepository.save(
+                com.honeypot.domain.notification.entity.Notification.builder()
+                        .member(member.get())
+                        .titleMessage(data.getTitleMessage())
+                        .contentMessage(data.getContentMessage())
+                        .type(data.getType())
+                        .referenceId(data.getResource().getReferenceId())
+                        .build()
+        );
+
         List<String> tokenList
                 = notificationTokenManageService.findByMemberId(memberId)
                 .stream()
                 .map(NotificationTokenDto::getDeviceToken)
                 .toList();
 
-        send(tokenList, messageType);
+        send(tokenList, data);
     }
 
-    private static Message message(String token, NotificationType notificationType) {
+    private <T extends NotificationResource> Message message(String token, NotificationData<T> data) {
+        String dataJson = "{}";
+
+        // Send notification finally when json processing exception occurred
+        try {
+            dataJson = objectMapper.writeValueAsString(data);
+        } catch (JsonProcessingException e) {
+            log.error(e.getMessage());
+        }
+
         return Message.builder()
                 .putData("time", LocalDateTime.now().toString())
+                .putData("data", dataJson)
                 .setNotification(
                         Notification.builder()
-                                .setTitle(notificationType.getTitle())
-                                .setBody(notificationType.getBody())
+                                .setTitle(MESSAGE_TITLE)
+                                .setBody(data.getTitleMessage())
                                 .build())
                 .setToken(token)
                 .build();

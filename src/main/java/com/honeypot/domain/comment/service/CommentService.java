@@ -9,6 +9,9 @@ import com.honeypot.domain.comment.mapper.CommentMapper;
 import com.honeypot.domain.comment.repository.CommentRepository;
 import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.member.service.MemberFindService;
+import com.honeypot.domain.notification.dto.NotificationData;
+import com.honeypot.domain.notification.dto.CommentNotificationResource;
+import com.honeypot.domain.notification.dto.PostNotificationResource;
 import com.honeypot.domain.notification.entity.enums.NotificationType;
 import com.honeypot.domain.notification.service.NotificationSendService;
 import com.honeypot.domain.post.entity.Post;
@@ -29,6 +32,8 @@ import javax.validation.constraints.NotNull;
 @RequiredArgsConstructor
 @Validated
 public class CommentService {
+
+    private static final String MESSAGE_COMMENT_TO_POST = "'%s'님이 새로운 댓글을 남겼습니다.";
 
     private final CommentMapper commentMapper;
 
@@ -80,7 +85,27 @@ public class CommentService {
 
         // Async tasks
         if (!request.getWriterId().equals(post.getWriter().getId())) {
-            notificationSendService.send(post.getWriter().getId(), NotificationType.COMMENT_TO_MY_POST);
+            CommentNotificationResource resource = CommentNotificationResource.builder()
+                    .postResource(PostNotificationResource.builder()
+                            .id(post.getId())
+                            .type(post.getType())
+                            .writer(post.getWriter().getNickname())
+                            .build())
+                    .commentId(result.getCommentId())
+                    .commenter(result.getWriter().getNickname())
+                    .build();
+
+            String commentContent = result.getContent();
+            String contentMessage = commentContent.substring(0, Math.min(commentContent.length(), 100));
+            notificationSendService.send(
+                    post.getWriter().getId(),
+                    NotificationData.<CommentNotificationResource>builder()
+                            .type(NotificationType.COMMENT_TO_POST)
+                            .titleMessage(String.format(MESSAGE_COMMENT_TO_POST, writer.getNickname()))
+                            .contentMessage(contentMessage)
+                            .resource(resource)
+                    .build()
+            );
         }
 
         return result;

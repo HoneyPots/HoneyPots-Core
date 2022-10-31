@@ -6,8 +6,10 @@ import com.honeypot.domain.comment.entity.Comment;
 import com.honeypot.domain.comment.mapper.CommentMapper;
 import com.honeypot.domain.comment.repository.CommentRepository;
 import com.honeypot.domain.member.entity.Member;
-import com.honeypot.domain.member.repository.MemberRepository;
 import com.honeypot.domain.member.service.MemberFindService;
+import com.honeypot.domain.notification.dto.CommentNotificationResource;
+import com.honeypot.domain.notification.dto.NotificationData;
+import com.honeypot.domain.notification.dto.PostNotificationResource;
 import com.honeypot.domain.notification.entity.enums.NotificationType;
 import com.honeypot.domain.notification.service.NotificationSendService;
 import com.honeypot.domain.post.entity.Post;
@@ -29,6 +31,8 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 class CommentServiceTest {
+
+    private static final String MESSAGE_COMMENT_TO_POST = "'%s'님이 새로운 댓글을 남겼습니다.";
 
     private final CommentMapper commentMapper = Mappers.getMapper(CommentMapper.class);
 
@@ -84,7 +88,23 @@ class CommentServiceTest {
 
         // Assert
         assertEquals(expected, result);
-        verify(notificationSendService, never()).send(targetPost.getWriter().getId(), NotificationType.COMMENT_TO_MY_POST);
+        CommentNotificationResource resource = CommentNotificationResource.builder()
+                .postResource(PostNotificationResource.builder()
+                        .id(targetPost.getId())
+                        .type(targetPost.getType())
+                        .writer(targetPost.getWriter().getNickname())
+                        .build())
+                .commentId(result.getCommentId())
+                .commenter(result.getWriter().getNickname())
+                .build();
+
+        verify(notificationSendService, never()).send(
+                targetPost.getWriter().getId(),
+                NotificationData.<CommentNotificationResource>builder()
+                        .type(NotificationType.COMMENT_TO_POST)
+                        .resource(resource)
+                        .build()
+        );
     }
 
     @Test
@@ -116,7 +136,25 @@ class CommentServiceTest {
 
         // Assert
         assertEquals(expected, result);
-        verify(notificationSendService, times(1)).send(targetPost.getWriter().getId(), NotificationType.COMMENT_TO_MY_POST);
+        CommentNotificationResource resource = CommentNotificationResource.builder()
+                .postResource(PostNotificationResource.builder()
+                        .id(targetPost.getId())
+                        .type(targetPost.getType())
+                        .writer(targetPost.getWriter().getNickname())
+                        .build())
+                .commentId(result.getCommentId())
+                .commenter(result.getWriter().getNickname())
+                .build();
+
+        verify(notificationSendService, times(1)).send(
+                targetPost.getWriter().getId(),
+                NotificationData.<CommentNotificationResource>builder()
+                        .type(NotificationType.COMMENT_TO_POST)
+                        .titleMessage(String.format(MESSAGE_COMMENT_TO_POST, commentWriter.getNickname()))
+                        .contentMessage(result.getContent())
+                        .resource(resource)
+                        .build()
+        );
     }
 
     private Post createPost(Long id, Member writer) {

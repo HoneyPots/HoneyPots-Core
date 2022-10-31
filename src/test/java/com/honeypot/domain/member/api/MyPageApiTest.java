@@ -2,6 +2,9 @@ package com.honeypot.domain.member.api;
 
 import com.honeypot.common.utils.SecurityUtils;
 import com.honeypot.domain.auth.service.contracts.AuthTokenManagerService;
+import com.honeypot.domain.notification.dto.NotificationDto;
+import com.honeypot.domain.notification.entity.enums.NotificationType;
+import com.honeypot.domain.notification.service.NotificationHistoryService;
 import com.honeypot.domain.post.dto.NormalPostDto;
 import com.honeypot.domain.post.entity.enums.PostType;
 import com.honeypot.domain.post.service.NormalPostService;
@@ -23,13 +26,16 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(MyPageApi.class)
@@ -40,6 +46,9 @@ class MyPageApiTest {
 
     @MockBean
     private PostCrudServiceFactory postCrudServiceFactory;
+
+    @MockBean
+    private NotificationHistoryService notificationHistoryService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -57,7 +66,7 @@ class MyPageApiTest {
     }
 
     @Test
-    void pageList_NormalPost_200_OK() throws Exception {
+    void getMyPostList_200_OK() throws Exception {
         // Arrange
         Long memberId = 1L;
 
@@ -92,6 +101,47 @@ class MyPageApiTest {
         actions.andExpect(status().isOk()).andDo(print());
     }
 
+    @Test
+    void getNotificationHistory() throws Exception {
+        // Arrange
+        Long memberId = 1L;
+
+        int page = 0;
+        int size = 10;
+        int totalCount = 30;
+
+        String sortProperty = "createdAt";
+        String sortDirection = "desc";
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc(sortProperty)));
+
+        List<NotificationDto> list = createNotifications(page, size, totalCount);
+        Page<NotificationDto> pageResult = new PageImpl<>(list, pageable, totalCount);
+
+        when(SecurityUtils.getCurrentMemberId()).thenReturn(Optional.of(memberId));
+        when(notificationHistoryService.findByMemberWithPagination(memberId, pageable)).thenReturn(pageResult);
+
+        // Act
+        ResultActions actions = mockMvc.perform(get("/api/members/notifications")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer token")
+                .queryParam("page", String.valueOf(page))
+                .queryParam("size", String.valueOf(size))
+                .queryParam("sort", sortProperty + "," + sortDirection)
+        );
+
+        // Assert
+        actions.andExpect(status().isOk())
+                .andExpect(jsonPath("content").isArray())
+                .andExpect(jsonPath("content.length()", is(pageResult.getContent().size())))
+                .andExpect(jsonPath("content[0].notificationId").isNotEmpty())
+                .andExpect(jsonPath("content[0].titleMessage").isNotEmpty())
+                .andExpect(jsonPath("content[0].contentMessage").isNotEmpty())
+                .andExpect(jsonPath("content[0].type").isNotEmpty())
+                .andExpect(jsonPath("content[0].createdAt").isNotEmpty())
+                .andExpect(jsonPath("content[0].lastModifiedAt").isNotEmpty())
+                .andDo(print());
+    }
+
     private List<NormalPostDto> createNormalPosts(int page, int size, int totalCount) {
         int start = page * size;
         int end = (page + 1) * size;
@@ -101,6 +151,28 @@ class MyPageApiTest {
         for (int i = start; i < end; i++) {
             NormalPostDto dto = NormalPostDto.builder()
                     .postId(i + 1L)
+                    .build();
+            result.add(dto);
+        }
+
+        return result;
+    }
+
+    private List<NotificationDto> createNotifications(int page, int size, int totalCount) {
+        int start = page * size;
+        int end = (page + 1) * size;
+        end = Math.min(end, totalCount);
+
+        LocalDateTime now = LocalDateTime.now();
+        List<NotificationDto> result = new ArrayList<>();
+        for (int i = start; i < end; i++) {
+            NotificationDto dto = NotificationDto.builder()
+                    .notificationId(i + 1L)
+                    .titleMessage(String.format("this is test message (%d)", i + 1L))
+                    .contentMessage(String.format("this is test message (%d)", i + 1L))
+                    .type(NotificationType.COMMENT_TO_POST)
+                    .createdAt(now)
+                    .lastModifiedAt(now)
                     .build();
             result.add(dto);
         }

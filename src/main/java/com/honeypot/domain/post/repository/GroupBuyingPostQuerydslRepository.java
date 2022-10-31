@@ -53,7 +53,7 @@ public class GroupBuyingPostQuerydslRepository {
         long totalCount = jpaQueryFactory
                 .select(post.id)
                 .from(post)
-                .where(post.type.eq(PostType.GROUP_BUYING.name()))
+                .where(post.type.eq(PostType.GROUP_BUYING))
                 .fetch()
                 .size();
 
@@ -79,7 +79,7 @@ public class GroupBuyingPostQuerydslRepository {
                 .from(post)
                 .innerJoin(member).on(post.writer.id.eq(member.id))
                 .where(member.id.eq(memberId)
-                        .and(post.type.eq(PostType.GROUP_BUYING.name()))
+                        .and(post.type.eq(PostType.GROUP_BUYING))
                 )
                 .fetch()
                 .size();

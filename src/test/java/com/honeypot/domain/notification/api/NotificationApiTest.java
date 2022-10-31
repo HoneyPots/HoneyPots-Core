@@ -3,10 +3,12 @@ package com.honeypot.domain.notification.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.honeypot.common.utils.SecurityUtils;
 import com.honeypot.domain.auth.service.contracts.AuthTokenManagerService;
+import com.honeypot.domain.notification.dto.*;
 import com.honeypot.domain.notification.entity.enums.ClientType;
-import com.honeypot.domain.notification.dto.NotificationTokenDto;
+import com.honeypot.domain.notification.service.NotificationHistoryService;
 import com.honeypot.domain.notification.service.NotificationTokenManageService;
-import com.honeypot.domain.notification.dto.NotificationTokenUploadRequest;
+import com.honeypot.domain.post.entity.enums.PostType;
+import com.honeypot.domain.reaction.entity.enums.ReactionType;
 import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -26,8 +28,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -39,6 +40,9 @@ class NotificationApiTest {
 
     @MockBean
     private NotificationTokenManageService notificationTokenManageService;
+
+    @MockBean
+    private NotificationHistoryService notificationHistoryService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -56,6 +60,78 @@ class NotificationApiTest {
     @AfterAll
     public static void teardown() {
         mockStatic.close();
+    }
+
+    @Test
+    void getNotificationResource_CommentResource() throws Exception {
+        // Arrange
+        Long notificationId = 1L;
+        CommentNotificationResource resource = CommentNotificationResource.builder()
+                .postResource(
+                        PostNotificationResource.builder()
+                                .id(123L)
+                                .writer("postWriter")
+                                .type(PostType.NORMAL)
+                                .build()
+                )
+                .commentId(4L)
+                .commenter("commentWriter")
+                .build();
+
+        when(notificationHistoryService.findNotificationResourceById(notificationId)).thenReturn(resource);
+
+        // Act
+        ResultActions actions = mockMvc.perform(get("/api/notifications/{notificationId}", notificationId)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer token")
+        );
+
+        // Assert
+        actions.andExpect(status().isOk())
+                .andExpect(jsonPath("postResource").exists())
+                .andExpect(jsonPath("postResource.id").value(resource.getPostResource().getId()))
+                .andExpect(jsonPath("postResource.type").value(resource.getPostResource().getType().name()))
+                .andExpect(jsonPath("postResource.writer").value(resource.getPostResource().getWriter()))
+                .andExpect(jsonPath("commentId").value(resource.getCommentId()))
+                .andExpect(jsonPath("commenter").value(resource.getCommenter()))
+                .andDo(print());
+    }
+
+    @Test
+    void getNotificationResource_ReactionResource() throws Exception {
+        // Arrange
+        Long notificationId = 1L;
+        ReactionNotificationResource resource = ReactionNotificationResource.builder()
+                .postResource(
+                        PostNotificationResource.builder()
+                                .id(123L)
+                                .writer("postWriter")
+                                .type(PostType.NORMAL)
+                                .build()
+                )
+                .reactionId(5L)
+                .reactionType(ReactionType.LIKE)
+                .reactor("commentWriter")
+                .build();
+
+        when(notificationHistoryService.findNotificationResourceById(notificationId)).thenReturn(resource);
+
+        // Act
+        ResultActions actions = mockMvc.perform(get("/api/notifications/{notificationId}", notificationId)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer token")
+        );
+
+        // Assert
+        actions.andExpect(status().isOk())
+                .andExpect(jsonPath("postResource").exists())
+                .andExpect(jsonPath("postResource.id").value(resource.getPostResource().getId()))
+                .andExpect(jsonPath("postResource.type").value(resource.getPostResource().getType().name()))
+                .andExpect(jsonPath("postResource.writer").value(resource.getPostResource().getWriter()))
+                .andExpect(jsonPath("reactionId").value(resource.getReactionId()))
+                .andExpect(jsonPath("reactionType").value(resource.getReactionType().name()))
+                .andExpect(jsonPath("reactor").value(resource.getReactor()))
+                .andDo(print());
     }
 
     @Test
