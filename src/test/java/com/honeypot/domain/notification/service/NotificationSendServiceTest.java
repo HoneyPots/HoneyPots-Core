@@ -11,11 +11,9 @@ import com.honeypot.domain.notification.entity.Notification;
 import com.honeypot.domain.notification.entity.enums.NotificationType;
 import com.honeypot.domain.notification.repository.NotificationRepository;
 import com.honeypot.domain.post.entity.enums.PostType;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
@@ -27,7 +25,7 @@ import java.util.Optional;
 import static org.mockito.Mockito.*;
 
 @ActiveProfiles(profiles = {"test", "fcm"})
-@SpringBootTest(classes = {NotificationSendService.class, ObjectMapper.class})
+@SpringBootTest(classes = {NotificationSendServiceImpl.class, ObjectMapper.class})
 class NotificationSendServiceTest {
 
     @MockBean
@@ -43,7 +41,7 @@ class NotificationSendServiceTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private NotificationSendService notificationSendService;
+    private NotificationSendServiceImpl notificationSendService;
 
     @Test
     @Timeout(10)
