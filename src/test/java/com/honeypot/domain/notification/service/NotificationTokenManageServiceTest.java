@@ -43,11 +43,11 @@ class NotificationTokenManageServiceTest {
     private NotificationTokenMapper notificationTokenMapperMock;
 
     @InjectMocks
-    private NotificationTokenManageService notificationTokenManageService;
+    private NotificationTokenManageServiceImpl notificationTokenManageService;
 
     @BeforeEach
     private void before() {
-        this.notificationTokenManageService = new NotificationTokenManageService(
+        this.notificationTokenManageService = new NotificationTokenManageServiceImpl(
                 memberFindService,
                 notificationTokenMapperMock,
                 notificationTokenRepository

@@ -32,7 +32,7 @@ class NotificationSendServiceTest {
     private MemberFindService memberFindService;
 
     @MockBean
-    private NotificationTokenManageService notificationTokenManageService;
+    private NotificationTokenManageServiceImpl notificationTokenManageService;
 
     @MockBean
     private NotificationRepository notificationRepository;
