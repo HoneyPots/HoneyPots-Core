@@ -62,7 +62,7 @@ class NotificationHistoryServiceTest {
     private PostReactionRepository postReactionRepository;
 
     @InjectMocks
-    private NotificationHistoryService notificationHistoryService;
+    private NotificationHistoryServiceImpl notificationHistoryService;
 
     private static final List<Member> members = new ArrayList<>();
 
@@ -107,7 +107,7 @@ class NotificationHistoryServiceTest {
 
     @BeforeEach
     public void before() {
-        this.notificationHistoryService = new NotificationHistoryService(
+        this.notificationHistoryService = new NotificationHistoryServiceImpl(
                 memberFindService,
                 notificationMapper,
                 notificationRepository,

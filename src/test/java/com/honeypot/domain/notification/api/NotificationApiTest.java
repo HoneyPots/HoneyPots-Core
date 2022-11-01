@@ -5,7 +5,7 @@ import com.honeypot.common.utils.SecurityUtils;
 import com.honeypot.domain.auth.service.contracts.AuthTokenManagerService;
 import com.honeypot.domain.notification.dto.*;
 import com.honeypot.domain.notification.entity.enums.ClientType;
-import com.honeypot.domain.notification.service.NotificationHistoryService;
+import com.honeypot.domain.notification.service.NotificationHistoryServiceImpl;
 import com.honeypot.domain.notification.service.NotificationTokenManageService;
 import com.honeypot.domain.post.entity.enums.PostType;
 import com.honeypot.domain.reaction.entity.enums.ReactionType;
@@ -42,7 +42,7 @@ class NotificationApiTest {
     private NotificationTokenManageService notificationTokenManageService;
 
     @MockBean
-    private NotificationHistoryService notificationHistoryService;
+    private NotificationHistoryServiceImpl notificationHistoryService;
 
     @Autowired
     private MockMvc mockMvc;
