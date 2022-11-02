@@ -5,8 +5,8 @@ import com.honeypot.common.utils.SecurityUtils;
 import com.honeypot.domain.auth.service.contracts.AuthTokenManagerService;
 import com.honeypot.domain.notification.dto.*;
 import com.honeypot.domain.notification.entity.enums.ClientType;
-import com.honeypot.domain.notification.service.NotificationHistoryService;
-import com.honeypot.domain.notification.service.NotificationTokenManageService;
+import com.honeypot.domain.notification.service.NotificationHistoryServiceImpl;
+import com.honeypot.domain.notification.service.NotificationTokenManageServiceImpl;
 import com.honeypot.domain.post.entity.enums.PostType;
 import com.honeypot.domain.reaction.entity.enums.ReactionType;
 import org.apache.http.HttpHeaders;
@@ -39,10 +39,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class NotificationApiTest {
 
     @MockBean
-    private NotificationTokenManageService notificationTokenManageService;
+    private NotificationTokenManageServiceImpl notificationTokenManageService;
 
     @MockBean
-    private NotificationHistoryService notificationHistoryService;
+    private NotificationHistoryServiceImpl notificationHistoryService;
 
     @Autowired
     private MockMvc mockMvc;

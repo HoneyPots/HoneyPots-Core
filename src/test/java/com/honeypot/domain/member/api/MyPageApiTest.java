@@ -4,7 +4,7 @@ import com.honeypot.common.utils.SecurityUtils;
 import com.honeypot.domain.auth.service.contracts.AuthTokenManagerService;
 import com.honeypot.domain.notification.dto.NotificationDto;
 import com.honeypot.domain.notification.entity.enums.NotificationType;
-import com.honeypot.domain.notification.service.NotificationHistoryService;
+import com.honeypot.domain.notification.service.NotificationHistoryServiceImpl;
 import com.honeypot.domain.post.dto.NormalPostDto;
 import com.honeypot.domain.post.entity.enums.PostType;
 import com.honeypot.domain.post.service.NormalPostService;
@@ -48,7 +48,7 @@ class MyPageApiTest {
     private PostCrudServiceFactory postCrudServiceFactory;
 
     @MockBean
-    private NotificationHistoryService notificationHistoryService;
+    private NotificationHistoryServiceImpl notificationHistoryService;
 
     @Autowired
     private MockMvc mockMvc;
