@@ -1,5 +1,6 @@
 package com.honeypot.common.event;
 
+import com.honeypot.domain.comment.dto.CommentDto;
 import com.honeypot.domain.comment.entity.Comment;
 import com.honeypot.domain.notification.dto.CommentNotificationResource;
 import com.honeypot.domain.notification.dto.NotificationData;
@@ -22,7 +23,7 @@ public class CommentCreatedEventListener {
     @EventListener
     public void listenCommentCreatedEvent(CommentCreatedEvent event) {
         Post targetPost = event.getTargetPost();
-        Comment createdComment = event.getCreatedComment();
+        CommentDto createdComment = event.getCreatedComment();
         if (isSameWriter(targetPost, createdComment)) {
             return;
         }
@@ -33,7 +34,7 @@ public class CommentCreatedEventListener {
                         .type(targetPost.getType())
                         .writer(targetPost.getWriter().getNickname())
                         .build())
-                .commentId(createdComment.getId())
+                .commentId(createdComment.getCommentId())
                 .commenter(createdComment.getWriter().getNickname())
                 .build();
 
@@ -51,7 +52,7 @@ public class CommentCreatedEventListener {
 
     }
 
-    private boolean isSameWriter(Post post, Comment comment) {
+    private boolean isSameWriter(Post post, CommentDto comment) {
         return comment.getWriter().getId().equals(post.getWriter().getId());
     }
 

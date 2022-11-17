@@ -1,6 +1,6 @@
 package com.honeypot.common.event;
 
-import com.honeypot.domain.comment.entity.Comment;
+import com.honeypot.domain.comment.dto.CommentDto;
 import com.honeypot.domain.post.entity.Post;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -13,6 +13,6 @@ public class CommentCreatedEvent {
 
     private final Post targetPost;
 
-    private final Comment createdComment;
+    private final CommentDto createdComment;
 
 }

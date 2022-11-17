@@ -79,7 +79,7 @@ public class CommentService {
         result.getWriter().setNickname(writer.getNickname());
 
         // Async tasks
-        commentCreatedEventPublisher.publishEvent(new CommentCreatedEvent(post, created));
+        commentCreatedEventPublisher.publishEvent(new CommentCreatedEvent(post, result));
 
         return result;
     }

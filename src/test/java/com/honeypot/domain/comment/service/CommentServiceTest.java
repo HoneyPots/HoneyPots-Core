@@ -83,7 +83,7 @@ class CommentServiceTest {
 
         // Assert
         assertEquals(expected, result);
-        verify(commentCreatedEventPublisher, times(1)).publishEvent(new CommentCreatedEvent(targetPost, created));
+        verify(commentCreatedEventPublisher, times(1)).publishEvent(new CommentCreatedEvent(targetPost, result));
     }
 
     private Post createPost(Long id, Member writer) {
