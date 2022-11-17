@@ -14,7 +14,7 @@ public class WriterDto {
         this.nickname = nickname;
     }
 
-    private long id;
+    private Long id;
 
     private String nickname;
 

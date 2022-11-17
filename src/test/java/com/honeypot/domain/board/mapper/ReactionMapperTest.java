@@ -29,7 +29,7 @@ class ReactionMapperTest {
                 .targetType(ReactionTarget.POST)
                 .targetId(1L)
                 .reactor(ReactorDto.builder()
-                        .id(1)
+                        .id(1L)
                         .nickname("nickname")
                         .build())
                 .build();
@@ -56,7 +56,7 @@ class ReactionMapperTest {
                 .targetType(ReactionTarget.COMMENT)
                 .targetId(1L)
                 .reactor(ReactorDto.builder()
-                        .id(1)
+                        .id(1L)
                         .nickname("nickname")
                         .build())
                 .build();
