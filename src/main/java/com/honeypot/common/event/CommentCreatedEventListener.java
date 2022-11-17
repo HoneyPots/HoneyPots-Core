@@ -1,7 +1,6 @@
 package com.honeypot.common.event;
 
 import com.honeypot.domain.comment.dto.CommentDto;
-import com.honeypot.domain.comment.entity.Comment;
 import com.honeypot.domain.notification.dto.CommentNotificationResource;
 import com.honeypot.domain.notification.dto.NotificationData;
 import com.honeypot.domain.notification.dto.PostNotificationResource;
@@ -10,6 +9,7 @@ import com.honeypot.domain.notification.service.NotificationSendService;
 import com.honeypot.domain.post.entity.Post;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,6 +20,7 @@ public class CommentCreatedEventListener {
 
     private final NotificationSendService notificationSendService;
 
+    @Async
     @EventListener
     public void listenCommentCreatedEvent(CommentCreatedEvent event) {
         Post targetPost = event.getTargetPost();

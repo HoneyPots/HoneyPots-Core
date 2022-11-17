@@ -9,6 +9,7 @@ import com.honeypot.domain.post.entity.Post;
 import com.honeypot.domain.reaction.dto.ReactionDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -19,11 +20,11 @@ public class ReactionCreatedEventListener {
 
     private final NotificationSendService notificationSendService;
 
+    @Async
     @EventListener
     public void listenReactionCreatedEvent(ReactionCreatedEvent event) {
         Post targetPost = event.getTargetPost();
         ReactionDto createdReaction = event.getCreatedReaction();
-
         if (isSameReactor(targetPost, createdReaction) || createdReaction.isAlreadyExists()) {
             return;
         }
