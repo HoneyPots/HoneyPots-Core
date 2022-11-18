@@ -4,6 +4,7 @@ import com.honeypot.common.event.ReactionCreatedEvent;
 import com.honeypot.common.event.ReactionCreatedEventPublisher;
 import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.member.service.MemberFindService;
+import com.honeypot.domain.post.dto.SimplePostDto;
 import com.honeypot.domain.post.entity.Post;
 import com.honeypot.domain.post.repository.PostRepository;
 import com.honeypot.domain.reaction.dto.ReactionDto;
@@ -134,7 +135,7 @@ class PostReactionServiceTest {
                                         VerificationMode verificationMode
     ) {
         verify(reactionCreatedEventPublisher, verificationMode).publishEvent(
-                new ReactionCreatedEvent(targetPost, createdReaction)
+                new ReactionCreatedEvent(SimplePostDto.toDto(targetPost), createdReaction)
         );
     }
 

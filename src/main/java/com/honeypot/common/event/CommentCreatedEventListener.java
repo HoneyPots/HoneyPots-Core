@@ -6,7 +6,7 @@ import com.honeypot.domain.notification.dto.NotificationData;
 import com.honeypot.domain.notification.dto.PostNotificationResource;
 import com.honeypot.domain.notification.entity.enums.NotificationType;
 import com.honeypot.domain.notification.service.NotificationSendService;
-import com.honeypot.domain.post.entity.Post;
+import com.honeypot.domain.post.dto.SimplePostDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -23,7 +23,7 @@ public class CommentCreatedEventListener {
     @Async
     @EventListener
     public void listenCommentCreatedEvent(CommentCreatedEvent event) {
-        Post targetPost = event.getTargetPost();
+        SimplePostDto targetPost = event.getTargetPost();
         CommentDto createdComment = event.getCreatedComment();
         if (isSameWriter(targetPost, createdComment)) {
             return;
@@ -31,8 +31,8 @@ public class CommentCreatedEventListener {
 
         CommentNotificationResource resource = CommentNotificationResource.builder()
                 .postResource(PostNotificationResource.builder()
-                        .id(targetPost.getId())
-                        .type(targetPost.getType())
+                        .id(targetPost.getPostId())
+                        .type(targetPost.getPostType())
                         .writer(targetPost.getWriter().getNickname())
                         .build())
                 .commentId(createdComment.getCommentId())
@@ -53,7 +53,7 @@ public class CommentCreatedEventListener {
 
     }
 
-    private boolean isSameWriter(Post post, CommentDto comment) {
+    private boolean isSameWriter(SimplePostDto post, CommentDto comment) {
         return comment.getWriter().getId().equals(post.getWriter().getId());
     }
 

@@ -6,6 +6,7 @@ import com.honeypot.common.model.exceptions.InvalidAuthorizationException;
 import com.honeypot.common.validation.groups.InsertContext;
 import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.member.service.MemberFindService;
+import com.honeypot.domain.post.dto.SimplePostDto;
 import com.honeypot.domain.post.entity.Post;
 import com.honeypot.domain.post.repository.PostRepository;
 import com.honeypot.domain.reaction.dto.ReactionDto;
@@ -81,7 +82,7 @@ public class PostReactionService {
         result.getReactor().setNickname(reactor.getNickname());
 
         // Async tasks
-        reactionCreatedEventPublisher.publishEvent(new ReactionCreatedEvent(targetPost, result));
+        reactionCreatedEventPublisher.publishEvent(new ReactionCreatedEvent(SimplePostDto.toDto(targetPost), result));
 
         return result;
     }

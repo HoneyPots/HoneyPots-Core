@@ -5,6 +5,7 @@ import com.honeypot.domain.notification.dto.PostNotificationResource;
 import com.honeypot.domain.notification.dto.ReactionNotificationResource;
 import com.honeypot.domain.notification.entity.enums.NotificationType;
 import com.honeypot.domain.notification.service.NotificationSendService;
+import com.honeypot.domain.post.dto.SimplePostDto;
 import com.honeypot.domain.post.entity.Post;
 import com.honeypot.domain.reaction.dto.ReactionDto;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class ReactionCreatedEventListener {
     @Async
     @EventListener
     public void listenReactionCreatedEvent(ReactionCreatedEvent event) {
-        Post targetPost = event.getTargetPost();
+        SimplePostDto targetPost = event.getTargetPost();
         ReactionDto createdReaction = event.getCreatedReaction();
         if (isSameReactor(targetPost, createdReaction) || createdReaction.isAlreadyExists()) {
             return;
@@ -31,8 +32,8 @@ public class ReactionCreatedEventListener {
 
         ReactionNotificationResource resource = ReactionNotificationResource.builder()
                 .postResource(PostNotificationResource.builder()
-                        .id(targetPost.getId())
-                        .type(targetPost.getType())
+                        .id(targetPost.getPostId())
+                        .type(targetPost.getPostType())
                         .writer(targetPost.getWriter().getNickname())
                         .build())
                 .reactionId(createdReaction.getReactionId())
@@ -54,7 +55,7 @@ public class ReactionCreatedEventListener {
     }
 
 
-    private boolean isSameReactor(Post post, ReactionDto reaction) {
+    private boolean isSameReactor(SimplePostDto post, ReactionDto reaction) {
         return reaction.getReactor().getId().equals(post.getWriter().getId());
     }
 

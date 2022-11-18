@@ -9,6 +9,7 @@ import com.honeypot.domain.comment.mapper.CommentMapper;
 import com.honeypot.domain.comment.repository.CommentRepository;
 import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.member.service.MemberFindService;
+import com.honeypot.domain.post.dto.SimplePostDto;
 import com.honeypot.domain.post.entity.Post;
 import com.honeypot.domain.post.repository.PostRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -83,7 +84,9 @@ class CommentServiceTest {
 
         // Assert
         assertEquals(expected, result);
-        verify(commentCreatedEventPublisher, times(1)).publishEvent(new CommentCreatedEvent(targetPost, result));
+        verify(commentCreatedEventPublisher, times(1)).publishEvent(
+                new CommentCreatedEvent(SimplePostDto.toDto(targetPost), result)
+        );
     }
 
     private Post createPost(Long id, Member writer) {

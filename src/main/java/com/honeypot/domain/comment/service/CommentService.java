@@ -9,8 +9,10 @@ import com.honeypot.domain.comment.dto.CommentUploadRequest;
 import com.honeypot.domain.comment.entity.Comment;
 import com.honeypot.domain.comment.mapper.CommentMapper;
 import com.honeypot.domain.comment.repository.CommentRepository;
+import com.honeypot.domain.member.dto.WriterDto;
 import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.member.service.MemberFindService;
+import com.honeypot.domain.post.dto.SimplePostDto;
 import com.honeypot.domain.post.entity.Post;
 import com.honeypot.domain.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -79,7 +81,7 @@ public class CommentService {
         result.getWriter().setNickname(writer.getNickname());
 
         // Async tasks
-        commentCreatedEventPublisher.publishEvent(new CommentCreatedEvent(post, result));
+        commentCreatedEventPublisher.publishEvent(new CommentCreatedEvent(SimplePostDto.toDto(post), result));
 
         return result;
     }
