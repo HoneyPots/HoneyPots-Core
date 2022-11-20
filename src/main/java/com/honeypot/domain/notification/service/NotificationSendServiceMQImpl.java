@@ -2,13 +2,10 @@ package com.honeypot.domain.notification.service;
 
 import com.honeypot.common.event.CommentCreatedEvent;
 import com.honeypot.common.event.ReactionCreatedEvent;
-import com.honeypot.domain.notification.dto.NotificationData;
-import com.honeypot.domain.notification.dto.NotificationResource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -34,11 +31,6 @@ public class NotificationSendServiceMQImpl implements NotificationSendService {
         this.commentCreatedEventKey = commentCreatedEventKey;
         this.reactionCreatedEventKey = reactionCreatedEventKey;
         this.rabbitTemplate = rabbitTemplate;
-    }
-
-    @Async
-    public <T extends NotificationResource> void send(Long memberId, NotificationData<T> data) {
-        // no-op
     }
 
     @Override
