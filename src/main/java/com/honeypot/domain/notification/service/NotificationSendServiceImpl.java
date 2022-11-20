@@ -8,6 +8,8 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
+import com.honeypot.common.event.CommentCreatedEvent;
+import com.honeypot.common.event.ReactionCreatedEvent;
 import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.member.service.MemberFindService;
 import com.honeypot.domain.notification.dto.NotificationData;
@@ -113,6 +115,16 @@ public class NotificationSendServiceImpl implements NotificationSendService {
                 .toList();
 
         send(tokenList, data);
+    }
+
+    @Override
+    public void send(CommentCreatedEvent commentCreatedEvent) {
+        // no-op
+    }
+
+    @Override
+    public void send(ReactionCreatedEvent reactionCreatedEvent) {
+        // no-op
     }
 
     private <T extends NotificationResource> Message message(String token, NotificationData<T> data) {
