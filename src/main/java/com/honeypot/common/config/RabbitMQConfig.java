@@ -17,19 +17,27 @@ public class RabbitMQConfig {
 
     private final String exchangeName;
 
-    private final String queueName;
+    private final String commentQueue;
 
-    private final String routingKey;
+    private final String reactionQueue;
+
+    private final String commentRoutingKey;
+
+    private final String reactionRoutingKey;
 
     private final ObjectMapper objectMapper;
 
     public RabbitMQConfig(@Value("${notification.exchange-name}") String exchangeName,
-                          @Value("${notification.queue-name}") String queueName,
-                          @Value("${notification.routing-key}") String routingKey,
+                          @Value("${notification.queue-name.comment}") String commentQueue,
+                          @Value("${notification.queue-name.reaction}") String reactionQueue,
+                          @Value("${notification.routing-key.comment}") String commentRoutingKey,
+                          @Value("${notification.routing-key.reaction}") String reactionRoutingKey,
                           ObjectMapper objectMapper) {
         this.exchangeName = exchangeName;
-        this.queueName = queueName;
-        this.routingKey = routingKey;
+        this.commentQueue = commentQueue;
+        this.reactionQueue = reactionQueue;
+        this.commentRoutingKey = commentRoutingKey;
+        this.reactionRoutingKey = reactionRoutingKey;
         this.objectMapper = objectMapper;
     }
 
@@ -39,13 +47,23 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    Queue queue() {
-        return new Queue(queueName);
+    Queue commentQueue() {
+        return new Queue(commentQueue);
     }
 
     @Bean
-    Binding binding(Queue queue, TopicExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(routingKey);
+    Queue reactionQueue() {
+        return new Queue(reactionQueue);
+    }
+
+    @Bean
+    Binding bindingA(Queue commentQueue, TopicExchange exchange) {
+        return BindingBuilder.bind(commentQueue).to(exchange).with(commentRoutingKey);
+    }
+
+    @Bean
+    Binding bindingB(Queue reactionQueue, TopicExchange exchange) {
+        return BindingBuilder.bind(reactionQueue).to(exchange).with(reactionRoutingKey);
     }
 
     @Bean
