@@ -1,5 +1,6 @@
 package com.honeypot.common.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
@@ -17,16 +18,20 @@ public class RabbitMQConfig {
     private final String exchangeName;
 
     private final String queueName;
+
     private final String routingKey;
 
-    public RabbitMQConfig(@Value("notification.exchange-name") String exchangeName,
-                          @Value("notification.queue-name") String queueName,
-                          @Value("notification.routing-key") String routingKey) {
+    private final ObjectMapper objectMapper;
+
+    public RabbitMQConfig(@Value("${notification.exchange-name}") String exchangeName,
+                          @Value("${notification.queue-name}") String queueName,
+                          @Value("${notification.routing-key}") String routingKey,
+                          ObjectMapper objectMapper) {
         this.exchangeName = exchangeName;
         this.queueName = queueName;
         this.routingKey = routingKey;
+        this.objectMapper = objectMapper;
     }
-
 
     @Bean
     TopicExchange exchange() {
@@ -46,7 +51,7 @@ public class RabbitMQConfig {
     @Bean
     RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-        rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter());
+        rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter(objectMapper));
         return rabbitTemplate;
     }
 
