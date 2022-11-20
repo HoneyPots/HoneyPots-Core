@@ -1,7 +1,7 @@
 package com.honeypot.domain.comment.service;
 
+import com.honeypot.common.event.ApplicationEventPublisher;
 import com.honeypot.common.event.CommentCreatedEvent;
-import com.honeypot.common.event.CommentCreatedEventPublisher;
 import com.honeypot.domain.comment.dto.CommentDto;
 import com.honeypot.domain.comment.dto.CommentUploadRequest;
 import com.honeypot.domain.comment.entity.Comment;
@@ -48,12 +48,12 @@ class CommentServiceTest {
     private CommentService commentService;
 
     @Mock
-    private CommentCreatedEventPublisher commentCreatedEventPublisher;
+    private ApplicationEventPublisher eventPublisher;
 
     @BeforeEach
     private void before() {
         this.commentService = new CommentService(commentMapperMock, commentRepository,
-                postRepository, memberFindService, commentCreatedEventPublisher);
+                postRepository, memberFindService, eventPublisher);
     }
 
     @Test
@@ -84,7 +84,7 @@ class CommentServiceTest {
 
         // Assert
         assertEquals(expected, result);
-        verify(commentCreatedEventPublisher, times(1)).publishEvent(
+        verify(eventPublisher, times(1)).publishEvent(
                 new CommentCreatedEvent(SimplePostDto.toDto(targetPost), result)
         );
     }

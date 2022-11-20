@@ -1,7 +1,7 @@
 package com.honeypot.domain.reaction.service;
 
+import com.honeypot.common.event.ApplicationEventPublisher;
 import com.honeypot.common.event.ReactionCreatedEvent;
-import com.honeypot.common.event.ReactionCreatedEventPublisher;
 import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.member.service.MemberFindService;
 import com.honeypot.domain.post.dto.SimplePostDto;
@@ -47,7 +47,7 @@ class PostReactionServiceTest {
     private MemberFindService memberFindService;
 
     @Mock
-    private ReactionCreatedEventPublisher reactionCreatedEventPublisher;
+    private ApplicationEventPublisher eventPublisher;
 
     private PostReactionService postReactionService;
 
@@ -58,7 +58,7 @@ class PostReactionServiceTest {
                 postRepository,
                 postReactionRepository,
                 memberFindService,
-                reactionCreatedEventPublisher
+                eventPublisher
         );
     }
 
@@ -134,7 +134,7 @@ class PostReactionServiceTest {
                                         ReactionDto createdReaction,
                                         VerificationMode verificationMode
     ) {
-        verify(reactionCreatedEventPublisher, verificationMode).publishEvent(
+        verify(eventPublisher, verificationMode).publishEvent(
                 new ReactionCreatedEvent(SimplePostDto.toDto(targetPost), createdReaction)
         );
     }

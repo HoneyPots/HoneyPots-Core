@@ -1,7 +1,7 @@
 package com.honeypot.domain.reaction.service;
 
+import com.honeypot.common.event.ApplicationEventPublisher;
 import com.honeypot.common.event.ReactionCreatedEvent;
-import com.honeypot.common.event.ReactionCreatedEventPublisher;
 import com.honeypot.common.model.exceptions.InvalidAuthorizationException;
 import com.honeypot.common.validation.groups.InsertContext;
 import com.honeypot.domain.member.entity.Member;
@@ -39,7 +39,7 @@ public class PostReactionService {
 
     private final MemberFindService memberFindService;
 
-    private final ReactionCreatedEventPublisher reactionCreatedEventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public ReactionDto find(@NotNull Long reactionId) {
@@ -82,7 +82,7 @@ public class PostReactionService {
         result.getReactor().setNickname(reactor.getNickname());
 
         // Async tasks
-        reactionCreatedEventPublisher.publishEvent(new ReactionCreatedEvent(SimplePostDto.toDto(targetPost), result));
+        eventPublisher.publishEvent(new ReactionCreatedEvent(SimplePostDto.toDto(targetPost), result));
 
         return result;
     }

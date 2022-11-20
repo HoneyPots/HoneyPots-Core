@@ -1,17 +1,13 @@
-package com.honeypot.domain.notification.service;
+package com.honeypot.common.event;
 
-import com.honeypot.common.event.CommentCreatedEvent;
-import com.honeypot.common.event.ReactionCreatedEvent;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Service;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
 
-@Slf4j
-@Primary
-@Service
-public class NotificationSendServiceMQImpl implements NotificationSendService {
+@Component
+public class ApplicationEventListener {
 
     private final String exchangeName;
 
@@ -21,7 +17,7 @@ public class NotificationSendServiceMQImpl implements NotificationSendService {
 
     private final RabbitTemplate rabbitTemplate;
 
-    public NotificationSendServiceMQImpl(
+    public ApplicationEventListener(
             @Value("${notification.exchange-name}") String exchangeName,
             @Value("${notification.routing-key.comment}") String commentCreatedEventKey,
             @Value("${notification.routing-key.reaction}") String reactionCreatedEventKey,
@@ -33,14 +29,16 @@ public class NotificationSendServiceMQImpl implements NotificationSendService {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    @Override
-    public void send(CommentCreatedEvent commentCreatedEvent) {
-        rabbitTemplate.convertAndSend(exchangeName, commentCreatedEventKey, commentCreatedEvent);
+    @Async
+    @EventListener
+    public void listenCommentCreatedEvent(CommentCreatedEvent event) {
+        rabbitTemplate.convertAndSend(exchangeName, commentCreatedEventKey, event);
     }
 
-    @Override
-    public void send(ReactionCreatedEvent reactionCreatedEvent) {
-        rabbitTemplate.convertAndSend(exchangeName, reactionCreatedEventKey, reactionCreatedEvent);
+    @Async
+    @EventListener
+    public void listenReactionCreatedEvent(ReactionCreatedEvent event) {
+        rabbitTemplate.convertAndSend(exchangeName, reactionCreatedEventKey, event);
     }
 
 }
