@@ -1,7 +1,7 @@
 package com.honeypot.domain.comment.service;
 
+import com.honeypot.common.event.ApplicationEventPublisher;
 import com.honeypot.common.event.CommentCreatedEvent;
-import com.honeypot.common.event.CommentCreatedEventPublisher;
 import com.honeypot.common.model.exceptions.InvalidAuthorizationException;
 import com.honeypot.common.validation.groups.InsertContext;
 import com.honeypot.domain.comment.dto.CommentDto;
@@ -11,6 +11,7 @@ import com.honeypot.domain.comment.mapper.CommentMapper;
 import com.honeypot.domain.comment.repository.CommentRepository;
 import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.member.service.MemberFindService;
+import com.honeypot.domain.post.dto.SimplePostDto;
 import com.honeypot.domain.post.entity.Post;
 import com.honeypot.domain.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +39,7 @@ public class CommentService {
 
     private final MemberFindService memberFindService;
 
-    private final CommentCreatedEventPublisher commentCreatedEventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public Page<CommentDto> pageList(@NotNull Long postId, Pageable pageable) {
@@ -79,7 +80,7 @@ public class CommentService {
         result.getWriter().setNickname(writer.getNickname());
 
         // Async tasks
-        commentCreatedEventPublisher.publishEvent(new CommentCreatedEvent(post, result));
+        eventPublisher.publishEvent(new CommentCreatedEvent(SimplePostDto.toDto(post), result));
 
         return result;
     }

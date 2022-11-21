@@ -1,5 +1,6 @@
 package com.honeypot.common.event;
 
+import com.honeypot.domain.post.dto.SimplePostDto;
 import com.honeypot.domain.post.entity.Post;
 import com.honeypot.domain.reaction.dto.ReactionDto;
 import lombok.EqualsAndHashCode;
@@ -11,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ReactionCreatedEvent {
 
-    private final Post targetPost;
+    private final SimplePostDto targetPost;
 
     private final ReactionDto createdReaction;
 
