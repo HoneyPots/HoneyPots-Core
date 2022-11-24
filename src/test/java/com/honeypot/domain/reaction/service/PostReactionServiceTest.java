@@ -1,12 +1,10 @@
 package com.honeypot.domain.reaction.service;
 
+import com.honeypot.common.event.ApplicationEventPublisher;
+import com.honeypot.common.event.ReactionCreatedEvent;
 import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.member.service.MemberFindService;
-import com.honeypot.domain.notification.dto.NotificationData;
-import com.honeypot.domain.notification.dto.PostNotificationResource;
-import com.honeypot.domain.notification.dto.ReactionNotificationResource;
-import com.honeypot.domain.notification.entity.enums.NotificationType;
-import com.honeypot.domain.notification.service.NotificationSendService;
+import com.honeypot.domain.post.dto.SimplePostDto;
 import com.honeypot.domain.post.entity.Post;
 import com.honeypot.domain.post.repository.PostRepository;
 import com.honeypot.domain.reaction.dto.ReactionDto;
@@ -34,8 +32,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 class PostReactionServiceTest {
 
-    private static final String MESSAGE_LIKE_REACTION_TO_POST = "'%s'님이 게시글을 좋아합니다.";
-
     private final ReactionMapper reactionMapper = Mappers.getMapper(ReactionMapper.class);
 
     @Mock
@@ -51,7 +47,7 @@ class PostReactionServiceTest {
     private MemberFindService memberFindService;
 
     @Mock
-    private NotificationSendService notificationSendService;
+    private ApplicationEventPublisher eventPublisher;
 
     private PostReactionService postReactionService;
 
@@ -62,62 +58,13 @@ class PostReactionServiceTest {
                 postRepository,
                 postReactionRepository,
                 memberFindService,
-                notificationSendService
+                eventPublisher
         );
     }
 
     @Test
-    @DisplayName("게시글 작성자와 리액터가 같으며, 푸시 알림 미전송 확인")
-    void save_PostWriterEqualsToReactor_NewReaction() {
-        // Arrange
-        Member reactor = Member.builder().id(999L).nickname("ReactorAndPostWriter").build();
-        Post targetPost = createPost(1231L, reactor);
-
-        ReactionRequest request = createPostLikeReactionRequest(reactor.getId(), targetPost.getId());
-        PostReaction created = createPostReactionFromReactionRequest(1213L, request);
-
-        ReactionDto expected = mockingPostReactionNotExists(request, reactor, targetPost, created);
-
-        // Act
-        ReactionDto result = postReactionService.save(request);
-
-        // Assert
-        assertEquals(expected, result);
-        verifyNotificationSend(targetPost, result, never());
-    }
-
-    @Test
-    @DisplayName("게시글 작성자와 리액터가 다르며 기존 리액션이 있을 경우, 푸시 알림 미전송 확인")
-    void save_PostWriterIsNotEqualsToReactor_ReactionAlreadyExists() {
-        // Arrange
-        Member reactor = Member.builder().id(999L).nickname("reactor").build();
-        Member postWriter = Member.builder().id(92L).nickname("postWriter").build();
-        Post targetPost = createPost(142L, postWriter);
-
-        ReactionRequest request = createPostLikeReactionRequest(reactor.getId(), targetPost.getId());
-        PostReaction existed = createPostReactionFromReactionRequest(5555L, request);
-
-        when(postRepository.findById(request.getTargetId())).thenReturn(Optional.of(targetPost));
-        when(postReactionRepository.findByReactorIdAndPostId(request.getReactorId(), targetPost.getId()))
-                .thenReturn(Optional.of(existed));
-
-        when(memberFindService.findById(existed.getReactor().getId())).thenReturn(Optional.of(reactor));
-
-        ReactionDto expected = reactionMapper.toDto(existed);
-        when(reactionMapperMock.toDto(existed)).thenReturn(expected);
-        expected.getReactor().setNickname(reactor.getNickname());
-
-        // Act
-        ReactionDto result = postReactionService.save(request);
-
-        // Assert
-        assertEquals(expected, result);
-        verifyNotificationSend(targetPost, result, never());
-    }
-
-    @Test
-    @DisplayName("게시글 작성자와 리액터가 다르며 기존 리액션이 없을 경우, 푸시 알림 전송 확인")
-    void save_PostWriterIsNotEqualsToReactor_NewReaction() {
+    @DisplayName("게시글에 좋아요 리액션 발생 시, 이벤트 발행 확인")
+    void save_PublishReactionCreatedEvent() {
         // Arrange
         Member reactor = Member.builder().id(999L).nickname("reactor").build();
         Member postWriter = Member.builder().id(92L).nickname("postWriter").build();
@@ -187,25 +134,8 @@ class PostReactionServiceTest {
                                         ReactionDto createdReaction,
                                         VerificationMode verificationMode
     ) {
-        ReactionNotificationResource resource = ReactionNotificationResource.builder()
-                .postResource(PostNotificationResource.builder()
-                        .id(targetPost.getId())
-                        .type(targetPost.getType())
-                        .writer(targetPost.getWriter().getNickname())
-                        .build())
-                .reactionId(createdReaction.getReactionId())
-                .reactionType(createdReaction.getReactionType())
-                .reactor(createdReaction.getReactor().getNickname())
-                .build();
-
-        verify(notificationSendService, verificationMode).send(
-                targetPost.getWriter().getId(),
-                NotificationData.<ReactionNotificationResource>builder()
-                        .type(NotificationType.LIKE_REACTION_TO_POST)
-                        .titleMessage(String.format(MESSAGE_LIKE_REACTION_TO_POST, createdReaction.getReactor().getNickname()))
-                        .contentMessage(targetPost.getTitle())
-                        .resource(resource)
-                        .build()
+        verify(eventPublisher, verificationMode).publishEvent(
+                new ReactionCreatedEvent(SimplePostDto.toDto(targetPost), createdReaction)
         );
     }
 

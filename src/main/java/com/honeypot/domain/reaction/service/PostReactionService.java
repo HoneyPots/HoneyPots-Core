@@ -1,14 +1,12 @@
 package com.honeypot.domain.reaction.service;
 
+import com.honeypot.common.event.ApplicationEventPublisher;
+import com.honeypot.common.event.ReactionCreatedEvent;
 import com.honeypot.common.model.exceptions.InvalidAuthorizationException;
 import com.honeypot.common.validation.groups.InsertContext;
 import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.member.service.MemberFindService;
-import com.honeypot.domain.notification.dto.NotificationData;
-import com.honeypot.domain.notification.dto.PostNotificationResource;
-import com.honeypot.domain.notification.dto.ReactionNotificationResource;
-import com.honeypot.domain.notification.entity.enums.NotificationType;
-import com.honeypot.domain.notification.service.NotificationSendService;
+import com.honeypot.domain.post.dto.SimplePostDto;
 import com.honeypot.domain.post.entity.Post;
 import com.honeypot.domain.post.repository.PostRepository;
 import com.honeypot.domain.reaction.dto.ReactionDto;
@@ -33,8 +31,6 @@ import java.util.Optional;
 @Validated
 public class PostReactionService {
 
-    private static final String MESSAGE_LIKE_REACTION_TO_POST = "'%s'님이 게시글을 좋아합니다.";
-
     private final ReactionMapper reactionMapper;
 
     private final PostRepository postRepository;
@@ -43,7 +39,7 @@ public class PostReactionService {
 
     private final MemberFindService memberFindService;
 
-    private final NotificationSendService notificationSendService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public ReactionDto find(@NotNull Long reactionId) {
@@ -86,31 +82,7 @@ public class PostReactionService {
         result.getReactor().setNickname(reactor.getNickname());
 
         // Async tasks
-        Long targetPostWriterId = targetPost.getWriter().getId();
-        if (!request.getReactorId().equals(targetPostWriterId) && !alreadyExists) {
-            ReactionNotificationResource resource = ReactionNotificationResource.builder()
-                    .postResource(PostNotificationResource.builder()
-                            .id(targetPost.getId())
-                            .type(targetPost.getType())
-                            .writer(targetPost.getWriter().getNickname())
-                            .build())
-                    .reactionId(result.getReactionId())
-                    .reactionType(request.getReactionType())
-                    .reactor(reactor.getNickname())
-                    .build();
-
-            String postTitle = targetPost.getTitle();
-            String contentMessage = postTitle.substring(0, Math.min(postTitle.length(), 100));
-            notificationSendService.send(
-                    targetPostWriterId,
-                    NotificationData.<ReactionNotificationResource>builder()
-                            .type(NotificationType.LIKE_REACTION_TO_POST)
-                            .titleMessage(String.format(MESSAGE_LIKE_REACTION_TO_POST, reactor.getNickname()))
-                            .contentMessage(contentMessage)
-                            .resource(resource)
-                            .build()
-            );
-        }
+        eventPublisher.publishEvent(new ReactionCreatedEvent(SimplePostDto.toDto(targetPost), result));
 
         return result;
     }
