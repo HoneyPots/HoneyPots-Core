@@ -41,7 +41,7 @@ class GroupBuyingPostMapperTest {
     void toEntity() {
         // Arrange
         WriterDto writerDto = WriterDto.builder()
-                .id(1)
+                .id(1L)
                 .nickname("nickname")
                 .build();
         List<AttachedFileResponse> attachedFileResponses = new ArrayList<>();

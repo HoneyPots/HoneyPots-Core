@@ -7,7 +7,7 @@ import lombok.Data;
 @Builder
 public class ReactorDto {
 
-    private long id;
+    private Long id;
 
     private String nickname;
 

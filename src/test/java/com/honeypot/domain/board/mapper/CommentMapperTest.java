@@ -26,7 +26,7 @@ class CommentMapperTest {
                 .postId(1)
                 .content("content")
                 .writer(WriterDto.builder()
-                        .id(1)
+                        .id(1L)
                         .nickname("nickname")
                         .build())
                 .createdAt(createdAt)
