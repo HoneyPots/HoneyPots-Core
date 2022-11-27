@@ -59,6 +59,9 @@ dependencies {
     // Awaitility
     testImplementation 'org.awaitility:awaitility:4.2.0'
 
+    // Reactor-test
+    testImplementation 'io.projectreactor:reactor-test:3.4.24'
+
     // Mapstruct & Lombok
     implementation 'org.mapstruct:mapstruct:1.5.1.Final'
     compileOnly 'org.projectlombok:lombok'
