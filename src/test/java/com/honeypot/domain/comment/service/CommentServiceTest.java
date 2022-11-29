@@ -8,6 +8,7 @@ import com.honeypot.domain.comment.entity.Comment;
 import com.honeypot.domain.comment.mapper.CommentMapper;
 import com.honeypot.domain.comment.repository.CommentRepository;
 import com.honeypot.domain.member.entity.Member;
+import com.honeypot.domain.member.mapper.MemberMapper;
 import com.honeypot.domain.member.service.MemberFindService;
 import com.honeypot.domain.post.dto.SimplePostDto;
 import com.honeypot.domain.post.entity.Post;
@@ -31,6 +32,8 @@ import static org.mockito.Mockito.*;
 class CommentServiceTest {
 
     private final CommentMapper commentMapper = Mappers.getMapper(CommentMapper.class);
+
+    private final MemberMapper memberMapper = Mappers.getMapper(MemberMapper.class);
 
     @Mock
     private CommentMapper commentMapperMock;
@@ -75,7 +78,8 @@ class CommentServiceTest {
         when(postRepository.findById(request.getPostId())).thenReturn(Optional.of(targetPost));
         when(commentMapperMock.toEntity(request)).thenReturn(uploadCommentMock);
         when(commentRepository.save(uploadCommentMock)).thenReturn(created);
-        when(memberFindService.findById(created.getWriter().getId())).thenReturn(Optional.of(commentWriter));
+        when(memberFindService.findById(created.getWriter().getId()))
+                .thenReturn(Optional.ofNullable(memberMapper.toDto(commentWriter)));
         CommentDto expected = commentMapper.toDto(created);
         when(commentMapperMock.toDto(created)).thenReturn(expected);
 

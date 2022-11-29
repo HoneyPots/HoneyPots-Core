@@ -3,6 +3,7 @@ package com.honeypot.domain.reaction.service;
 import com.honeypot.common.event.ApplicationEventPublisher;
 import com.honeypot.common.event.ReactionCreatedEvent;
 import com.honeypot.domain.member.entity.Member;
+import com.honeypot.domain.member.mapper.MemberMapper;
 import com.honeypot.domain.member.service.MemberFindService;
 import com.honeypot.domain.post.dto.SimplePostDto;
 import com.honeypot.domain.post.entity.Post;
@@ -33,6 +34,8 @@ import static org.mockito.Mockito.*;
 class PostReactionServiceTest {
 
     private final ReactionMapper reactionMapper = Mappers.getMapper(ReactionMapper.class);
+
+    private final MemberMapper memberMapper = Mappers.getMapper(MemberMapper.class);
 
     @Mock
     private ReactionMapper reactionMapperMock;
@@ -121,7 +124,8 @@ class PostReactionServiceTest {
         PostReaction entity = reactionMapper.toPostReactionEntity(request);
         when(reactionMapperMock.toPostReactionEntity(request)).thenReturn(entity);
         when(postReactionRepository.save(entity)).thenReturn(created);
-        when(memberFindService.findById(created.getReactor().getId())).thenReturn(Optional.of(reactor));
+        when(memberFindService.findById(created.getReactor().getId()))
+                .thenReturn(Optional.of(memberMapper.toDto(reactor)));
 
         ReactionDto expected = reactionMapper.toDto(created);
         when(reactionMapperMock.toDto(created)).thenReturn(expected);
