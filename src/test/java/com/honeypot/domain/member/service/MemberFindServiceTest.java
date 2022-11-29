@@ -1,6 +1,8 @@
 package com.honeypot.domain.member.service;
 
+import com.honeypot.domain.member.dto.MemberDto;
 import com.honeypot.domain.member.entity.Member;
+import com.honeypot.domain.member.mapper.MemberMapper;
 import com.honeypot.domain.member.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,11 +23,14 @@ class MemberFindServiceTest {
     @Mock
     private MemberRepository memberRepository;
 
+    @Mock
+    private MemberMapper memberMapperMock;
+
     private MemberFindService memberFindService;
 
     @BeforeEach
     private void before() {
-        this.memberFindService = new MemberFindService(memberRepository);
+        this.memberFindService = new MemberFindService(memberRepository, memberMapperMock);
     }
 
     @Test
@@ -34,13 +39,15 @@ class MemberFindServiceTest {
         Long id = 1L;
         Member member = mock(Member.class);
         when(memberRepository.findById(id)).thenReturn(Optional.of(member));
+        MemberDto memberDto = mock(MemberDto.class);
+        when(memberMapperMock.toDto(member)).thenReturn(memberDto);
 
         // Act
-        Optional<Member> result = memberFindService.findById(id);
+        Optional<MemberDto> result = memberFindService.findById(id);
 
         // Assert
         assertTrue(result.isPresent());
-        assertEquals(member, result.get());
+        assertEquals(memberDto, result.get());
     }
 
     @Test
@@ -50,7 +57,7 @@ class MemberFindServiceTest {
         when(memberRepository.findById(id)).thenReturn(Optional.empty());
 
         // Act
-        Optional<Member> result = memberFindService.findById(id);
+        Optional<MemberDto> result = memberFindService.findById(id);
 
         // Assert
         assertFalse(result.isPresent());

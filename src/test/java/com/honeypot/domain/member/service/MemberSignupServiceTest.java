@@ -2,12 +2,15 @@ package com.honeypot.domain.member.service;
 
 import com.honeypot.domain.auth.entity.AuthProvider;
 import com.honeypot.domain.auth.entity.enums.AuthProviderType;
+import com.honeypot.domain.member.dto.MemberDto;
 import com.honeypot.domain.member.entity.Member;
 import com.honeypot.domain.member.entity.enums.Gender;
+import com.honeypot.domain.member.mapper.MemberMapper;
 import com.honeypot.domain.member.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -23,14 +26,22 @@ import static org.mockito.Mockito.when;
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 class MemberSignupServiceTest {
 
+    private final MemberMapper memberMapper = Mappers.getMapper(MemberMapper.class);
+
     @Mock
     private MemberRepository memberRepository;
+
+    @Mock
+    private MemberMapper memberMapperMock;
 
     private MemberSignupService memberSignupService;
 
     @BeforeEach
     private void before() {
-        this.memberSignupService = new MemberSignupService(memberRepository);
+        this.memberSignupService = new MemberSignupService(
+                memberRepository,
+                memberMapperMock
+        );
     }
 
     @Test
@@ -52,12 +63,15 @@ class MemberSignupServiceTest {
 
         when(memberRepository.save(any(Member.class))).thenReturn(created);
 
+        MemberDto expected = memberMapper.toDto(created);
+        when(memberMapperMock.toDto(created)).thenReturn(expected);
+
         // Act
-        Member result = memberSignupService.signup();
+        MemberDto result = memberSignupService.signup();
 
         // Assert
         assertNotNull(result);
-        assertEquals(created, result);
+        assertEquals(expected, result);
     }
 
     @Test
@@ -90,12 +104,15 @@ class MemberSignupServiceTest {
 
         when(memberRepository.save(any(Member.class))).thenReturn(created);
 
+        MemberDto expected = memberMapper.toDto(created);
+        when(memberMapperMock.toDto(created)).thenReturn(expected);
+
         // Act
-        Member result = memberSignupService.signupWithOAuth(providerMemberId, providerType, oAuthConnectDate);
+        MemberDto result = memberSignupService.signupWithOAuth(providerMemberId, providerType, oAuthConnectDate);
 
         // Assert
         assertNotNull(result);
-        assertEquals(created, result);
+        assertEquals(expected, result);
     }
 
 }

@@ -8,7 +8,7 @@ import com.honeypot.domain.auth.dto.RefreshTokenRequest;
 import com.honeypot.domain.auth.entity.enums.AuthProviderType;
 import com.honeypot.domain.auth.service.contracts.AuthTokenManagerService;
 import com.honeypot.domain.auth.service.contracts.LoginService;
-import com.honeypot.domain.member.entity.Member;
+import com.honeypot.domain.member.dto.MemberDto;
 import com.honeypot.domain.member.service.MemberFindService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -136,7 +136,7 @@ class AuthApiTest {
         String newAccessToken = "newAccessToken";
         String newRefreshToken = "newRefreshToken";
 
-        Member member = Member.builder().id(1L).nickname("nickname").build();
+        MemberDto member = MemberDto.builder().id(1L).nickname("nickname").build();
         LoginResponse loginResponse = LoginResponse.builder()
                 .memberId(member.getId())
                 .accessToken(newAccessToken)

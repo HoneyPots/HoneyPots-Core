@@ -3,7 +3,7 @@ package com.honeypot.domain.reaction.service;
 import com.honeypot.common.model.exceptions.InvalidAuthorizationException;
 import com.honeypot.common.validation.groups.InsertContext;
 import com.honeypot.domain.comment.repository.CommentRepository;
-import com.honeypot.domain.member.entity.Member;
+import com.honeypot.domain.member.dto.MemberDto;
 import com.honeypot.domain.member.service.MemberFindService;
 import com.honeypot.domain.reaction.dto.ReactionDto;
 import com.honeypot.domain.reaction.dto.ReactionRequest;
@@ -74,7 +74,7 @@ public class CommentReactionService {
         result.setAlreadyExists(alreadyExists);
 
         long reactorId = result.getReactor().getId();
-        Member reactor = memberFindService
+        MemberDto reactor = memberFindService
                 .findById(reactorId)
                 .orElseThrow(EntityNotFoundException::new);
         result.getReactor().setNickname(reactor.getNickname());

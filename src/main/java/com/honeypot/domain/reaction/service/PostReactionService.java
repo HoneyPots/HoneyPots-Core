@@ -4,7 +4,7 @@ import com.honeypot.common.event.ApplicationEventPublisher;
 import com.honeypot.common.event.ReactionCreatedEvent;
 import com.honeypot.common.model.exceptions.InvalidAuthorizationException;
 import com.honeypot.common.validation.groups.InsertContext;
-import com.honeypot.domain.member.entity.Member;
+import com.honeypot.domain.member.dto.MemberDto;
 import com.honeypot.domain.member.service.MemberFindService;
 import com.honeypot.domain.post.dto.SimplePostDto;
 import com.honeypot.domain.post.entity.Post;
@@ -78,7 +78,7 @@ public class PostReactionService {
         result.setAlreadyExists(alreadyExists);
 
         long reactorId = result.getReactor().getId();
-        Member reactor = memberFindService.findById(reactorId).orElseThrow(EntityNotFoundException::new);
+        MemberDto reactor = memberFindService.findById(reactorId).orElseThrow(EntityNotFoundException::new);
         result.getReactor().setNickname(reactor.getNickname());
 
         // Async tasks

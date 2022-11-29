@@ -9,7 +9,7 @@ import com.honeypot.domain.comment.dto.CommentUploadRequest;
 import com.honeypot.domain.comment.entity.Comment;
 import com.honeypot.domain.comment.mapper.CommentMapper;
 import com.honeypot.domain.comment.repository.CommentRepository;
-import com.honeypot.domain.member.entity.Member;
+import com.honeypot.domain.member.dto.MemberDto;
 import com.honeypot.domain.member.service.MemberFindService;
 import com.honeypot.domain.post.dto.SimplePostDto;
 import com.honeypot.domain.post.entity.Post;
@@ -72,7 +72,7 @@ public class CommentService {
         Comment created = commentRepository.save(commentMapper.toEntity(request));
 
         long writerId = created.getWriter().getId();
-        Member writer = memberFindService
+        MemberDto writer = memberFindService
                 .findById(writerId)
                 .orElseThrow(EntityNotFoundException::new);
 

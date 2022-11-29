@@ -2,7 +2,9 @@ package com.honeypot.domain.member.service;
 
 import com.honeypot.domain.auth.entity.AuthProvider;
 import com.honeypot.domain.auth.entity.enums.AuthProviderType;
+import com.honeypot.domain.member.dto.MemberDto;
 import com.honeypot.domain.member.entity.Member;
+import com.honeypot.domain.member.mapper.MemberMapper;
 import com.honeypot.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,17 +18,19 @@ public class MemberSignupService {
 
     private final MemberRepository memberRepository;
 
-    public Member signup() {
+    private final MemberMapper memberMapper;
+
+    public MemberDto signup() {
         Member member = Member.builder()
                 .nickname(createNewNickname())
                 .build();
 
-        return memberRepository.save(member);
+        return memberMapper.toDto(memberRepository.save(member));
     }
 
-    public Member signupWithOAuth(String providerMemberId,
-                                  AuthProviderType providerType,
-                                  LocalDateTime oAuthConnectDate) {
+    public MemberDto signupWithOAuth(String providerMemberId,
+                                     AuthProviderType providerType,
+                                     LocalDateTime oAuthConnectDate) {
 
         Member newMember = Member.builder()
                 .nickname(createNewNickname())
@@ -41,7 +45,7 @@ public class MemberSignupService {
 
         newMember.setAuthProvider(authProvider);
 
-        return memberRepository.save(newMember);
+        return memberMapper.toDto(memberRepository.save(newMember));
     }
 
     // TODO stub method
