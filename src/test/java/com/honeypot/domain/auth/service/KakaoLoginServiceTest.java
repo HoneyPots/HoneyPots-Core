@@ -10,9 +10,11 @@ import com.honeypot.domain.auth.repository.AuthProviderRepository;
 import com.honeypot.domain.auth.repository.KakaoAuthRepository;
 import com.honeypot.domain.auth.service.contracts.AuthTokenManagerService;
 import com.honeypot.domain.member.entity.Member;
+import com.honeypot.domain.member.mapper.MemberMapper;
 import com.honeypot.domain.member.service.MemberSignupService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -27,6 +29,8 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class KakaoLoginServiceTest {
+
+    private final MemberMapper memberMapper = Mappers.getMapper(MemberMapper.class);
 
     @Mock
     private AuthTokenManagerService authTokenManagerService;
@@ -87,7 +91,7 @@ class KakaoLoginServiceTest {
         when(memberSignupService.signupWithOAuth(providerMemberId, provider, kakaoUserInfo.getConnectedAt()))
                 .thenAnswer(invocation -> {
                     newAuthProvider.setMember(newMember);
-                    return newMember;
+                    return memberMapper.toDto(newMember);
                 });
         when(authTokenManagerService.issueAccessToken(newMember.getId())).thenReturn(accessToken);
         when(authTokenManagerService.issueRefreshToken(newMember.getId())).thenReturn(refreshToken);

@@ -79,7 +79,7 @@ class CommentServiceTest {
         when(commentMapperMock.toEntity(request)).thenReturn(uploadCommentMock);
         when(commentRepository.save(uploadCommentMock)).thenReturn(created);
         when(memberFindService.findById(created.getWriter().getId()))
-                .thenReturn(Optional.ofNullable(memberMapper.toDto(commentWriter)));
+                .thenReturn(Optional.of(memberMapper.toDto(commentWriter)));
         CommentDto expected = commentMapper.toDto(created);
         when(commentMapperMock.toDto(created)).thenReturn(expected);
 
